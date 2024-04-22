@@ -1,6 +1,6 @@
 #include <iostream>
 #include <utility>
-#include <fstream>
+#include <sstream>
 #include "Database.h"
 
 using namespace std;
@@ -96,9 +96,18 @@ void newMessageRed(string poruka = "", int line_len = -1) {
 
 //</editor-fold>
 
+vector<string> splitString(const string& input, const char& delim=' ') {
+    vector<string> tokens;
+    istringstream iss(input);
+    string token;
+    while (getline(iss, token, delim)) {
+        tokens.push_back(token);
+    }
+    return tokens;
+}
 
 Database *createNewDatabase() {
-    string databaseName, *opts, header, tableName, msg, lineStr;
+    string databaseName, *opts, menuHeader, tableName, msg;
 
     newMessage("Insert database name:");
     cout << "-> ";
@@ -107,9 +116,10 @@ Database *createNewDatabase() {
     //TODO Ask user for database format
     int opt = -1;
     while (opt != 0) {
-        header = "     Would you like to add a table to \033[35m'" + databaseName + "'\033[0m?    ";
-        opts = new string[]{header, "[1] Yes", "[0] No"};
-        newMenu(header.length() - 8, 3, opts);
+        menuHeader = "     Would you like to add a table to \033[35m'" + databaseName + "'\033[0m?    ";
+        opts = new string[]{menuHeader, "[1] Yes", "[0] No"};
+        int formula = menuHeader.length() - 8 + menuHeader.length()%2-1; // za pravilnu velicinu tabele
+        newMenu(formula, 3, opts);
         cin >> opt;
 
         if (opt == 1) {
@@ -117,40 +127,44 @@ Database *createNewDatabase() {
             cin >> tableName;
             Table* t = new Table(tableName);
 
-            ofstream outputFile(tableName + ".txt");
-            if (!outputFile.is_open()) {
-                cerr << "[ERROR] File already open!" << endl;
-                return nullptr;
-            }
             msg = "Table " + tableName + " successfully created.";
             newMessageGreen(msg);
 
-            cout << "FORMAT:" << endl;
+            cout << "FORMAT: " << endl;
             cout << "Colomn1 Colomn2 Colomn3 ... ColomnN" << endl;
             cout << "Data1 Data2 Data3 ... DataN" << endl;
             cout << "..... ..... ..... ... ....." << endl;
 
-            msg = "Insert data into " + tableName;
+            msg = "Insert header for " + tableName;
             newMessage(msg);
-            std::cin.ignore();
-            string fileContentStr;
-            while (true) {
-                getline(std::cin, lineStr);
-                if(lineStr.empty())
+            string header;
+            cin.ignore();
+            getline(std::cin, header);
+            vector<string> unos = splitString(header);
+            for(const string& u: unos) {
+                t->addHeader(u);
+            }
+            msg = "Insert data for " + tableName;
+            newMessage(msg);
+            for(const string& u: unos) {
+                cout << u << ' ';
+            }
+            cout << endl;
+
+            string row;
+            while(true) {
+                getline(std::cin, row);
+                if(row.empty())
                     break;
-                fileContentStr += lineStr + '\n';
+                cout << "LINIJA:" << row << endl;
+                Record r = Record();
+                vector<string> rowData = splitString(row);
+                for(const string& d: rowData) {
+                    r.addData(d);
+                }
+                t->addRecord(r);
             }
-            outputFile << fileContentStr;
-            outputFile.close();
-
-            string line;
-            ifstream inputFile(tableName + ".txt");
-
-            cout << "FILE CONTENT: " << endl;
-            while (getline(inputFile, line)) {
-                cout << line << endl;
-            }
-            inputFile.close();
+            cout << *t << endl;
         }
 
     }
@@ -198,25 +212,24 @@ int main() {
 //
 //    system("cls");
 //    cin >> seb;
-//    mainMenu();
-    Table t = Table("Testic");
-    t.addHeader("ID");
-    t.addHeader("Ime");
-    t.addHeader("Prezime");
-
-    Record r1 = Record();
-    r1.addData("3");
-    r1.addData("Filip");
-    r1.addData("Petrovic");
-    t.addRecord(r1);
-
-    Record r2 = Record();
-    r2.addData("4");
-    r2.addData("Jovan");
-    r2.addData("Mosurovic");
-    t.addRecord(r2);
-
-
-    cout << t << endl;
+    mainMenu();
+//    Table t = Table("Testic");
+//    t.addHeader("ID");
+//    t.addHeader("Ime");
+//    t.addHeader("Prezime");
+//
+//    Record r1 = Record();
+//    r1.addData("3");
+//    r1.addData("Filip");
+//    r1.addData("Petrovic");
+//    t.addRecord(r1);
+//
+//    Record r2 = Record();
+//    r2.addData("4");
+//    r2.addData("Jovan");
+//    r2.addData("Mosurovic");
+//    t.addRecord(r2);
+//
+//    cout << t << endl;
     return 0;
 }
