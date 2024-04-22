@@ -34,6 +34,7 @@ public:
     }
 
     friend ostream &operator<<(ostream &os, const Table &t) {
+        os << "Table " << t.name << ":" << endl;
         for (auto it = t.header.begin(); it != t.header.end(); ++it) {
             if (it != t.header.begin())
                 os << ' ';

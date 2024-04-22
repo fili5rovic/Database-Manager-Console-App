@@ -123,9 +123,11 @@ Database *createNewDatabase() {
         cin >> opt;
 
         if (opt == 1) {
+            Table t = Table(tableName);
+
+
             newMessage("Insert table name:");
             cin >> tableName;
-            Table* t = new Table(tableName);
 
             msg = "Table " + tableName + " successfully created.";
             newMessageGreen(msg);
@@ -142,7 +144,7 @@ Database *createNewDatabase() {
             getline(std::cin, header);
             vector<string> unos = splitString(header);
             for(const string& u: unos) {
-                t->addHeader(u);
+                t.addHeader(u);
             }
             msg = "Insert data for " + tableName;
             newMessage(msg);
@@ -156,15 +158,14 @@ Database *createNewDatabase() {
                 getline(std::cin, row);
                 if(row.empty())
                     break;
-                cout << "LINIJA:" << row << endl;
                 Record r = Record();
                 vector<string> rowData = splitString(row);
                 for(const string& d: rowData) {
                     r.addData(d);
                 }
-                t->addRecord(r);
+                t.addRecord(r);
             }
-            cout << *t << endl;
+            database->addTable(t);
         }
 
     }
@@ -201,35 +202,27 @@ void mainMenu() {
                 return;
         }
     }
+    if(!database) {
+        cout << "[ERROR] No database.";
+        exit(-1);
+    }
+
+    cout << *database;
     delete database;
 }
 
+Table tab() {
+    Table t = Table("Hej");
+    t.addHeader("ID");
+    t.addHeader("Ime");
+
+    return t;
+}
 
 int main() {
-
-//    int seb;
-//    cin >> seb;
-//
 //    system("cls");
-//    cin >> seb;
+
     mainMenu();
-//    Table t = Table("Testic");
-//    t.addHeader("ID");
-//    t.addHeader("Ime");
-//    t.addHeader("Prezime");
-//
-//    Record r1 = Record();
-//    r1.addData("3");
-//    r1.addData("Filip");
-//    r1.addData("Petrovic");
-//    t.addRecord(r1);
-//
-//    Record r2 = Record();
-//    r2.addData("4");
-//    r2.addData("Jovan");
-//    r2.addData("Mosurovic");
-//    t.addRecord(r2);
-//
-//    cout << t << endl;
+
     return 0;
 }
