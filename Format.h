@@ -1,0 +1,9 @@
+#ifndef PRVIPROJEKAT_FORMAT_H
+#define PRVIPROJEKAT_FORMAT_H
+
+class Format {
+
+};
+
+
+#endif //PRVIPROJEKAT_FORMAT_H

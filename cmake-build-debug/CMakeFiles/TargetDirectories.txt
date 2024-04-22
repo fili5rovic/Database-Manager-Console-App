@@ -1,0 +1,3 @@
+D:/FAKULTET/CetvrtiSemestar/POOP/PrviProjekat/cmake-build-debug/CMakeFiles/PrviProjekat.dir
+D:/FAKULTET/CetvrtiSemestar/POOP/PrviProjekat/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/FAKULTET/CetvrtiSemestar/POOP/PrviProjekat/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,9 @@
+#ifndef PRVIPROJEKAT_CONDITION_H
+#define PRVIPROJEKAT_CONDITION_H
+
+class Condition {
+
+};
+
+
+#endif //PRVIPROJEKAT_CONDITION_H
