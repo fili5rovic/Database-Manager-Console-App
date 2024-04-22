@@ -1,5 +1,6 @@
 #include <iostream>
 #include <utility>
+#include <fstream>
 #include "Database.h"
 
 using namespace std;
@@ -83,13 +84,13 @@ void newMessage(string poruka, int line_len = -1) {
 
 void newMessageGreen(string poruka, int line_len = -1) {
     cout << GREEN;
-    newMessage(std::move(poruka),line_len);
+    newMessage(std::move(poruka), line_len);
     cout << RESET;
 }
 
 void newMessageRed(string poruka = "", int line_len = -1) {
     cout << RED;
-    newMessage(std::move(poruka),line_len);
+    newMessage(std::move(poruka), line_len);
     cout << RESET;
 }
 
@@ -97,25 +98,65 @@ void newMessageRed(string poruka = "", int line_len = -1) {
 
 
 Database *createNewDatabase() {
-    string name;
+    string databaseName, *opts, header, tableName, msg, lineStr;
 
-    newMessage("Insert name for database:");
+    newMessage("Insert database name:");
     cout << "-> ";
-    cin >> name;
-    Database *database = new Database(name);
-    //TODO Format
+    cin >> databaseName;
+    Database *database = new Database(databaseName);
+    //TODO Ask user for database format
     int opt = -1;
-    while(opt != 0) {
-        newMessage("Would you like to add a table to your database?");
-        newMessage("[1] Yes");
-        newMessage("[0] No");
+    while (opt != 0) {
+        header = "     Would you like to add a table to \033[35m'" + databaseName + "'\033[0m?    ";
+        opts = new string[]{header, "[1] Yes", "[0] No"};
+        newMenu(header.length() - 8, 3, opts);
         cin >> opt;
+
+        if (opt == 1) {
+            newMessage("Insert table name:");
+            cin >> tableName;
+            Table* t = new Table(tableName);
+
+            ofstream outputFile(tableName + ".txt");
+            if (!outputFile.is_open()) {
+                cerr << "[ERROR] File already open!" << endl;
+                return nullptr;
+            }
+            msg = "Table " + tableName + " successfully created.";
+            newMessageGreen(msg);
+
+            cout << "FORMAT:" << endl;
+            cout << "Colomn1 Colomn2 Colomn3 ... ColomnN" << endl;
+            cout << "Data1 Data2 Data3 ... DataN" << endl;
+            cout << "..... ..... ..... ... ....." << endl;
+
+            msg = "Insert data into " + tableName;
+            newMessage(msg);
+            std::cin.ignore();
+            string fileContentStr;
+            while (true) {
+                getline(std::cin, lineStr);
+                if(lineStr.empty())
+                    break;
+                fileContentStr += lineStr + '\n';
+            }
+            outputFile << fileContentStr;
+            outputFile.close();
+
+            string line;
+            ifstream inputFile(tableName + ".txt");
+
+            cout << "FILE CONTENT: " << endl;
+            while (getline(inputFile, line)) {
+                cout << line << endl;
+            }
+            inputFile.close();
+        }
+
     }
+    delete[] opts;
 
-   //TODO Add Tables
-
-
-    string successfulCreation = "Database '" + name + "' successfully created.";
+    string successfulCreation = "Database '" + databaseName + "' successfully created.";
     newMessageGreen(successfulCreation);
     return database;
 }
@@ -146,8 +187,7 @@ void mainMenu() {
                 return;
         }
     }
-
-
+    delete database;
 }
 
 
@@ -158,6 +198,25 @@ int main() {
 //
 //    system("cls");
 //    cin >> seb;
-    mainMenu();
+//    mainMenu();
+    Table t = Table("Testic");
+    t.addHeader("ID");
+    t.addHeader("Ime");
+    t.addHeader("Prezime");
+
+    Record r1 = Record();
+    r1.addData("3");
+    r1.addData("Filip");
+    r1.addData("Petrovic");
+    t.addRecord(r1);
+
+    Record r2 = Record();
+    r2.addData("4");
+    r2.addData("Jovan");
+    r2.addData("Mosurovic");
+    t.addRecord(r2);
+
+
+    cout << t << endl;
     return 0;
 }
