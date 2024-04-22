@@ -2,6 +2,7 @@
 #define PRVIPROJEKAT_DATABASE_H
 
 #include <iostream>
+#include <unordered_map>
 #include "Table.h"
 using namespace std;
 
@@ -16,13 +17,14 @@ public:
     const string &getName() const;
 
     void addTable(const Table& t) {
-        tables.push_back(t);
+        tables.insert({t.getName(),t});
+//        tables.push_back(t);
     }
     friend ostream& operator<<(ostream& os, const Database& d) {
         os << "Database \033[35m" << d.name << "\033[0m:" << endl;
         os << "-----------------------" << endl;
         for(auto& table : d.tables) {
-            os << table << endl;
+            os << table.second << endl;
         }
         os << "-----------------------" << endl;
         return os;
@@ -30,7 +32,7 @@ public:
 
 private:
     string name;
-    std::vector<Table> tables;
+    unordered_map<string,Table> tables;
 };
 
 

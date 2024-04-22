@@ -47,10 +47,13 @@ public:
         os << endl;
         return os;
     }
+    const string& getName() const {
+        return this->name;
+    }
 
 
 private:
-    string name = "PLACEHOLDER";
+    string name;
     vector<Record> records;
     vector<string> header;
 
@@ -71,6 +74,7 @@ private:
     void move(Table &t) {
         this->name = t.name;
         this->records = t.records;
+        this->header = t.header;
         t.records = vector<Record>();
         t.name = "";
     }
