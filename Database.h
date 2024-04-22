@@ -19,11 +19,12 @@ public:
         tables.push_back(t);
     }
     friend ostream& operator<<(ostream& os, const Database& d) {
-        os << "Database " << d.name << ":" << endl;
-        for(const auto & table : d.tables) {
+        os << "Database \033[35m" << d.name << "\033[0m:" << endl;
+        os << "-----------------------" << endl;
+        for(auto& table : d.tables) {
             os << table << endl;
         }
-        os << endl;
+        os << "-----------------------" << endl;
         return os;
     }
 

@@ -6,7 +6,7 @@
 
 class Table {
 public:
-    Table(const string &name);
+    Table(const string &name): name(name), records(), header() {}
 
     Table(const Table &t) {
         copy(t);
@@ -34,7 +34,7 @@ public:
     }
 
     friend ostream &operator<<(ostream &os, const Table &t) {
-        os << "Table " << t.name << ":" << endl;
+        os << "Table \033[35m" << t.name << "\033[0m:" << endl;
         for (auto it = t.header.begin(); it != t.header.end(); ++it) {
             if (it != t.header.begin())
                 os << ' ';
@@ -50,12 +50,13 @@ public:
 
 
 private:
-    string name;
+    string name = "PLACEHOLDER";
     vector<Record> records;
     vector<string> header;
 
 
     void copy(const Table &t) {
+        this->name = t.name;
         this->records = vector<Record>();
         for (const Record &s: t.records) {
             this->records.push_back(s);
@@ -68,8 +69,10 @@ private:
     }
 
     void move(Table &t) {
+        this->name = t.name;
         this->records = t.records;
         t.records = vector<Record>();
+        t.name = "";
     }
 };
 

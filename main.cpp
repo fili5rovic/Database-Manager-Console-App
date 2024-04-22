@@ -75,6 +75,9 @@ void newMenu(int line_len, int strlen, string options[], int pomeraj = 7) {
 void newMessage(string poruka, int line_len = -1) {
     if (line_len == -1)
         line_len = poruka.length() + 6;
+    else
+        if(poruka.length() % 2 != 0)
+            poruka += " ";
     cout << endl;
     upperTableHeading(line_len);
     cout << verticalLine << printspace((line_len - poruka.length()) / 2) << poruka
@@ -107,7 +110,7 @@ vector<string> splitString(const string& input, const char& delim=' ') {
 }
 
 Database *createNewDatabase() {
-    string databaseName, *opts, menuHeader, tableName, msg;
+    string databaseName, *opts, menuHeader, msg;
 
     newMessage("Insert database name:");
     cout << "-> ";
@@ -116,38 +119,35 @@ Database *createNewDatabase() {
     //TODO Ask user for database format
     int opt = -1;
     while (opt != 0) {
-        menuHeader = "     Would you like to add a table to \033[35m'" + databaseName + "'\033[0m?    ";
+        menuHeader = "     Add a table to \033[35m'" + databaseName + "'\033[0m?    ";
         opts = new string[]{menuHeader, "[1] Yes", "[0] No"};
         int formula = menuHeader.length() - 8 + menuHeader.length()%2-1; // za pravilnu velicinu tabele
         newMenu(formula, 3, opts);
+        cout << "->";
         cin >> opt;
 
         if (opt == 1) {
-            Table t = Table(tableName);
-
-
             newMessage("Insert table name:");
+            cout << "->";
+            string tableName;
             cin >> tableName;
 
-            msg = "Table " + tableName + " successfully created.";
-            newMessageGreen(msg);
+            Table t = Table(tableName);
 
-            cout << "FORMAT: " << endl;
-            cout << "Colomn1 Colomn2 Colomn3 ... ColomnN" << endl;
-            cout << "Data1 Data2 Data3 ... DataN" << endl;
-            cout << "..... ..... ..... ... ....." << endl;
-
-            msg = "Insert header for " + tableName;
-            newMessage(msg);
+            msg = "     Insert columns for \033[35m" + tableName + "\033[0m    ";
+            newMessage(msg, msg.length() - 8 + msg.length()%2-1);
             string header;
             cin.ignore();
+            cout << "->";
             getline(std::cin, header);
             vector<string> unos = splitString(header);
             for(const string& u: unos) {
                 t.addHeader(u);
             }
-            msg = "Insert data for " + tableName;
-            newMessage(msg);
+
+
+            msg = "     Insert data for \033[35m" + tableName + "\033[0m    ";
+            newMessage(msg, msg.length() - 8 + msg.length()%2-1);
             for(const string& u: unos) {
                 cout << u << ' ';
             }
@@ -165,6 +165,10 @@ Database *createNewDatabase() {
                 }
                 t.addRecord(r);
             }
+
+            msg = "Table " + tableName + " successfully created.";
+            newMessageGreen(msg);
+
             database->addTable(t);
         }
 
@@ -202,26 +206,12 @@ void mainMenu() {
                 return;
         }
     }
-    if(!database) {
-        cout << "[ERROR] No database.";
-        exit(-1);
-    }
-
     cout << *database;
     delete database;
 }
 
-Table tab() {
-    Table t = Table("Hej");
-    t.addHeader("ID");
-    t.addHeader("Ime");
-
-    return t;
-}
-
 int main() {
 //    system("cls");
-
     mainMenu();
 
     return 0;
