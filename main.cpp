@@ -3,6 +3,7 @@
 #include <sstream>
 #include "Database.h"
 #include "QueryEditor.h"
+#include <vector>
 
 using namespace std;
 
@@ -21,7 +22,7 @@ const char middleDown = '\xC2';
 const char middleUp = '\xC1';
 const string RED = "\033[31m";
 const string GREEN = "\033[32m";
-const string PURPLE = "\033[35m";
+const string GRAY = "\033[37m";
 const string RESET = "\033[0m";
 const string BOLD = "\033[1m";
 
@@ -113,7 +114,7 @@ Database *createNewDatabaseMenu() {
     string databaseName, *opts, menuHeader, msg;
 
     newMessage("Insert database name:");
-    cout << "-> ";
+    cout << GRAY << "-> " << RESET;
     cin >> databaseName;
     Database *database = new Database(databaseName);
     //TODO Ask user for database format
@@ -123,12 +124,12 @@ Database *createNewDatabaseMenu() {
         opts = new string[]{menuHeader, "[1] Yes", "[0] No"};
         int formula = menuHeader.length() - 8 + menuHeader.length() % 2 - 1; // za pravilnu velicinu tabele
         newMenu(formula, 3, opts);
-        cout << "->";
+        cout << GRAY << "-> " << RESET;
         cin >> opt;
 
         if (opt == 1) {
             newMessage("Insert table name:");
-            cout << "->";
+            cout << GRAY << "-> " << RESET;
             string tableName;
             cin >> tableName;
 
@@ -138,7 +139,7 @@ Database *createNewDatabaseMenu() {
             newMessage(msg, msg.length() - 8 + msg.length() % 2 - 1);
             string header;
             cin.ignore();
-            cout << "->";
+            cout << GRAY << "-> " << RESET;
             getline(std::cin, header);
             vector<string> unos = splitString(header);
             for (const string &u: unos) {
@@ -186,6 +187,7 @@ Database *loadDatabase() {
 }
 
 void sqlQuery() {
+//    cin.ignore();
     QueryEditor::getInstance().start();
 }
 
@@ -195,7 +197,7 @@ void mainMenu() {
     string *opts = new string[]{"MAIN MENU", "[1] Create a new database", "[2] Load database", "[0] Exit"};
     while (!database) {
         newMenu(34, 4, opts, 4);
-        cout << "-> ";
+        cout << GRAY << "-> " << RESET;
         cin >> opt;
         switch (opt) {
             case 1:
@@ -219,6 +221,7 @@ void mainMenu() {
         cin >> opt;
         switch (opt) {
             case 1:
+                cin.ignore();
                 sqlQuery();
                 optionSelected = true;
                 break;
@@ -235,15 +238,10 @@ void mainMenu() {
     delete database;
 }
 
-
-#include <unistd.h>
-
 int main() {
-
-
-
-
-//    mainMenu();
-    sqlQuery();
+    mainMenu();
     return 0;
 }
+
+
+

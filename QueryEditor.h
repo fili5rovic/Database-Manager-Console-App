@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <regex>
+#include <conio.h>
 
 using namespace std;
 
@@ -22,8 +23,8 @@ public:
     QueryEditor &operator=(const QueryEditor &) = delete;
 
     void start() {
-        headerPrint();
-        getLines();
+        deleteConsoleAndPrintHeader();
+        editor();
     }
 
 private:
@@ -39,11 +40,11 @@ private:
     const string GreyBG = "\033[47m";
 
     string colorKeywords(string str) {
+        regex pattern;
         vector<string> regexStrings{"select", "from", "where"};
         vector<string> keywordReplacementStrings = vector<string>{PURPLE + "SELECT" + RESET,
                                                                   PURPLE + "FROM" + RESET,
                                                                   PURPLE + "WHERE" + RESET};
-        regex pattern;
         for (int i = 0; i < regexStrings.size(); i++) {
             pattern = regex(regexStrings[i], regex_constants::icase);
             str = regex_replace(str, pattern, keywordReplacementStrings[i]);
@@ -52,12 +53,13 @@ private:
     }
 
 
-    void headerPrint() {
+    void deleteConsoleAndPrintHeader() {
         system("cls");
         cout << GreyBG + "  SQL Query Editor                " << RedBG << " X " << RESET << endl;
     }
 
-    void getLines() {
+
+    void editor() {
         string sqlQuery;
         string line;
 
@@ -67,15 +69,16 @@ private:
         while (true) {
             cout << GRAY << to_string(++lineCounter) << RESET << "  ";
             getline(std::cin, line);
+//            line += getchar();
 
             string lineWithNum = GRAY + to_string(lineCounter) + RESET + "  " + line;
 
             lineWithLineFeed += (lineWithLineFeed.empty() ? lineWithNum : '\n' + lineWithNum);
-            headerPrint();
+            deleteConsoleAndPrintHeader();
             cout << colorKeywords(lineWithLineFeed) << endl;
             if (line.empty())
                 break;
-            sqlQuery.append(sqlQuery.empty() ? line : (" " + line));
+            sqlQuery.append(sqlQuery.empty() ? line : (" " + line) );
         }
 
         cout << "QUERY: " << sqlQuery << endl;
