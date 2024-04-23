@@ -7,8 +7,13 @@
 class Select : Statement {
 public:
 
+    bool validate() override {
+
+
+        return true;
+    }
 private:
-    Filter& filter;
+    Filter filter;
 };
 
 

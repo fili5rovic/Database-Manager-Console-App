@@ -2,6 +2,7 @@
 #include <utility>
 #include <sstream>
 #include "Database.h"
+#include "QueryEditor.h"
 
 using namespace std;
 
@@ -75,9 +76,8 @@ void newMenu(int line_len, int strlen, string options[], int pomeraj = 7) {
 void newMessage(string poruka, int line_len = -1) {
     if (line_len == -1)
         line_len = poruka.length() + 6;
-    else
-        if(poruka.length() % 2 != 0)
-            poruka += " ";
+    else if (poruka.length() % 2 != 0)
+        poruka += " ";
     cout << endl;
     upperTableHeading(line_len);
     cout << verticalLine << printspace((line_len - poruka.length()) / 2) << poruka
@@ -99,7 +99,7 @@ void newMessageRed(string poruka = "", int line_len = -1) {
 
 //</editor-fold>
 
-vector<string> splitString(const string& input, const char& delim=' ') {
+vector<string> splitString(const string &input, const char &delim = ' ') {
     vector<string> tokens;
     istringstream iss(input);
     string token;
@@ -109,7 +109,7 @@ vector<string> splitString(const string& input, const char& delim=' ') {
     return tokens;
 }
 
-Database *createNewDatabase() {
+Database *createNewDatabaseMenu() {
     string databaseName, *opts, menuHeader, msg;
 
     newMessage("Insert database name:");
@@ -121,7 +121,7 @@ Database *createNewDatabase() {
     while (opt != 0) {
         menuHeader = "     Add a table to \033[35m'" + databaseName + "'\033[0m?    ";
         opts = new string[]{menuHeader, "[1] Yes", "[0] No"};
-        int formula = menuHeader.length() - 8 + menuHeader.length()%2-1; // za pravilnu velicinu tabele
+        int formula = menuHeader.length() - 8 + menuHeader.length() % 2 - 1; // za pravilnu velicinu tabele
         newMenu(formula, 3, opts);
         cout << "->";
         cin >> opt;
@@ -135,32 +135,32 @@ Database *createNewDatabase() {
             Table t = Table(tableName);
 
             msg = "     Insert columns for \033[35m" + tableName + "\033[0m    ";
-            newMessage(msg, msg.length() - 8 + msg.length()%2-1);
+            newMessage(msg, msg.length() - 8 + msg.length() % 2 - 1);
             string header;
             cin.ignore();
             cout << "->";
             getline(std::cin, header);
             vector<string> unos = splitString(header);
-            for(const string& u: unos) {
+            for (const string &u: unos) {
                 t.addHeader(u);
             }
 
 
             msg = "     Insert data for \033[35m" + tableName + "\033[0m    ";
-            newMessage(msg, msg.length() - 8 + msg.length()%2-1);
-            for(const string& u: unos) {
+            newMessage(msg, msg.length() - 8 + msg.length() % 2 - 1);
+            for (const string &u: unos) {
                 cout << u << ' ';
             }
             cout << endl;
 
             string row;
-            while(true) {
+            while (true) {
                 getline(std::cin, row);
-                if(row.empty())
+                if (row.empty())
                     break;
                 Record r = Record();
                 vector<string> rowData = splitString(row);
-                for(const string& d: rowData) {
+                for (const string &d: rowData) {
                     r.addData(d);
                 }
                 t.addRecord(r);
@@ -185,21 +185,24 @@ Database *loadDatabase() {
     return nullptr;
 }
 
+void sqlQuery() {
+    QueryEditor::getInstance().start();
+}
+
 void mainMenu() {
-    Database *database;
+    Database *database = nullptr;
     int opt = 1;
-    while (opt) {
-        newMenu(34, 4, new string[]{"MAIN MENU", "[1] Create a new database", "[2] Load database", "[0] Exit"}, 4);
+    string *opts = new string[]{"MAIN MENU", "[1] Create a new database", "[2] Load database", "[0] Exit"};
+    while (!database) {
+        newMenu(34, 4, opts, 4);
         cout << "-> ";
         cin >> opt;
         switch (opt) {
             case 1:
-                database = createNewDatabase();
-                opt = 0;
+                database = createNewDatabaseMenu();
                 break;
             case 2:
                 database = loadDatabase();
-                opt = 0;
                 break;
             case 0:
                 newMessageGreen("Program exited successfully.");
@@ -207,12 +210,40 @@ void mainMenu() {
         }
     }
     cout << *database;
+
+
+    opts = new string[]{"MAIN MENU", "[1] SQL Query", "[2] Export database", "[0] Exit"};
+    newMenu(34, 4, opts);
+    bool optionSelected = false;
+    while (!optionSelected) {
+        cin >> opt;
+        switch (opt) {
+            case 1:
+                sqlQuery();
+                optionSelected = true;
+                break;
+            case 2:
+                //TODO: After making formats, consider exporting
+                optionSelected = true;
+                break;
+            case 0:
+                newMessageGreen("Program exited successfully.");
+                return;
+        }
+    }
+    delete[] opts;
     delete database;
 }
 
-int main() {
-//    system("cls");
-    mainMenu();
 
+#include <unistd.h>
+
+int main() {
+
+
+
+
+//    mainMenu();
+    sqlQuery();
     return 0;
 }

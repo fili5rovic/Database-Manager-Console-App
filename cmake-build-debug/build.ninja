@@ -145,6 +145,12 @@ build CMakeFiles/PrviProjekat.dir/SQLFormat.cpp.obj: CXX_COMPILER__PrviProjekat_
   OBJECT_DIR = CMakeFiles\PrviProjekat.dir
   OBJECT_FILE_DIR = CMakeFiles\PrviProjekat.dir
 
+build CMakeFiles/PrviProjekat.dir/QueryEditor.cpp.obj: CXX_COMPILER__PrviProjekat_unscanned_Debug D$:/FAKULTET/CetvrtiSemestar/POOP/PrviProjekat/QueryEditor.cpp || cmake_object_order_depends_target_PrviProjekat
+  DEP_FILE = CMakeFiles\PrviProjekat.dir\QueryEditor.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles\PrviProjekat.dir
+  OBJECT_FILE_DIR = CMakeFiles\PrviProjekat.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target PrviProjekat
@@ -153,7 +159,7 @@ build CMakeFiles/PrviProjekat.dir/SQLFormat.cpp.obj: CXX_COMPILER__PrviProjekat_
 #############################################
 # Link the executable PrviProjekat.exe
 
-build PrviProjekat.exe: CXX_EXECUTABLE_LINKER__PrviProjekat_Debug CMakeFiles/PrviProjekat.dir/main.cpp.obj CMakeFiles/PrviProjekat.dir/Statement.cpp.obj CMakeFiles/PrviProjekat.dir/Table.cpp.obj CMakeFiles/PrviProjekat.dir/Record.cpp.obj CMakeFiles/PrviProjekat.dir/Database.cpp.obj CMakeFiles/PrviProjekat.dir/Select.cpp.obj CMakeFiles/PrviProjekat.dir/Insert.cpp.obj CMakeFiles/PrviProjekat.dir/Update.cpp.obj CMakeFiles/PrviProjekat.dir/Delete.cpp.obj CMakeFiles/PrviProjekat.dir/Filter.cpp.obj CMakeFiles/PrviProjekat.dir/Condition.cpp.obj CMakeFiles/PrviProjekat.dir/Equal.cpp.obj CMakeFiles/PrviProjekat.dir/NotEqual.cpp.obj CMakeFiles/PrviProjekat.dir/Format.cpp.obj CMakeFiles/PrviProjekat.dir/CustomFormat.cpp.obj CMakeFiles/PrviProjekat.dir/SQLFormat.cpp.obj
+build PrviProjekat.exe: CXX_EXECUTABLE_LINKER__PrviProjekat_Debug CMakeFiles/PrviProjekat.dir/main.cpp.obj CMakeFiles/PrviProjekat.dir/Statement.cpp.obj CMakeFiles/PrviProjekat.dir/Table.cpp.obj CMakeFiles/PrviProjekat.dir/Record.cpp.obj CMakeFiles/PrviProjekat.dir/Database.cpp.obj CMakeFiles/PrviProjekat.dir/Select.cpp.obj CMakeFiles/PrviProjekat.dir/Insert.cpp.obj CMakeFiles/PrviProjekat.dir/Update.cpp.obj CMakeFiles/PrviProjekat.dir/Delete.cpp.obj CMakeFiles/PrviProjekat.dir/Filter.cpp.obj CMakeFiles/PrviProjekat.dir/Condition.cpp.obj CMakeFiles/PrviProjekat.dir/Equal.cpp.obj CMakeFiles/PrviProjekat.dir/NotEqual.cpp.obj CMakeFiles/PrviProjekat.dir/Format.cpp.obj CMakeFiles/PrviProjekat.dir/CustomFormat.cpp.obj CMakeFiles/PrviProjekat.dir/SQLFormat.cpp.obj CMakeFiles/PrviProjekat.dir/QueryEditor.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\PrviProjekat.dir

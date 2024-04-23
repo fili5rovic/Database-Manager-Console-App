@@ -7,8 +7,9 @@
 class Statement {
 public:
 
+    virtual bool validate() = 0;
 private:
-    Table* table;
+    Table* t;
 };
 
 
