@@ -30,6 +30,17 @@ public:
         return os;
     }
 
+
+    vector<string> getAllHeaders() const {
+        vector<string> retVector;
+        for(const auto& header: tables) {
+            for(const auto& str: header.second.getTableHeaders()) {
+                retVector.push_back(str);
+            }
+        }
+        return retVector;
+    }
+
 private:
     string name;
     unordered_map<string,Table> tables;

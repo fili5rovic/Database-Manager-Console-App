@@ -47,8 +47,14 @@ public:
         os << endl;
         return os;
     }
+
+
     const string& getName() const {
         return this->name;
+    }
+
+    const vector<string>& getTableHeaders() const {
+        return this->header;
     }
 
 

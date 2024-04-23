@@ -186,9 +186,10 @@ Database *loadDatabase() {
     return nullptr;
 }
 
-void sqlQuery() {
+void sqlQuery(Database* d) {
 //    cin.ignore();
-    QueryEditor::getInstance().start();
+    QueryEditor editor = QueryEditor(d);
+    editor.start();
 }
 
 void mainMenu() {
@@ -222,7 +223,7 @@ void mainMenu() {
         switch (opt) {
             case 1:
                 cin.ignore();
-                sqlQuery();
+                sqlQuery(database);
                 optionSelected = true;
                 break;
             case 2:
