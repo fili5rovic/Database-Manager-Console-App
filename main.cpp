@@ -1,12 +1,10 @@
 #include <iostream>
 #include <utility>
-#include <sstream>
 #include "Database.h"
 #include "QueryEditor.h"
 #include <vector>
 
 using namespace std;
-
 
 //<editor-fold desc="Ispisi">
 const char topLeftCorner = '\xDA';
@@ -133,7 +131,7 @@ Database *createNewDatabaseMenu() {
             cin.ignore();
             cout << GRAY << "-> " << RESET;
             getline(std::cin, header);
-            vector<string> unos = QueryEditor::splitString(header);
+            vector<string> unos = StringManipulator::splitString(header);
             for (const string &u: unos) {
                 t.addHeader(u);
             }
@@ -152,7 +150,7 @@ Database *createNewDatabaseMenu() {
                 if (row.empty())
                     break;
                 Record r = Record();
-                vector<string> rowData = QueryEditor::splitString(row);
+                vector<string> rowData = StringManipulator::splitString(row);
                 for (const string &d: rowData) {
                     r.addData(d);
                 }
@@ -208,23 +206,21 @@ void mainMenu() {
 
 
     opts = new string[]{"MAIN MENU", "[1] SQL Query", "[2] Export database", "[0] Exit"};
-    newMenu(34, 4, opts);
-    bool optionSelected = false;
-    while (!optionSelected) {
+    bool userWantsToQuit = false;
+    while (!userWantsToQuit) {
+        newMenu(34, 4, opts);
         cin >> opt;
         switch (opt) {
             case 1:
                 cin.ignore();
                 sqlQuery(database);
-                optionSelected = true;
                 break;
             case 2:
                 //TODO: After making formats, consider exporting
-                optionSelected = true;
                 break;
             case 0:
                 newMessageGreen("Program exited successfully.");
-                return;
+                userWantsToQuit = true;
         }
     }
     delete[] opts;

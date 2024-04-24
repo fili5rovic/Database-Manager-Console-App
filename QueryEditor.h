@@ -23,24 +23,21 @@ public:
 
     void start() {
         string inputQuery = editor();
-        removeMoreSpaces(inputQuery);
+        StringManipulator::removeMoreSpaces(inputQuery);
 
         cout << "INPUT QUERY: " << inputQuery << endl;
-
-        findOutQueryType(inputQuery);
-    }
-
-
-
-    static vector<string> splitString(const string &input, const char &delim = ' ') {
-        vector<string> tokens;
-        istringstream iss(input);
-        string token;
-        while (getline(iss, token, delim)) {
-            tokens.push_back(token);
+        try {
+            findOutQueryType(inputQuery);
+        } catch(exception& e) {
+            cout << e.what() << endl;
+            cout << "Press any key to continue..." << endl;
+            getch();
         }
-        return tokens;
     }
+
+
+
+
 
 private:
     Database *database;
@@ -124,60 +121,24 @@ private:
         return sqlQuery;
     }
 
-    void removeMoreSpaces(string &str) {
-        str.erase(std::unique(str.begin(), str.end(), [](char a, char b) {
-            return a == ' ' && b == ' ';
-        }), str.end());
-    }
 
-    void removeSpaces(string& str) {
-        string result;
-        for (char c : str) {
-            if (c != ' ') {
-                result += c;
-            }
-        }
-        str = result;
-    }
-
-    void findOutQueryType(const string& query) {
-        Statement* type;
+    // throws Errors, should be caught when being called
+    void findOutQueryType(const string& query){
+        Statement* type = nullptr;
         if(regex_match(query,regex("^\\s*select.*", regex_constants::icase))) {
-            cout << " Korisnik je hteo select upit" << endl;
-
+            cout << "User wanted select query" << endl;
             type = new Select(query);
         }
+        if(!type) {
+            throw ENoKeyWordsException("[ERROR] No keywords detected. Can't detect query.");
+        }
+        type->init();
     }
 
 
 
 
-    void handleQuery(const string& inputQuery) {
-        std::smatch matches;
-        if(regex_match(inputQuery,Select::getRegexPattern())) {
-            cout << "SELECT UPIT!" << endl;
-        }
-        if(regex_search(inputQuery,matches,Select::getRegexPattern())) {
-            cout << "SELECT UPIT yes" << endl;
-            cout << "Number of groups: " << matches.size() - 1 << endl; // Exclude the whole match
-            for (size_t i = 1; i < matches.size(); ++i) {
-                cout << "Group " << i << ": " << matches[i] << endl;
-            }
 
-
-            string argumentsStr = matches[1];
-            removeSpaces(argumentsStr);
-            string fromTable = matches[3];
-
-            vector<string> arguments = splitString(argumentsStr, ',');
-            for(const auto& str:arguments) {
-                cout << str << endl;
-            }
-
-            cout << "Table: " << fromTable << endl;
-        }
-
-    }
 };
 
 
