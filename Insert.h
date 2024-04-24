@@ -8,7 +8,7 @@
 
 #include "Statement.h"
 
-class Insert : Statement {
+class Insert : public Statement {
 
 };
 

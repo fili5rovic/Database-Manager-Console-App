@@ -7,9 +7,10 @@
 class Statement {
 public:
 
-    virtual bool validate() = 0;
 private:
     Table* t;
+
+    virtual bool validate(const string& str) = 0;
 };
 
 

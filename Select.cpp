@@ -1,5 +1,3 @@
-//
-// Created by fili5 on 19.4.2024..
-//
-
 #include "Select.h"
+
+const regex Select::regexPattern = regex(R"(^\s*select\s+((?:\w+|\*)(\s*,\s*(?:\w+|\*))*)\s+from\s+(\w+)+)", regex_constants::icase);

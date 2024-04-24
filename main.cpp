@@ -100,15 +100,7 @@ void newMessageRed(string poruka = "", int line_len = -1) {
 
 //</editor-fold>
 
-vector<string> splitString(const string &input, const char &delim = ' ') {
-    vector<string> tokens;
-    istringstream iss(input);
-    string token;
-    while (getline(iss, token, delim)) {
-        tokens.push_back(token);
-    }
-    return tokens;
-}
+
 
 Database *createNewDatabaseMenu() {
     string databaseName, *opts, menuHeader, msg;
@@ -120,7 +112,7 @@ Database *createNewDatabaseMenu() {
     //TODO Ask user for database format
     int opt = -1;
     while (opt != 0) {
-        menuHeader = "     Add a table to \033[35m'" + databaseName + "'\033[0m?    ";
+        menuHeader = "     Add new table to \033[35m'" + databaseName + "'\033[0m?    ";
         opts = new string[]{menuHeader, "[1] Yes", "[0] No"};
         int formula = menuHeader.length() - 8 + menuHeader.length() % 2 - 1; // za pravilnu velicinu tabele
         newMenu(formula, 3, opts);
@@ -141,7 +133,7 @@ Database *createNewDatabaseMenu() {
             cin.ignore();
             cout << GRAY << "-> " << RESET;
             getline(std::cin, header);
-            vector<string> unos = splitString(header);
+            vector<string> unos = QueryEditor::splitString(header);
             for (const string &u: unos) {
                 t.addHeader(u);
             }
@@ -160,7 +152,7 @@ Database *createNewDatabaseMenu() {
                 if (row.empty())
                     break;
                 Record r = Record();
-                vector<string> rowData = splitString(row);
+                vector<string> rowData = QueryEditor::splitString(row);
                 for (const string &d: rowData) {
                     r.addData(d);
                 }

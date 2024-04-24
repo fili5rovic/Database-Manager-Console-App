@@ -30,6 +30,10 @@ public:
         return os;
     }
 
+    Table& getTableByName(const string& tableName) {
+        return tables.at(tableName);
+    }
+
 
     vector<string> getAllHeaders() const {
         vector<string> retVector;

@@ -1,19 +1,27 @@
 #ifndef PRVIPROJEKAT_SELECT_H
 #define PRVIPROJEKAT_SELECT_H
 
+#include <regex>
 #include "Statement.h"
 #include "Filter.h"
 
-class Select : Statement {
+class Select : public Statement {
 public:
+    Select(const string& input) : inputQuery(input) {}
 
-    bool validate() override {
+    static const regex& getRegexPattern() {
+        return regexPattern;
+    }
 
 
+private:
+    static const regex regexPattern;
+    const string inputQuery;
+    Filter filter;
+
+    bool validate(const std::string &str) override {
         return true;
     }
-private:
-    Filter filter;
 };
 
 

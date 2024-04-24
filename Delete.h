@@ -8,7 +8,7 @@
 
 #include "Statement.h"
 
-class Delete : Statement {
+class Delete : public Statement {
 
 };
 

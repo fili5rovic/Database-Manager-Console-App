@@ -4,7 +4,7 @@
 
 #include "Statement.h"
 
-class Update : Statement {
+class Update : public Statement {
 
 };
 
