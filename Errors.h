@@ -16,9 +16,9 @@ private:
     string msg;
 };
 
-class ENoKeyWordsException : public exception {
+class EMissingKeywordsException : public exception {
 public:
-    ENoKeyWordsException(const string msg) : msg(msg) {}
+    EMissingKeywordsException(const string msg) : msg(msg) {}
 
     virtual const char * what() const noexcept override {
         return msg.c_str();
@@ -27,6 +27,31 @@ public:
 private:
     string msg;
 };
+
+class EMissingArgumentsException : public exception {
+public:
+    EMissingArgumentsException(const string msg) : msg(msg) {}
+
+    virtual const char * what() const noexcept override {
+        return msg.c_str();
+    }
+
+private:
+    string msg;
+};
+
+class ENoKeywordsException : public exception {
+public:
+    ENoKeywordsException(const string msg) : msg(msg) {}
+
+    virtual const char * what() const noexcept override {
+        return msg.c_str();
+    }
+
+private:
+    string msg;
+};
+
 
 
 

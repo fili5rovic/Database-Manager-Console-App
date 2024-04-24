@@ -29,7 +29,7 @@ public:
         try {
             findOutQueryType(inputQuery);
         } catch(exception& e) {
-            cout << e.what() << endl;
+            cout << StringManipulator::instance().REDCOLOR() << e.what() << StringManipulator::instance().RESETCOLOR() << endl;
             cout << "Press any key to continue..." << endl;
             getch();
         }
@@ -48,7 +48,8 @@ private:
         vector<string> keywordReplacementStrings;
         keywordReplacementStrings.reserve(regexStrings.size());
         for (const string &reg: regexStrings) {
-            keywordReplacementStrings.push_back(StringManipulator::getInstance().PURPLECOLOR() + reg + StringManipulator::getInstance().RESETCOLOR());
+            keywordReplacementStrings.push_back(StringManipulator::instance().PURPLECOLOR() + reg +
+                                                StringManipulator::instance().RESETCOLOR());
         }
 
         for (int i = 0; i < regexStrings.size(); i++) {
@@ -72,7 +73,8 @@ private:
 
         // replacements are the same, just added purple text to it.
         for (const auto &columnName: regexStrings) {
-            keywordReplacementStrings.push_back(StringManipulator::getInstance().CYANCOLOR() + columnName + StringManipulator::getInstance().RESETCOLOR());
+            keywordReplacementStrings.push_back(StringManipulator::instance().CYANCOLOR() + columnName +
+                                                StringManipulator::instance().RESETCOLOR());
         }
 
         for (int i = 0; i < regexStrings.size(); i++) {
@@ -86,7 +88,7 @@ private:
 
     void deleteConsoleAndPrintHeader() {
         system("cls");
-        cout << "\033[47m" << "  SQL Query Editor                " << "\033[41m" << " X " << StringManipulator::getInstance().RESETCOLOR() << endl;
+        cout << "\033[47m" << "  SQL Query Editor                " << "\033[41m" << " X " << StringManipulator::instance().RESETCOLOR() << endl;
     }
 
     string editor() {
@@ -96,10 +98,11 @@ private:
         string lineWithLineFeed;
         int lineCounter = 0;
         while (true) {
-            cout << StringManipulator::getInstance().GRAYCOLOR() << to_string(++lineCounter) << StringManipulator::getInstance().RESETCOLOR() << "  ";
+            cout << StringManipulator::instance().GRAYCOLOR() << to_string(++lineCounter) << StringManipulator::instance().RESETCOLOR() << "  ";
             getline(std::cin, line);
 
-            string lineWithNum = StringManipulator::getInstance().GRAYCOLOR() + to_string(lineCounter) + StringManipulator::getInstance().RESETCOLOR() + "  " + line;
+            string lineWithNum = StringManipulator::instance().GRAYCOLOR() + to_string(lineCounter) +
+                                 StringManipulator::instance().RESETCOLOR() + "  " + line;
 
             lineWithLineFeed += (lineWithLineFeed.empty() ? lineWithNum : '\n' + lineWithNum);
             deleteConsoleAndPrintHeader();
@@ -123,7 +126,7 @@ private:
             type = new Select(query);
         }
         if(!type) {
-            throw ENoKeyWordsException("[ERROR] No keywords detected. Can't detect query.");
+            throw ENoKeywordsException("[ERROR] No keywords detected. Can't detect query.");
         }
         type->init();
     }

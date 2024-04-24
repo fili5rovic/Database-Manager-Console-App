@@ -9,6 +9,8 @@ public:
 
     virtual void init() = 0;
 
+
+
 private:
     Table* t;
 

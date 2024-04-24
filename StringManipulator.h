@@ -30,7 +30,7 @@ private:
     const string BOLD = "\033[1m";
 public:
 
-    static StringManipulator getInstance() {
+    static StringManipulator instance() {
         static StringManipulator instance;
         return instance;
     }
@@ -50,7 +50,7 @@ public:
         return CYAN;
     }
     const string &PURPLECOLOR() const {
-        return CYAN;
+        return PURPLE;
     }
 
     const string &RESETCOLOR() const {
