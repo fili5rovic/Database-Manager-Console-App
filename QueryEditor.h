@@ -42,20 +42,13 @@ public:
 private:
     Database *database;
 
-    const string PURPLE = "\033[35m";
-    const string CYAN = "\033[36m";
-    const string RESET = "\033[0m";
-    const string GRAY = "\033[37m";
-    const string RedBG = "\033[41m";
-    const string GreyBG = "\033[47m";
-
     string colorKeywords(string str) {
         regex pattern;
         vector<string> regexStrings{"SELECT", "FROM", "WHERE", "INSERT", "INTO", "CREATE", "TABLE"};
         vector<string> keywordReplacementStrings;
         keywordReplacementStrings.reserve(regexStrings.size());
         for (const string &reg: regexStrings) {
-            keywordReplacementStrings.push_back(PURPLE + reg + RESET);
+            keywordReplacementStrings.push_back(StringManipulator::getInstance().PURPLECOLOR() + reg + StringManipulator::getInstance().RESETCOLOR());
         }
 
         for (int i = 0; i < regexStrings.size(); i++) {
@@ -79,7 +72,7 @@ private:
 
         // replacements are the same, just added purple text to it.
         for (const auto &columnName: regexStrings) {
-            keywordReplacementStrings.push_back(CYAN + columnName + RESET);
+            keywordReplacementStrings.push_back(StringManipulator::getInstance().CYANCOLOR() + columnName + StringManipulator::getInstance().RESETCOLOR());
         }
 
         for (int i = 0; i < regexStrings.size(); i++) {
@@ -93,7 +86,7 @@ private:
 
     void deleteConsoleAndPrintHeader() {
         system("cls");
-        cout << GreyBG + "  SQL Query Editor                " << RedBG << " X " << RESET << endl;
+        cout << "\033[47m" << "  SQL Query Editor                " << "\033[41m" << " X " << StringManipulator::getInstance().RESETCOLOR() << endl;
     }
 
     string editor() {
@@ -103,10 +96,10 @@ private:
         string lineWithLineFeed;
         int lineCounter = 0;
         while (true) {
-            cout << GRAY << to_string(++lineCounter) << RESET << "  ";
+            cout << StringManipulator::getInstance().GRAYCOLOR() << to_string(++lineCounter) << StringManipulator::getInstance().RESETCOLOR() << "  ";
             getline(std::cin, line);
 
-            string lineWithNum = GRAY + to_string(lineCounter) + RESET + "  " + line;
+            string lineWithNum = StringManipulator::getInstance().GRAYCOLOR() + to_string(lineCounter) + StringManipulator::getInstance().RESETCOLOR() + "  " + line;
 
             lineWithLineFeed += (lineWithLineFeed.empty() ? lineWithNum : '\n' + lineWithNum);
             deleteConsoleAndPrintHeader();

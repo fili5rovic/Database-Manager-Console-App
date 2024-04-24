@@ -24,9 +24,17 @@ private:
     const string RED = "\033[31m";
     const string GREEN = "\033[32m";
     const string GRAY = "\033[37m";
+    const string CYAN = "\033[36m";
+    const string PURPLE = "\033[35m";
     const string RESET = "\033[0m";
     const string BOLD = "\033[1m";
 public:
+
+    static StringManipulator getInstance() {
+        static StringManipulator instance;
+        return instance;
+    }
+
     const string &REDCOLOR() const {
         return RED;
     }
@@ -37,6 +45,12 @@ public:
 
     const string &GRAYCOLOR() const {
         return GRAY;
+    }
+    const string &CYANCOLOR() const {
+        return CYAN;
+    }
+    const string &PURPLECOLOR() const {
+        return CYAN;
     }
 
     const string &RESETCOLOR() const {
