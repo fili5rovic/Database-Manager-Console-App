@@ -21,7 +21,7 @@ private:
     const char intersection = '\xC5';
     const char middleDown = '\xC2';
     const char middleUp = '\xC1';
-    const string RED = "\033[31m";
+    const string RED = "\033[38;2;255;0;0m";
     const string GREEN = "\033[32m";
     const string GRAY = "\033[37m";
     const string CYAN = "\033[36m";
@@ -33,6 +33,10 @@ public:
     static StringManipulator instance() {
         static StringManipulator instance;
         return instance;
+    }
+
+    string MYCOLOR(int r, int g=0, int b=0) {
+        return "\033[38;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
     }
 
     const string &REDCOLOR() const {

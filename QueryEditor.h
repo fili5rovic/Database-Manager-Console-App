@@ -38,9 +38,14 @@ public:
     }
 
 
-
 private:
     Database *database;
+
+    const string KEYWORDCOLOR = StringManipulator::instance().MYCOLOR(255, 60, 243);
+    const string COLOMNCOLOR = StringManipulator::instance().CYANCOLOR();
+    const string TABLECOLOR = StringManipulator::instance().MYCOLOR(66, 255, 186);
+    const string RESETCOLOR = StringManipulator::instance().RESETCOLOR();
+
 
     string colorKeywords(string str) {
         regex pattern;
@@ -48,8 +53,7 @@ private:
         vector<string> keywordReplacementStrings;
         keywordReplacementStrings.reserve(regexStrings.size());
         for (const string &reg: regexStrings) {
-            keywordReplacementStrings.push_back(StringManipulator::instance().PURPLECOLOR() + reg +
-                                                StringManipulator::instance().RESETCOLOR());
+            keywordReplacementStrings.push_back(KEYWORDCOLOR + reg + RESETCOLOR);
         }
 
         for (int i = 0; i < regexStrings.size(); i++) {
@@ -59,10 +63,37 @@ private:
         return str;
     }
 
-    string colorTableColomns(string str) {
+    string colorTableColumns(string str) {
         regex pattern;
 
         vector<string> regexStrings = database->getAllHeaders();
+
+        vector<string> keywordReplacementStrings;
+        keywordReplacementStrings.reserve(regexStrings.size());
+
+        // sort from smallest to highest, so the painting works correctly
+        std::sort(regexStrings.begin(), regexStrings.end(), [](const string &a, const string &b) {
+            return a.length() > b.length();
+        });
+
+        // replacements are the same, just added color
+        for (const auto &columnName: regexStrings) {
+            keywordReplacementStrings.push_back(COLOMNCOLOR + columnName + RESETCOLOR);
+        }
+
+        for (int i = 0; i < regexStrings.size(); i++) {
+            pattern = regex(regexStrings[i], regex_constants::icase);
+            str = regex_replace(str, pattern, keywordReplacementStrings[i]);
+        }
+
+        return str;
+    }
+
+    string colorTables(string str) {
+        regex pattern;
+
+        vector<string> regexStrings = database->getAllTableNames();
+
         vector<string> keywordReplacementStrings;
         keywordReplacementStrings.reserve(regexStrings.size());
 
@@ -73,8 +104,7 @@ private:
 
         // replacements are the same, just added purple text to it.
         for (const auto &columnName: regexStrings) {
-            keywordReplacementStrings.push_back(StringManipulator::instance().CYANCOLOR() + columnName +
-                                                StringManipulator::instance().RESETCOLOR());
+            keywordReplacementStrings.push_back(TABLECOLOR + columnName + RESETCOLOR);
         }
 
         for (int i = 0; i < regexStrings.size(); i++) {
@@ -84,9 +114,6 @@ private:
 
         return str;
     }
-
-
-
 
 
     void deleteConsoleAndPrintHeader() {
@@ -112,7 +139,8 @@ private:
             lineWithLineFeed += (lineWithLineFeed.empty() ? lineWithNum : '\n' + lineWithNum);
             deleteConsoleAndPrintHeader();
             lineWithLineFeed = colorKeywords(lineWithLineFeed);
-            lineWithLineFeed = colorTableColomns(lineWithLineFeed);
+            lineWithLineFeed = colorTableColumns(lineWithLineFeed);
+            lineWithLineFeed = colorTables(lineWithLineFeed);
             cout << lineWithLineFeed << endl;
             if (line.empty())
                 break;
@@ -126,22 +154,22 @@ private:
 
     // throws Errors, should be caught when being called
     void findOutQueryType(const string &query) {
-        Statement* type = nullptr;
+        Statement *type = nullptr;
         if (regex_match(query, regex("^\\s*select.*", regex_constants::icase))) {
             cout << "User wanted select query" << endl;
 
             // from not detected
-            if(!regex_match(query,regex(".*from.*",regex_constants::icase))) {
+            if (!regex_match(query, regex(".*from.*", regex_constants::icase))) {
                 throw EMissingKeywordsException("[ERROR] No FROM keyword specified.");
             } // table name not detected
-            else if(!regex_match(query,regex(".*from\\s+\\w+$",regex_constants::icase))) {
+            else if (!regex_search(query, regex(".*from\\s+\\w+\\s*", regex_constants::icase))) {
                 throw EMissingArgumentsException("[ERROR] FROM has no arguments.");
             }
 
-            Table* tableForSelect = tryToGetTableFromQuery(query);
+            Table *tableForSelect = tryToGetTableFromQuery(query);
             // if Table* is null, bad input
-            if(!tableForSelect)
-                throw EBadArgumentsException("[ERROR] Table not found.");
+            if (!tableForSelect)
+                throw EBadArgumentsException("[ERROR] Table " + getTableNameForErrorMsg(query) + " not found.");
 
             type = new Select(query, tableForSelect);
 
@@ -152,26 +180,34 @@ private:
         type->init();
     }
 
-    Table* tryToGetTableFromQuery(const string &query) {
-        Table* table = nullptr;
+
+    const string getTableNameForErrorMsg(const string& query) {
+        std::smatch matches;
+        if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
+            return matches[1];
+        }
+        return "";
+    }
+
+    Table *tryToGetTableFromQuery(const string &query) {
+        Table *table = nullptr;
         std::smatch matches;
         vector<string> names;
         // without join
         if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
             return database->tryGettingTableByNameCaseI(matches[1]);
         }
-        // with join on
-        else if (regex_search(query, matches, regex("from\\s+(\\w+)\\s+(\\w+)\\s+(?:(?:inner\\s+)?join\\s+(\\w+)\\s+(\\w+)\\s+(?:on\\s+(?:\\w+\\.\\w+\\s*\\=\\s*\\w+\\.\\w+\\s*)))+", regex_constants::icase))) {
+            // with join on
+        else if (regex_search(query, matches,regex("from\\s+(\\w+)\\s+(\\w+)\\s+(?:(?:inner\\s+)?join\\s+(\\w+)\\s+(\\w+)\\s+(?:on\\s+(?:\\w+\\.\\w+\\s*\\=\\s*\\w+\\.\\w+\\s*)))+",
+                                    regex_constants::icase))) {
             // make a new table that's joined
         }
-        // with join using
+            // with join using
         else if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
             // make a new table that's joined
         }
         return table;
     }
-
-
 
 
 };
