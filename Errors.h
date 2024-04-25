@@ -40,6 +40,18 @@ private:
     string msg;
 };
 
+class EBadArgumentsException : public exception {
+public:
+    EBadArgumentsException(const string msg) : msg(msg) {}
+
+    virtual const char * what() const noexcept override {
+        return msg.c_str();
+    }
+
+private:
+    string msg;
+};
+
 class ENoKeywordsException : public exception {
 public:
     ENoKeywordsException(const string msg) : msg(msg) {}

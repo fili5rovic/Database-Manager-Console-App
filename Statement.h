@@ -11,10 +11,12 @@ public:
 
 
 
-private:
-    Table* t;
+protected:
+    Table* table;
 
     virtual bool validate(const string& str) = 0;
+
+    Statement(Table* table) : table(table) {}
 };
 
 

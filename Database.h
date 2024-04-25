@@ -4,6 +4,8 @@
 #include <iostream>
 #include <unordered_map>
 #include "Table.h"
+#include "StringManipulator.h"
+
 using namespace std;
 
 class Database {
@@ -30,10 +32,22 @@ public:
         return os;
     }
 
-    Table& getTableByName(const string& tableName) {
-        return tables.at(tableName);
+    Table* tryGettingTableByNameCaseI(const string& tableName){
+        for(const auto& pair : tables) {
+            if(StringManipulator::instance().caseInsensitiveStringCompare(pair.first, tableName))
+                return new Table(pair.second);
+        }
+        return nullptr;
     }
 
+    vector<string> getAllTableNames() const {
+        vector<string> retVector;
+        retVector.reserve(tables.size());
+        for(const auto& pair : tables) {
+            retVector.push_back(pair.first);
+        }
+        return retVector;
+    }
 
     vector<string> getAllHeaders() const {
         vector<string> retVector;

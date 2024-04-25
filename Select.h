@@ -11,14 +11,11 @@
 
 class Select : public Statement {
 public:
-    Select(const string& input) : inputQuery(input){}
+    Select(const string& input, Table* t) : Statement(t), inputQuery(input), filter(nullptr){}
 
-    // TODO: think how to connect database with Select without passing it.
     // FIND TABLE BEFORE INIT AND PASS IT AS AN ARGUMENT
     void init() override{
-        if(!validate(inputQuery)) {
-            cout << "Select query failed." << endl;
-        }
+        validate(inputQuery);
     }
 
     static const regex& getRegexPattern() {
@@ -29,36 +26,33 @@ public:
 private:
     static const regex regexPattern;
     const string inputQuery;
-    Filter filter;
+    Filter* filter;
 
 
-    bool validate(const std::string &str) override {
+    bool validate(const string &str) override {
+
         // multiple keywords
-        if(regex_match(str,regex(".*insert.*",regex_constants::icase))) {
-            throw EMultipleKeywordsException("[ERROR] Detected INSERT with SELECT");
-        } else if(regex_match(str,regex(".*create.*",regex_constants::icase))) {
-            throw EMultipleKeywordsException("[ERROR] Detected CREATE with SELECT");
+        if(regex_match(str,regex(".*create.*",regex_constants::icase))) {
+            throw EMultipleKeywordsException("[ERROR] CREATE with SELECT not allowed.");
         } else if(regex_match(str,regex(".*insert.*",regex_constants::icase))) {
-            throw EMultipleKeywordsException("[ERROR] Detected INSERT with SELECT");
+            throw EMultipleKeywordsException("[ERROR] INSERT with SELECT not allowed.");
         } else if(regex_match(str,regex(".*into.*",regex_constants::icase))) {
-            throw EMultipleKeywordsException("[ERROR] Detected INTO with SELECT");
+            throw EMultipleKeywordsException("[ERROR] INTO with SELECT not allowed.");
         } else if(regex_match(str,regex(".*delete.*",regex_constants::icase))) {
-            throw EMultipleKeywordsException("[ERROR] Detected DELETE with SELECT");
+            throw EMultipleKeywordsException("[ERROR] DELETE with SELECT not allowed.");
         } else if(regex_match(str,regex(".*table.*",regex_constants::icase))) {
-            throw EMultipleKeywordsException("[ERROR] Detected TABLE with SELECT");
+            throw EMultipleKeywordsException("[ERROR] TABLE with SELECT not allowed.");
+        } else if(regex_match(str,regex(".*select.*select.*",regex_constants::icase))) {
+            throw EMultipleKeywordsException("[ERROR] Multiple SELECT keywords not allowed.");
         }
+
+
         // select has no arguments
-        if(!regex_match(str,regex(".*select\\s+(?:\\w+|\\*)",regex_constants::icase))) {
+        if(!regex_search(str,regex("\\s*select\\s+(\\w+|\\*)",regex_constants::icase))) {
             throw EMissingArgumentsException("[ERROR] SELECT has no arguments.");
         }
 
-        // from not detected
-        if(!regex_match(str,regex(".*from.*",regex_constants::icase))) {
-            throw EMissingKeywordsException("[ERROR] No FROM keyword specified.");
-        } // table name not detected
-        else if(!regex_match(str,regex(".*from\\s+\\w+$",regex_constants::icase))) {
-            throw EMissingArgumentsException("[ERROR] FROM has no arguments.");
-        }
+
 
         // set table
         std::smatch matches;

@@ -22,20 +22,20 @@ public:
 
 
     void start() {
-        string inputQuery = editor();
-        StringManipulator::removeMoreSpaces(inputQuery);
-
-        cout << "INPUT QUERY: " << inputQuery << endl;
-        try {
-            findOutQueryType(inputQuery);
-        } catch(exception& e) {
-            cout << StringManipulator::instance().REDCOLOR() << e.what() << StringManipulator::instance().RESETCOLOR() << endl;
-            cout << "Press any key to continue..." << endl;
-            getch();
+        vector<string> inputQueries = editor();
+        for (auto inputQuery: inputQueries) {
+            StringManipulator::removeMoreSpaces(inputQuery);
+            cout << "INPUT QUERY: " << inputQuery << endl;
+            try {
+                findOutQueryType(inputQuery);
+            } catch (exception &e) {
+                cout << StringManipulator::instance().REDCOLOR() << e.what()
+                     << StringManipulator::instance().RESETCOLOR() << endl;
+                cout << "Press any key to continue..." << endl;
+                getch();
+            }
         }
     }
-
-
 
 
 
@@ -86,19 +86,24 @@ private:
     }
 
 
+
+
+
     void deleteConsoleAndPrintHeader() {
         system("cls");
-        cout << "\033[47m" << "  SQL Query Editor                " << "\033[41m" << " X " << StringManipulator::instance().RESETCOLOR() << endl;
+        cout << "\033[47m" << "  SQL Query Editor                " << "\033[41m" << " X "
+             << StringManipulator::instance().RESETCOLOR() << endl;
     }
 
-    string editor() {
+    vector<string> editor() {
         deleteConsoleAndPrintHeader();
         string sqlQuery;
         string line;
         string lineWithLineFeed;
         int lineCounter = 0;
         while (true) {
-            cout << StringManipulator::instance().GRAYCOLOR() << to_string(++lineCounter) << StringManipulator::instance().RESETCOLOR() << "  ";
+            cout << StringManipulator::instance().GRAYCOLOR() << to_string(++lineCounter)
+                 << StringManipulator::instance().RESETCOLOR() << "  ";
             getline(std::cin, line);
 
             string lineWithNum = StringManipulator::instance().GRAYCOLOR() + to_string(lineCounter) +
@@ -114,23 +119,57 @@ private:
             sqlQuery.append(sqlQuery.empty() ? line : (" " + line));
         }
 
-        return sqlQuery;
+        vector<string> sqlQueries = StringManipulator::splitString(sqlQuery, ';');
+        return sqlQueries;
     }
 
 
     // throws Errors, should be caught when being called
-    void findOutQueryType(const string& query){
+    void findOutQueryType(const string &query) {
         Statement* type = nullptr;
-        if(regex_match(query,regex("^\\s*select.*", regex_constants::icase))) {
+        if (regex_match(query, regex("^\\s*select.*", regex_constants::icase))) {
             cout << "User wanted select query" << endl;
-            type = new Select(query);
+
+            // from not detected
+            if(!regex_match(query,regex(".*from.*",regex_constants::icase))) {
+                throw EMissingKeywordsException("[ERROR] No FROM keyword specified.");
+            } // table name not detected
+            else if(!regex_match(query,regex(".*from\\s+\\w+$",regex_constants::icase))) {
+                throw EMissingArgumentsException("[ERROR] FROM has no arguments.");
+            }
+
+            Table* tableForSelect = tryToGetTableFromQuery(query);
+            // if Table* is null, bad input
+            if(!tableForSelect)
+                throw EBadArgumentsException("[ERROR] Table not found.");
+
+            type = new Select(query, tableForSelect);
+
         }
-        if(!type) {
+        if (!type) {
             throw ENoKeywordsException("[ERROR] No keywords detected. Can't detect query.");
         }
         type->init();
     }
 
+    Table* tryToGetTableFromQuery(const string &query) {
+        Table* table = nullptr;
+        std::smatch matches;
+        vector<string> names;
+        // without join
+        if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
+            return database->tryGettingTableByNameCaseI(matches[1]);
+        }
+        // with join on
+        else if (regex_search(query, matches, regex("from\\s+(\\w+)\\s+(\\w+)\\s+(?:(?:inner\\s+)?join\\s+(\\w+)\\s+(\\w+)\\s+(?:on\\s+(?:\\w+\\.\\w+\\s*\\=\\s*\\w+\\.\\w+\\s*)))+", regex_constants::icase))) {
+            // make a new table that's joined
+        }
+        // with join using
+        else if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
+            // make a new table that's joined
+        }
+        return table;
+    }
 
 
 
