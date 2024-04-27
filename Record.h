@@ -43,6 +43,10 @@ public:
         this->columns.push_back(col);
     }
 
+    vector<string> getData() const {
+        return this->columns;
+    }
+
 private:
     vector<string> columns;
 

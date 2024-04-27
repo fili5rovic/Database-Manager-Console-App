@@ -160,10 +160,10 @@ private:
 
             // from not detected
             if (!regex_match(query, regex(".*from.*", regex_constants::icase))) {
-                throw EMissingKeywordsException("[ERROR] No FROM keyword specified.");
+                throw EMissingKeywordsException("[SYNTAX_ERROR] No FROM keyword specified.");
             } // table name not detected
             else if (!regex_search(query, regex(".*from\\s+\\w+\\s*", regex_constants::icase))) {
-                throw EMissingArgumentsException("[ERROR] FROM has no arguments.");
+                throw EMissingArgumentsException("[SYNTAX_ERROR] FROM has no arguments.");
             }
 
             Table *tableForSelect = tryToGetTableFromQuery(query);
@@ -175,7 +175,7 @@ private:
 
         }
         if (!type) {
-            throw ENoKeywordsException("[ERROR] No keywords detected. Can't detect query.");
+            throw ENoKeywordsException("[SYNTAX_ERROR] No keywords detected. Can't detect query.");
         }
         type->init();
     }

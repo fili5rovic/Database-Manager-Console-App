@@ -16,6 +16,7 @@ public:
     // FIND TABLE BEFORE INIT AND PASS IT AS AN ARGUMENT
     void init() override{
         validate(inputQuery);
+
     }
 
     static const regex& getRegexPattern() {
@@ -29,30 +30,31 @@ private:
     Filter* filter;
 
 
-    bool validate(const string &str) override {
-
+    static void checkForSyntaxErrors(const string& str) {
         // multiple keywords
         if(regex_match(str,regex(".*create.*",regex_constants::icase))) {
-            throw EMultipleKeywordsException("[ERROR] CREATE with SELECT not allowed.");
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] CREATE with SELECT not allowed.");
         } else if(regex_match(str,regex(".*insert.*",regex_constants::icase))) {
-            throw EMultipleKeywordsException("[ERROR] INSERT with SELECT not allowed.");
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] INSERT with SELECT not allowed.");
         } else if(regex_match(str,regex(".*into.*",regex_constants::icase))) {
-            throw EMultipleKeywordsException("[ERROR] INTO with SELECT not allowed.");
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] INTO with SELECT not allowed.");
         } else if(regex_match(str,regex(".*delete.*",regex_constants::icase))) {
-            throw EMultipleKeywordsException("[ERROR] DELETE with SELECT not allowed.");
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] DELETE with SELECT not allowed.");
         } else if(regex_match(str,regex(".*table.*",regex_constants::icase))) {
-            throw EMultipleKeywordsException("[ERROR] TABLE with SELECT not allowed.");
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] TABLE with SELECT not allowed.");
         } else if(regex_match(str,regex(".*select.*select.*",regex_constants::icase))) {
-            throw EMultipleKeywordsException("[ERROR] Multiple SELECT keywords not allowed.");
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] Multiple SELECT keywords not allowed.");
         }
-
-
         // select has no arguments
-        if(!regex_search(str,regex("\\s*select\\s+(\\w+|\\*)",regex_constants::icase))) {
-            throw EMissingArgumentsException("[ERROR] SELECT has no arguments.");
+        if(regex_match(str,regex("^\\s*select\\s+(?:\\,\\s*|\\s*)*\\s*from.*",regex_constants::icase))) {
+            throw EMissingArgumentsException("[SYNTAX_ERROR] SELECT has no arguments.");
         }
+    }
 
 
+    bool validate(const string &str) override {
+
+        checkForSyntaxErrors(str);
 
         // set table
         std::smatch matches;
@@ -60,30 +62,36 @@ private:
             cout << "TABLE NAME:" << matches[1] << endl;
         }
 
+        handleQuery(str);
+
         return true;
     }
 
     void handleQuery(const string& inputQuery) {
         std::smatch matches;
-        if(regex_search(inputQuery,matches,Select::getRegexPattern())) {
-            cout << "SELECT UPIT yes" << endl;
-            cout << "Number of groups: " << matches.size() - 1 << endl; // Exclude the whole match
-            for (size_t i = 1; i < matches.size(); ++i) {
-                cout << "Group " << i << ": " << matches[i] << endl;
-            }
+//        if(regex_search(inputQuery,matches,Select::getRegexPattern())) {
+//            cout << "Number of groups: " << matches.size() - 1 << endl;
+//            for (size_t i = 1; i < matches.size(); ++i) {
+//                cout << "Group " << i << ": " << matches[i] << endl;
+//            }
+//
+//
+//            string argumentsStr = matches[1];
+//            StringManipulator::removeSpaces(argumentsStr);
+//            string fromTable = matches[3];
+//
+//            vector<string> arguments = StringManipulator::splitString(argumentsStr, ',');
+//            for(const auto& str:arguments) {
+//                cout << str << endl;
+//            }
+//
+//            cout << "Table: " << fromTable << endl;
+//        } else {
+//            cout << "THAT'S NOT SELECT" << endl;
+//        }
 
 
-            string argumentsStr = matches[1];
-            StringManipulator::removeSpaces(argumentsStr);
-            string fromTable = matches[3];
 
-            vector<string> arguments = StringManipulator::splitString(argumentsStr, ',');
-            for(const auto& str:arguments) {
-                cout << str << endl;
-            }
-
-            cout << "Table: " << fromTable << endl;
-        }
     }
 };
 

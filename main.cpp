@@ -119,6 +119,7 @@ void mainMenu() {
     bool userWantsToQuit = false;
     while (!userWantsToQuit) {
         StringManipulator::instance().newMenu(34, 4, opts);
+        cout << GRAY << "-> " << RESET;
         cin >> opt;
         switch (opt) {
             case 1:

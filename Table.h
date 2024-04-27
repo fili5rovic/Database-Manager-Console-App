@@ -33,6 +33,8 @@ public:
         header.push_back(s);
     }
 
+
+
     friend ostream &operator<<(ostream &os, const Table &t) {
         os << "Table \033[35m" << t.name << "\033[0m:" << endl;
         for (auto it = t.header.begin(); it != t.header.end(); ++it) {
@@ -57,7 +59,9 @@ public:
         return this->header;
     }
 
-
+    const vector<Record>& getTableRecords() const {
+        return this->records;
+    }
 
 
 private:
@@ -86,6 +90,9 @@ private:
         t.records = vector<Record>();
         t.name = "";
     }
+
+
+
 };
 
 
