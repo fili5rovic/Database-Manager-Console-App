@@ -46,7 +46,7 @@ private:
     const string TABLECOLOR = StringManipulator::instance().MYCOLOR(66, 255, 186);
     const string RESETCOLOR = StringManipulator::instance().RESETCOLOR();
 
-
+    
     string colorKeywords(string str) {
         regex pattern;
         vector<string> regexStrings{"SELECT", "FROM", "WHERE", "INSERT", "INTO", "CREATE", "TABLE"};
@@ -76,10 +76,12 @@ private:
             return a.length() > b.length();
         });
 
+
         // replacements are the same, just added color
         for (const auto &columnName: regexStrings) {
             keywordReplacementStrings.push_back(COLOMNCOLOR + columnName + RESETCOLOR);
         }
+
 
         for (int i = 0; i < regexStrings.size(); i++) {
             pattern = regex(regexStrings[i], regex_constants::icase);
@@ -102,10 +104,11 @@ private:
             return a.length() > b.length();
         });
 
-        // replacements are the same, just added purple text to it.
+        // replacements are the same, just added table color to it.
         for (const auto &columnName: regexStrings) {
             keywordReplacementStrings.push_back(TABLECOLOR + columnName + RESETCOLOR);
         }
+
 
         for (int i = 0; i < regexStrings.size(); i++) {
             pattern = regex(regexStrings[i], regex_constants::icase);
@@ -115,9 +118,17 @@ private:
         return str;
     }
 
+    void clearConsole() {
+#ifdef _WIN32
+        system("cls");
+#else
+        system("clear");
+#endif
+    }
+
 
     void deleteConsoleAndPrintHeader() {
-        system("cls");
+        clearConsole();
         cout << "\033[47m" << "  SQL Query Editor                " << "\033[41m" << " X "
              << StringManipulator::instance().RESETCOLOR() << endl;
     }
@@ -139,8 +150,8 @@ private:
             lineWithLineFeed += (lineWithLineFeed.empty() ? lineWithNum : '\n' + lineWithNum);
             deleteConsoleAndPrintHeader();
             lineWithLineFeed = colorKeywords(lineWithLineFeed);
-            lineWithLineFeed = colorTableColumns(lineWithLineFeed);
             lineWithLineFeed = colorTables(lineWithLineFeed);
+            lineWithLineFeed = colorTableColumns(lineWithLineFeed);
             cout << lineWithLineFeed << endl;
             if (line.empty())
                 break;
@@ -181,7 +192,7 @@ private:
     }
 
 
-    const string getTableNameForErrorMsg(const string& query) {
+    const string getTableNameForErrorMsg(const string &query) {
         std::smatch matches;
         if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
             return matches[1];
@@ -198,7 +209,8 @@ private:
             return database->tryGettingTableByNameCaseI(matches[1]);
         }
             // with join on
-        else if (regex_search(query, matches,regex("from\\s+(\\w+)\\s+(\\w+)\\s+(?:(?:inner\\s+)?join\\s+(\\w+)\\s+(\\w+)\\s+(?:on\\s+(?:\\w+\\.\\w+\\s*\\=\\s*\\w+\\.\\w+\\s*)))+",
+        else if (regex_search(query, matches,
+                              regex("from\\s+(\\w+)\\s+(\\w+)\\s+(?:(?:inner\\s+)?join\\s+(\\w+)\\s+(\\w+)\\s+(?:on\\s+(?:\\w+\\.\\w+\\s*\\=\\s*\\w+\\.\\w+\\s*)))+",
                                     regex_constants::icase))) {
             // make a new table that's joined
         }

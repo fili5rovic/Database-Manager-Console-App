@@ -176,6 +176,15 @@ public:
 
         return true;
     }
+
+    void removeSubstring(string& mainStr, const string& substr) {
+        size_t pos = mainStr.find(substr);
+        if (pos != string::npos) {
+            mainStr.erase(pos, substr.length());
+        }
+    }
+
+
 };
 
 
