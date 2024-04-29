@@ -11,16 +11,23 @@ class Filter {
 public:
 
     Filter(const Table *t, const vector<string> &selectedColumns, const string &whereArgsString) : selectedColumns(selectedColumns){
-        init(t, selectedColumns, whereArgsString);
+        init(t, whereArgsString);
     }
 
     Table* getTableWithAppliedFilter() {
-        return table;
+        this->selectedColumns = getProcessedSelectedColumns();
+
+
+        Table* finalTable = new Table(table->getName());
+
+        // todo: only print selected things
+        return finalTable;
     }
 private:
-    vector<vector<shared_ptr<Condition>>> conditions; // outer vector stores conditions seperated by OR, inner by AND
+    // outer vector stores conditions seperated by OR, inner by AND
+    vector<vector<shared_ptr<Condition>>> conditions;
     Table* table;
-    const vector<string> selectedColumns;
+    vector<string> selectedColumns;
 
     void updateTableRows() const{
         Table* tempTable;
@@ -32,6 +39,19 @@ private:
                 table->addRecord(rec);
             }
         }
+    }
+
+    vector<string> getProcessedSelectedColumns() {
+        vector<string> processedSelectedColumns;
+        processedSelectedColumns.reserve(selectedColumns.size());
+        for(const string& column : this->selectedColumns) {
+            if(column == "*") {
+                for(const string& header : table->getTableHeaders())
+                    processedSelectedColumns.push_back(header);
+            } else
+                processedSelectedColumns.push_back(column);
+        }
+        return processedSelectedColumns;
     }
 
     const string getCorrectMatch(const std::smatch& matches) const {
@@ -49,7 +69,7 @@ private:
     }
 
     // creates conditions, only called during object creation
-    void init(const Table *t, const vector<string> &selectedColumns, const string &whereArgs) {
+    void init(const Table *t, const string &whereArgs) {
         if(whereArgs.length() == 0) {
             table = new Table(*t);
             return;
