@@ -5,7 +5,10 @@
 #include "Condition.h"
 
 class Equal : Condition {
+public:
 
+
+private:
 };
 
 

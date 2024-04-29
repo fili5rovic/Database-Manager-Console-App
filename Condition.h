@@ -6,7 +6,6 @@
 class Condition {
 public:
 
-    virtual bool evaluate(const Record& record) = 0;
 private:
 
 };
