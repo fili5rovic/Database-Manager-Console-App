@@ -1,7 +1,7 @@
 #include <iostream>
-#include <utility>
 #include "Database.h"
 #include "QueryEditor.h"
+#include "Equal.h"
 #include <vector>
 
 using namespace std;
@@ -140,6 +140,23 @@ void mainMenu() {
 
 int main() {
     mainMenu();
+
+//    Table* t = new Table("Hello");
+//    t->addHeader("ID");
+//    t->addHeader("Name");
+//
+//
+//    Record r1;
+//    r1.addData("192");
+//    r1.addData("Fipi");
+//
+//    Record r2;
+//    r2.addData("589");
+//    r2.addData("Joki");
+//    t->addRecord(r1);
+//    t->addRecord(r2);
+
+
     return 0;
 
 

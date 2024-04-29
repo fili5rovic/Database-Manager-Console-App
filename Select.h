@@ -32,10 +32,6 @@ private:
     const string inputQuery;
     Filter* filter;
 
-    void copy(const Select& s) {
-
-    }
-
 
     static void checkForSyntaxErrors(const string &str) {
         // multiple keywords
@@ -85,7 +81,7 @@ private:
             vector<string> arguments = StringManipulator::splitString(argumentsStr, ',');
 
             //todo create filter with whereStr
-            Filter f(table, arguments, whereStr);
+            Filter f(this->table, arguments, whereStr);
 
 
         } else {

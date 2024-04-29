@@ -5,7 +5,7 @@
 #include "Record.h"
 
 class Table {
-public:
+public: // Can't contain numbers in table name
     Table(const string &name): name(name), records(), header() {}
 
     Table(const Table &t) {
