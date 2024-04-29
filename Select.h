@@ -83,6 +83,7 @@ private:
             //todo create filter with whereStr
             Filter f(this->table, arguments, whereStr);
 
+            cout << *f.getTableWithAppliedFilter();
 
         } else {
             cout << StringManipulator::instance().REDCOLOR() << "ERROR: Syntax error"

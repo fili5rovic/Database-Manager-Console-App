@@ -14,42 +14,37 @@ public:
         init(t, selectedColumns, whereArgsString);
     }
 
-
-private:
-
-    vector<vector<shared_ptr<Condition>>> conditions; // outer vector stores conditions seperated by OR, inner by AND
-
-    shared_ptr<Table> applyFilter() {
-        shared_ptr<Table> finalTable;
-        shared_ptr<Table> tempTable;
+    Table* getTableWithAppliedFilter() {
+        Table* finalTable = new Table("");
+        Table* tempTable = new Table("");
         for(const auto& vec : conditions) {
-            for(const auto& cond : vec) {
-                tempTable = cond->getConditionedTable();
-            }
+            tempTable = vec.at(vec.size()-1)->getConditionedTable();
+//            for(const auto& cond : vec) {
+//                tempTable = cond->getConditionedTable();
+//            }
             for(const auto& rec : tempTable->getTableRecords()) {
                 finalTable->addRecord(rec);
             }
         }
         return finalTable;
     }
+private:
+    vector<vector<shared_ptr<Condition>>> conditions; // outer vector stores conditions seperated by OR, inner by AND
+
 
     const string getCorrectMatch(const std::smatch& matches) const {
-        string value = "-1"; // if it stays -1 something's wrong
-        if (matches[2].length() != 0)
-            value = matches[2];
-        else if (matches[3].length() > 0)
-            value = matches[3];
-        else if (matches[4].length() > 0)
-            value = matches[4];
-        else cerr << "PARSING ERROR!" << endl;
-        return value;
+        for(int i = 2; i < matches.length();i++) {
+            if(matches[i].length() > 0)
+                return matches[i];
+        }
+        return "-1";
     }
 
     // creates conditions, only called during object creation
     void init(const Table *t, const vector<string> &selectedColumns, const string &whereArgs) {
         vector<string> orStrings = getOrStringsFromWhere(whereArgs);
         for (const string &conditionWithAnds: orStrings) {
-            shared_ptr<Table> tempTable = std::make_shared<Table>(*t);
+            Table* tempTable = new Table(*t);
             vector<string> conditionStrings = getAndStringsFromOrStrings(conditionWithAnds);
             vector<shared_ptr<Condition>> innerVector;
             for (string &condStr: conditionStrings) {
@@ -62,7 +57,7 @@ private:
                     e = std::make_shared<Equal>(tempTable, matches[1], valueStr);
                 } else if(regex_search(condStr, matches,regex("^(\\w+)\\s+(?:\\!\\=|\\<\\>)\\s+(?:(\\w+)|'(\\w+)'|\"(\\w+)\")$", regex_constants::icase))) {
                     valueStr = getCorrectMatch(matches);
-                    e = std::make_shared<NotEqual>(t, matches[1], valueStr);
+                    e = std::make_shared<NotEqual>(tempTable, matches[1], valueStr);
                 }
                 tempTable = e->getConditionedTable();
                 innerVector.push_back(e);
