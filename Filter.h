@@ -25,6 +25,7 @@ private:
         vector<string> orStrings = getOrStringsFromWhere(whereArgs);
         for(const string& conditionWithAnds : orStrings) {
             vector<string> conditionStrings = getAndStringsFromOrStrings(conditionWithAnds);
+            vector<Condition*> vector;
             for(const string& condStr : conditionStrings) {
                 cout << condStr << endl;
             }
