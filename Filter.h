@@ -10,27 +10,29 @@
 class Filter {
 public:
 
-    Filter(const Table *t, const vector<string> &selectedColumns, const string &whereArgsString) {
+    Filter(const Table *t, const vector<string> &selectedColumns, const string &whereArgsString) : selectedColumns(selectedColumns){
         init(t, selectedColumns, whereArgsString);
     }
 
     Table* getTableWithAppliedFilter() {
-        Table* finalTable = new Table("");
-        Table* tempTable = new Table("");
-        for(const auto& vec : conditions) {
-            tempTable = vec.at(vec.size()-1)->getConditionedTable();
-//            for(const auto& cond : vec) {
-//                tempTable = cond->getConditionedTable();
-//            }
-            for(const auto& rec : tempTable->getTableRecords()) {
-                finalTable->addRecord(rec);
-            }
-        }
-        return finalTable;
+        return table;
     }
 private:
     vector<vector<shared_ptr<Condition>>> conditions; // outer vector stores conditions seperated by OR, inner by AND
+    Table* table;
+    const vector<string> selectedColumns;
 
+    void updateTableRows() const{
+        Table* tempTable;
+        for(const auto& vec : conditions) {
+            // last vector has the result of all ANDs between an OR
+            tempTable = vec.at(vec.size()-1)->getConditionedTable();
+
+            for(const auto& rec : tempTable->getTableRecords()) {
+                table->addRecord(rec);
+            }
+        }
+    }
 
     const string getCorrectMatch(const std::smatch& matches) const {
         for(int i = 2; i < matches.length();i++) {
@@ -39,9 +41,20 @@ private:
         }
         return "-1";
     }
+    void setHeaderAndNameFromParameterTable(const Table* t) {
+        table = new Table("RESULT");
+        for(const string& header : t->getTableHeaders()) {
+            table->addHeader(header);
+        }
+    }
 
     // creates conditions, only called during object creation
     void init(const Table *t, const vector<string> &selectedColumns, const string &whereArgs) {
+        if(whereArgs.length() == 0) {
+            table = new Table(*t);
+            return;
+        }
+        setHeaderAndNameFromParameterTable(t);
         vector<string> orStrings = getOrStringsFromWhere(whereArgs);
         for (const string &conditionWithAnds: orStrings) {
             Table* tempTable = new Table(*t);
@@ -65,6 +78,8 @@ private:
             this->conditions.push_back(innerVector);
             cout << endl;
         }
+
+        updateTableRows();
     }
 
     // gets normal strings

@@ -65,6 +65,18 @@ private:
 };
 
 
+class EInvalidColumnNameException : public exception {
+public:
+    EInvalidColumnNameException(const string msg) : msg(msg) {}
+
+    virtual const char * what() const noexcept override {
+        return msg.c_str();
+    }
+
+private:
+    string msg;
+};
+
 
 
 #endif //PRVIPROJEKAT_ERRORS_H

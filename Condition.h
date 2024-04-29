@@ -2,8 +2,10 @@
 #define PRVIPROJEKAT_CONDITION_H
 
 #include <memory>
+#include <regex>
 #include "Record.h"
 #include "Table.h"
+#include "Errors.h"
 
 class Condition {
 public:
@@ -39,14 +41,6 @@ public:
         return nTable;
     }
 
-    const vector<Record> getConditionedRows() const {
-        vector<Record> records;
-        for(const Record& currRecord : table->getTableRecords()) {
-            if(evaluate(currRecord))
-                records.push_back(currRecord);
-        }
-        return records;
-    }
 
     virtual bool evaluate(const Record& record) const = 0;
 protected:
@@ -59,13 +53,15 @@ private:
     void initFieldPositionInVector(const string& columnName) {
         fieldPositionInVector = -1;
         for(int i = 0; i < table->getTableHeaders().size(); i++) {
-            if(table->getTableHeaders().at(i) == columnName) {
+            if(regex_match(table->getTableHeaders().at(i), regex(columnName, regex_constants::icase))) {
                 fieldPositionInVector = i;
                 break;
             }
         }
         if(fieldPositionInVector == -1) {
+            throw EInvalidColumnNameException("[ERROR] Column name '" + columnName + "' does not exist inside table " + table->getName());
             cout << "INVALID COLUMN NAME" << endl;
+            fieldPositionInVector = 0;
         }
     }
 

@@ -67,11 +67,6 @@ private:
     void handleQuery(const string &inputQuery) {
         std::smatch matches;
         if (regex_search(inputQuery, matches, Select::getRegexPattern())) {
-            cout << "Number of groups: " << matches.size() - 1 << endl;
-            for (size_t i = 1; i < matches.size(); ++i) {
-                cout << "Group " << i << ": " << matches[i] << endl;
-            }
-
             string argumentsStr = matches[1];
             StringManipulator::removeSpaces(argumentsStr);
             string fromTableStr = matches[2];
@@ -79,15 +74,15 @@ private:
             string whereStr = matches[3];
 
             vector<string> arguments = StringManipulator::splitString(argumentsStr, ',');
-
-            //todo create filter with whereStr
-            Filter f(this->table, arguments, whereStr);
-
-            cout << *f.getTableWithAppliedFilter();
+            try {
+                Filter f(this->table, arguments, whereStr);
+                cout << *f.getTableWithAppliedFilter();
+            } catch(EInvalidColumnNameException& e) {
+                StringManipulator::instance().newMessageRed(e.what());
+            }
 
         } else {
-            cout << StringManipulator::instance().REDCOLOR() << "ERROR: Syntax error"
-                 << StringManipulator::instance().RESETCOLOR() << endl;
+            StringManipulator::instance().newMessageRed("[ERROR] Syntax error");
         }
     }
 };
