@@ -24,7 +24,6 @@ public:
 
         for(const auto& selectedColumn : selectedColumns) {
             Table* tempTable = table->getSubTable(selectedColumn);
-            cout << *tempTable << endl;
             finalTable = Table::getMergedTable(finalTable, tempTable);
         }
         return finalTable;

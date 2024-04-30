@@ -8,6 +8,7 @@
 #include <conio.h>
 #include "Database.h"
 #include "Select.h"
+#include "Create.h"
 
 using namespace std;
 
@@ -46,7 +47,7 @@ private:
     const string TABLECOLOR = StringManipulator::instance().MYCOLOR(66, 255, 186);
     const string RESETCOLOR = StringManipulator::instance().RESETCOLOR();
 
-    
+
     string colorKeywords(string str) {
         regex pattern;
         vector<string> regexStrings{"SELECT", "FROM", "WHERE", "INSERT", "INTO", "CREATE", "TABLE"};
@@ -167,8 +168,6 @@ private:
     void findOutQueryType(const string &query) {
         Statement *type = nullptr;
         if (regex_match(query, regex("^\\s*select.*", regex_constants::icase))) {
-            cout << "User wanted select query" << endl;
-
             // from not detected
             if (!regex_match(query, regex(".*\\s+from\\s+.*", regex_constants::icase))) {
                 throw EMissingKeywordsException("[SYNTAX_ERROR] No FROM keyword specified.");
@@ -177,12 +176,18 @@ private:
                 throw EMissingArgumentsException("[SYNTAX_ERROR] FROM has no arguments.");
             }
 
-            Table *tableForSelect = tryToGetTableFromQuery(query);
-            // if Table* is null, bad input
+            Table *tableForSelect = tryToGetTableFromSelectQuery(query);
             if (!tableForSelect)
                 throw EBadArgumentsException("[ERROR] Table " + getTableNameForErrorMsg(query) + " not found.");
 
             type = new Select(query, tableForSelect);
+        } else if (regex_match(query, regex("^\\s*create.*", regex_constants::icase))) {
+            cout << "CREATE" << endl;
+            if(!regex_match(query,regex(".*\\s+table.*",regex_constants::icase)))
+                throw EMissingKeywordsException("[SYNTAX_ERROR] No TABLE keyword");
+
+            type = new Create(query);
+
 
         }
         if (!type) {
@@ -200,7 +205,7 @@ private:
         return "";
     }
 
-    Table *tryToGetTableFromQuery(const string &query) {
+    Table *tryToGetTableFromSelectQuery(const string &query) {
         Table *table = nullptr;
         std::smatch matches;
         vector<string> names;
@@ -214,12 +219,14 @@ private:
                                     regex_constants::icase))) {
             // make a new table that's joined
         }
-            // with join using
+        // with join using
         else if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
             // make a new table that's joined
         }
         return table;
     }
+
+
 
 
 };

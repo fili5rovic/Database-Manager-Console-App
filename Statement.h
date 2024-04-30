@@ -13,10 +13,11 @@ public:
 
 protected:
     Table* table;
+    const string inputQuery;
 
     virtual bool validate(const string& str) = 0;
 
-    Statement(Table* table) : table(table) {}
+    Statement(Table* table, const string& inputQuery) : table(table), inputQuery(inputQuery) {}
 };
 
 

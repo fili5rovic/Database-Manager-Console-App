@@ -11,15 +11,13 @@
 
 class Select : public Statement {
 public:
-    Select(const string &input, Table *t) : Statement(t), inputQuery(input) {}
+    Select(const string &input, Table *t) : Statement(t, input){}
 
 
-    ~Select() { delete filter;  }
-
-    // FIND TABLE BEFORE INIT AND PASS IT AS AN ARGUMENT
     void init() override {
         validate(inputQuery);
     }
+
 
     static const regex &getRegexPattern() {
         return regexPattern;
@@ -28,8 +26,6 @@ public:
 
 private:
     static const regex regexPattern;
-    const string inputQuery;
-    Filter* filter;
 
 
     static void checkForSyntaxErrors(const string &str) {
@@ -59,8 +55,6 @@ private:
         handleQuery(str);
         return true;
     }
-
-
 
 
     void handleQuery(const string &inputQuery) {

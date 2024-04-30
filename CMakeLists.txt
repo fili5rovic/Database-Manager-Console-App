@@ -21,4 +21,5 @@ add_executable(PrviProjekat main.cpp
         SQLFormat.cpp
         QueryEditor.cpp
         StringManipulator.h
+        Create.cpp
 )
