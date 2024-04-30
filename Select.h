@@ -19,7 +19,6 @@ public:
     // FIND TABLE BEFORE INIT AND PASS IT AS AN ARGUMENT
     void init() override {
         validate(inputQuery);
-
     }
 
     static const regex &getRegexPattern() {

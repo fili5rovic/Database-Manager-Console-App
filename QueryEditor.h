@@ -170,10 +170,10 @@ private:
             cout << "User wanted select query" << endl;
 
             // from not detected
-            if (!regex_match(query, regex(".*from.*", regex_constants::icase))) {
+            if (!regex_match(query, regex(".*\\s+from\\s+.*", regex_constants::icase))) {
                 throw EMissingKeywordsException("[SYNTAX_ERROR] No FROM keyword specified.");
             } // table name not detected
-            else if (!regex_search(query, regex(".*from\\s+\\w+\\s*", regex_constants::icase))) {
+            else if (!regex_search(query, regex(".*\\s+from\\s+\\w+\\s*", regex_constants::icase))) {
                 throw EMissingArgumentsException("[SYNTAX_ERROR] FROM has no arguments.");
             }
 
@@ -208,7 +208,7 @@ private:
         if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
             return database->tryGettingTableByNameCaseI(matches[1]);
         }
-            // with join on
+        // with join on
         else if (regex_search(query, matches,
                               regex("from\\s+(\\w+)\\s+(\\w+)\\s+(?:(?:inner\\s+)?join\\s+(\\w+)\\s+(\\w+)\\s+(?:on\\s+(?:\\w+\\.\\w+\\s*\\=\\s*\\w+\\.\\w+\\s*)))+",
                                     regex_constants::icase))) {

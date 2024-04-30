@@ -34,7 +34,7 @@ public:
 
     Table* tryGettingTableByNameCaseI(const string& tableName){
         for(const auto& pair : tables) {
-            if(StringManipulator::instance().caseInsensitiveStringCompare(pair.first, tableName))
+            if(StringManipulator::instance().caseInsensitiveStringCompare(pair.first, tableName)) // todo regex here
                 return new Table(pair.second);
         }
         return nullptr;

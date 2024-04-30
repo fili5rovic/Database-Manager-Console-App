@@ -5,9 +5,10 @@
 #include "Record.h"
 #include "Errors.h"
 #include <algorithm>
+#include <regex>
 
 class Table {
-public: // Can't contain numbers in table name
+public: // todo Can't contain numbers in table name
     Table(const string &name) : name(name), records(), header() {}
 
     Table(const Table &t) {
@@ -17,17 +18,22 @@ public: // Can't contain numbers in table name
     Table(Table &&t) {
         move(t);
     }
-
+    // returns a table of a single column
     Table *getSubTable(const string &colName) const {
         Table *t = new Table(this->getName());
-        t->addHeader(colName);
-        // todo does not work because the input is lowercase not like column names exactly
-        auto colIterator = std::find(this->header.begin(), this->header.end(), colName);
-        int columnIndex;
-        if (colIterator == header.end()) {
+
+        int columnIndex = -1;
+        for(int i = 0; i < this->header.size(); i++) {
+            if(regex_match(this->header.at(i), regex(colName, regex_constants::icase))) {
+                t->addHeader(this->header.at(i));
+                columnIndex = i;
+                break;
+            }
+        }
+        if (columnIndex == -1) {
             throw EBadArgumentsException("[ERROR] Column " + colName + " does not exist inside " + this->name);
         }
-        columnIndex = std::distance(this->header.begin(), colIterator);
+
         for (const auto &record: this->records) {
             Record r = Record();
             r.addData(record.getData().at(columnIndex));
@@ -44,20 +50,18 @@ public: // Can't contain numbers in table name
         for(const string& h2 : t2->header) {
             finalTable->addHeader(h2);
         }
-        for(const Record& r1 : t1->records) {
-            Record r = Record();
+        for(int i = 0; i < t1->records.size(); i++) {
+            Record record = Record();
 
-            for(const string& str : r1.getData()) {
-                r.addData(str);
+            for(const auto& str1 : t1->records.at(i).getData()) {
+                record.addData(str1);
             }
-
-            for(const Record& r2 : t2->records) {
-                for(const string& str : r2.getData()) {
-                    r.addData(str);
-                }
+            for(const auto& str2 : t2->records.at(i).getData()) {
+                record.addData(str2);
             }
-            finalTable->addRecord(r);
+            finalTable->addRecord(record);
         }
+
         return finalTable;
 
     }
