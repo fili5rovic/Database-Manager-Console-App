@@ -14,13 +14,15 @@ public:
 
 private:
 
-    bool validate(const std::string &str) override {
-        cout << "HERE: " << str << endl;
+    bool validate(const std::string &input) override {
+        cout << "HERE: " << input << endl;
         std::smatch matches;
-        if(regex_search(str,matches,regex("^\\s*create\\s+table\\s+\\w+\\s+\\(\\s*((\\w+)\\s*(?:,\\s*\\w+)*)\\s*\\)",regex_constants::icase))) {
+        if (regex_search(input, matches,regex("^\\s*create\\s+table\\s+(\\w+)\\s+\\(\\s*(\\w+\\s*(?:,\\s*\\w+)*)\\s*\\)", regex_constants::icase))) {
             for (int i = 0; i < matches.length(); ++i) {
                 cout << "MATCH " << i << " " << matches[i] << endl;
             }
+        } else if(regex_search(input, matches, regex("\\s*create\\s+table\\s+\\w+\\s*", regex_constants::icase))) {
+            throw EBadArgumentsException("[ERROR] No table column names passed.");
         }
         return true;
     }

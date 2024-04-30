@@ -150,9 +150,12 @@ private:
 
             lineWithLineFeed += (lineWithLineFeed.empty() ? lineWithNum : '\n' + lineWithNum);
             deleteConsoleAndPrintHeader();
+            // todo for properly painting split the same line into select, from, where for correct painting :)
             lineWithLineFeed = colorKeywords(lineWithLineFeed);
-            lineWithLineFeed = colorTables(lineWithLineFeed);
-            lineWithLineFeed = colorTableColumns(lineWithLineFeed);
+            if(regex_match(lineWithLineFeed,regex(".*from.*",regex_constants::icase)))
+                lineWithLineFeed = colorTables(lineWithLineFeed);
+            if(regex_match(lineWithLineFeed,regex(".*(?:select|where).*",regex_constants::icase)))
+                lineWithLineFeed = colorTableColumns(lineWithLineFeed);
             cout << lineWithLineFeed << endl;
             if (line.empty())
                 break;
