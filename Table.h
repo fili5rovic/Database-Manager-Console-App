@@ -3,10 +3,12 @@
 
 #include <vector>
 #include "Record.h"
+#include "Errors.h"
+#include <algorithm>
 
 class Table {
 public: // Can't contain numbers in table name
-    Table(const string &name): name(name), records(), header() {}
+    Table(const string &name) : name(name), records(), header() {}
 
     Table(const Table &t) {
         copy(t);
@@ -14,6 +16,50 @@ public: // Can't contain numbers in table name
 
     Table(Table &&t) {
         move(t);
+    }
+
+    Table *getSubTable(const string &colName) const {
+        Table *t = new Table(this->getName());
+        t->addHeader(colName);
+        // todo does not work because the input is lowercase not like column names exactly
+        auto colIterator = std::find(this->header.begin(), this->header.end(), colName);
+        int columnIndex;
+        if (colIterator == header.end()) {
+            throw EBadArgumentsException("[ERROR] Column " + colName + " does not exist inside " + this->name);
+        }
+        columnIndex = std::distance(this->header.begin(), colIterator);
+        for (const auto &record: this->records) {
+            Record r = Record();
+            r.addData(record.getData().at(columnIndex));
+            t->addRecord(r);
+        }
+        return t;
+    }
+
+    static Table* getMergedTable(const Table *t1, const Table* t2) {
+        Table* finalTable = new Table(t1->name);
+        for(const string& h1 : t1->header) {
+            finalTable->addHeader(h1);
+        }
+        for(const string& h2 : t2->header) {
+            finalTable->addHeader(h2);
+        }
+        for(const Record& r1 : t1->records) {
+            Record r = Record();
+
+            for(const string& str : r1.getData()) {
+                r.addData(str);
+            }
+
+            for(const Record& r2 : t2->records) {
+                for(const string& str : r2.getData()) {
+                    r.addData(str);
+                }
+            }
+            finalTable->addRecord(r);
+        }
+        return finalTable;
+
     }
 
     Table &operator=(const Table &t) {
@@ -29,10 +75,10 @@ public: // Can't contain numbers in table name
     void addRecord(const Record &r) {
         records.push_back(r);
     }
-    void addHeader(const string& s) {
+
+    void addHeader(const string &s) {
         header.push_back(s);
     }
-
 
 
     friend ostream &operator<<(ostream &os, const Table &t) {
@@ -51,15 +97,15 @@ public: // Can't contain numbers in table name
     }
 
 
-    const string& getName() const {
+    const string &getName() const {
         return this->name;
     }
 
-    const vector<string>& getTableHeaders() const {
+    const vector<string> &getTableHeaders() const {
         return this->header;
     }
 
-    const vector<Record>& getTableRecords() const {
+    const vector<Record> &getTableRecords() const {
         return this->records;
     }
 
@@ -90,7 +136,6 @@ private:
         t.records = vector<Record>();
         t.name = "";
     }
-
 
 
 };

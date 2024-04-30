@@ -78,5 +78,17 @@ private:
 };
 
 
+class EDifferentTableLengthException : public exception {
+public:
+    EDifferentTableLengthException(const string msg) : msg(msg) {}
+
+    virtual const char * what() const noexcept override {
+        return msg.c_str();
+    }
+
+private:
+    string msg;
+};
+
 
 #endif //PRVIPROJEKAT_ERRORS_H

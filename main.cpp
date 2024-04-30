@@ -139,23 +139,49 @@ void mainMenu() {
 }
 
 int main() {
-    mainMenu();
+//    mainMenu();
 
-//    Table* t = new Table("Hello");
-//    t->addHeader("ID");
-//    t->addHeader("Name");
-//
-//
-//    Record r1;
-//    r1.addData("192");
-//    r1.addData("Fipi");
-//
-//    Record r2;
-//    r2.addData("589");
-//    r2.addData("Joki");
-//    t->addRecord(r1);
-//    t->addRecord(r2);
+    Table* t = new Table("Hello");
+    t->addHeader("ID");
+    t->addHeader("Name");
 
+
+    Record r1;
+    r1.addData("192");
+    r1.addData("Fipi");
+
+    Record r2;
+    r2.addData("589");
+    r2.addData("Joki");
+    t->addRecord(r1);
+    t->addRecord(r2);
+
+    cout << *t;
+
+    t = t->getSubTable("ID");
+
+    Table* t1 = new Table("T1");
+//    t1->addHeader("ID");
+//    t1->addHeader("Name");
+//
+//
+//    Record r3;
+//    r3.addData("400");
+//    r3.addData("Ilija");
+//
+//    Record r4;
+//    r4.addData("175");
+//    r4.addData("Laza");
+//    t1->addRecord(r3);
+//    t1->addRecord(r4);
+//
+//    cout << *t1;
+
+    t1 = t->getSubTable("Name");
+
+    Table* table = Table::getMergedTable(t,t1);
+
+    cout << *table;
 
     return 0;
 

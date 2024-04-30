@@ -15,12 +15,18 @@ public:
     }
 
     Table* getTableWithAppliedFilter() {
+        Table* finalTable = new Table(table->getName());
         this->selectedColumns = getProcessedSelectedColumns();
 
+        for(int i = 0; i < table->getTableRecords().size(); i++)
+            finalTable->addRecord(Record());
 
-        Table* finalTable = new Table(table->getName());
 
-        // todo: only print selected things
+        for(const auto& selectedColumn : selectedColumns) {
+            Table* tempTable = table->getSubTable(selectedColumn);
+            cout << *tempTable << endl;
+            finalTable = Table::getMergedTable(finalTable, tempTable);
+        }
         return finalTable;
     }
 private:
