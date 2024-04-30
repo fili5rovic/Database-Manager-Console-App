@@ -86,17 +86,7 @@ public: // todo Can't contain numbers in table name
 
 
     friend ostream &operator<<(ostream &os, const Table &t) {
-        os << "Table \033[35m" << t.name << "\033[0m:" << endl;
-        for (auto it = t.header.begin(); it != t.header.end(); ++it) {
-            if (it != t.header.begin())
-                os << ' ';
-            os << *it;
-        }
-        os << endl;
-        for (auto it = t.records.begin(); it != t.records.end(); ++it) {
-            os << *it;
-        }
-        os << endl;
+        tablePrint(os,t);
         return os;
     }
 
@@ -139,6 +129,24 @@ private:
         this->header = t.header;
         t.records = vector<Record>();
         t.name = "";
+    }
+
+    static void beautifulTablePrint(ostream& os, const Table& t) {
+
+    }
+
+    static void tablePrint(ostream& os, const Table& t) {
+        os << "Table \033[35m" << t.name << "\033[0m:" << endl;
+        for (auto it = t.header.begin(); it != t.header.end(); ++it) {
+            if (it != t.header.begin())
+                os << ' ';
+            os << *it;
+        }
+        os << endl;
+        for (auto it = t.records.begin(); it != t.records.end(); ++it) {
+            os << *it;
+        }
+        os << endl;
     }
 
 

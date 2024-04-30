@@ -189,8 +189,7 @@ private:
             if(!regex_match(query,regex(".*\\s+table.*",regex_constants::icase)))
                 throw EMissingKeywordsException("[SYNTAX_ERROR] No TABLE keyword");
 
-            type = new Create(query);
-
+            type = new Create(query, database);
 
         }
         if (!type) {
