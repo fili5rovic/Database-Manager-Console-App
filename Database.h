@@ -20,8 +20,13 @@ public:
 
     void addTable(const Table& t) {
         tables.insert({t.getName(),t});
-//        tables.push_back(t);
     }
+    void removeTable(const string& name) {
+        if(tables.find(name) == tables.end())
+            return;
+        tables.erase(name);
+    }
+
     friend ostream& operator<<(ostream& os, const Database& d) {
         os << "Database \033[35m" << d.name << "\033[0m:" << endl;
         os << "-----------------------" << endl;

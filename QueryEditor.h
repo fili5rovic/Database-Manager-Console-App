@@ -9,6 +9,7 @@
 #include "Database.h"
 #include "Select.h"
 #include "Create.h"
+#include "Drop.h"
 
 using namespace std;
 
@@ -182,17 +183,15 @@ private:
             }
 
             Table *tableForSelect = tryToGetTableFromSelectQuery(query);
-            if (!tableForSelect)
-                throw EBadArgumentsException("[ERROR] Table " + getTableNameForErrorMsg(query) + " not found.");
 
             type = new Select(query, tableForSelect);
         } else if (regex_match(query, regex("^\\s*create.*", regex_constants::icase))) {
-            cout << "CREATE" << endl;
-            if(!regex_match(query,regex(".*\\s+table.*",regex_constants::icase)))
-                throw EMissingKeywordsException("[SYNTAX_ERROR] No TABLE keyword");
 
             type = new Create(query, database);
 
+        } else if (regex_match(query, regex("^\\s*drop.*", regex_constants::icase))) {
+            cout << "DROP" << endl;
+//            type = new Drop(tabl);
         }
         if (!type) {
             throw ENoKeywordsException("[SYNTAX_ERROR] No keywords detected. Can't detect query.");
@@ -211,8 +210,9 @@ private:
 
     Table *tryToGetTableFromSelectQuery(const string &query) {
         Table *table = nullptr;
-        std::smatch matches;
         vector<string> names;
+
+        std::smatch matches;
         // without join
         if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
             return database->tryGettingTableByNameCaseI(matches[1]);
@@ -227,7 +227,9 @@ private:
         else if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
             // make a new table that's joined
         }
-        return table;
+
+        if (!table)
+            throw EBadArgumentsException("[RUNTIME_ERROR] Table " + getTableNameForErrorMsg(query) + " not found.");
     }
 
 

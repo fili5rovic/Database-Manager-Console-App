@@ -22,4 +22,5 @@ add_executable(PrviProjekat main.cpp
         QueryEditor.cpp
         StringManipulator.h
         Create.cpp
+        Drop.cpp
 )
