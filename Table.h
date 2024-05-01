@@ -140,6 +140,10 @@ private:
         const char verticalLine = '\xB3';
 
         vector<int> width = getWidthVectorForTablePrinting();
+        if(width.size() == 1){
+            int tableNameLen = this->name.length();
+            width[0] = max(width[0],tableNameLen);
+        }
 
         upperPartTablePrint(width);
 
