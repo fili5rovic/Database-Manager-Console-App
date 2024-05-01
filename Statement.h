@@ -7,7 +7,7 @@
 class Statement {
 public:
 
-    virtual void init() = 0;
+    virtual void execute() = 0;
 
 
 
@@ -15,7 +15,6 @@ protected:
     Table* table;
     const string inputQuery;
 
-    virtual bool validate(const string& str) = 0;
 
     Statement(Table* table, const string& inputQuery) : table(table), inputQuery(inputQuery) {}
 };

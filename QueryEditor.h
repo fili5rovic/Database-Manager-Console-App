@@ -195,7 +195,7 @@ private:
         if (!type) {
             throw ENoKeywordsException("[SYNTAX_ERROR] No keywords detected. Can't detect query.");
         }
-        type->init();
+        type->execute();
     }
 
 

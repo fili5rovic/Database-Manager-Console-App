@@ -14,8 +14,9 @@ public:
     Select(const string &input, Table *t) : Statement(t, input){}
 
 
-    void init() override {
-        validate(inputQuery);
+    void execute() override {
+        checkForSyntaxErrors(inputQuery);
+        handleQuery(inputQuery);
     }
 
 
@@ -50,20 +51,12 @@ private:
     }
 
 
-    bool validate(const string &str) override {
-        checkForSyntaxErrors(str);
-        handleQuery(str);
-        return true;
-    }
-
-
     void handleQuery(const string &inputQuery) {
         std::smatch matches;
         if (regex_search(inputQuery, matches, Select::getRegexPattern())) {
             string argumentsStr = matches[1];
             StringManipulator::removeSpaces(argumentsStr);
             string fromTableStr = matches[2];
-
             string whereStr = matches[3];
 
             vector<string> arguments = StringManipulator::splitString(argumentsStr, ',');

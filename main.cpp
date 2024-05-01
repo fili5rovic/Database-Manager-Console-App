@@ -139,7 +139,7 @@ void mainMenu() {
 }
 
 int main() {
-    mainMenu();
+    mainMenu(); // todo created should also be colored in some way
 
 //    Table* table = new Table("Student");
 //

@@ -151,8 +151,8 @@ private:
         int leftPaddingHeader = paddingHeader / 2;
         int rightPaddingHeder = paddingHeader - leftPaddingHeader + 1;
         cout << verticalLine << "\033[35m"
-        << std::setw(leftPaddingHeader + name.size()) << std::right << name << "\033[0m"
-        << std::setw(rightPaddingHeder) << verticalLine << endl;
+             << std::setw(leftPaddingHeader + name.size()) << std::right << name << "\033[0m"
+             << std::setw(rightPaddingHeder) << verticalLine << endl;
 
 
         middlePartTablePrint(width, true);
@@ -167,7 +167,11 @@ private:
         }
         cout << endl;
 
-        middlePartTablePrint(width);
+        if(records.empty())
+            bottomPartTablePrint(width);
+        else
+            middlePartTablePrint(width);
+
         for (auto it = records.begin(); it != records.end(); ++it) {
             const auto &record = *it;
             cout << verticalLine;
@@ -185,8 +189,7 @@ private:
             else
                 bottomPartTablePrint(width);
         }
-        if (records.empty())
-            bottomPartTablePrint(width);
+
     }
 
     void upperPartTablePrint(vector<int> width) const {

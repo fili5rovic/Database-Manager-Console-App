@@ -11,38 +11,38 @@ public:
     Create(const string &input, Database *database) : Statement(
             new Table(getTableNameFromCreateQuery(input)), input), database(database) {}
 
-    void init() override {
-        validate(inputQuery);
+    void execute() override {
+        handleQuery(inputQuery);
     }
 
 
 private:
     Database *database;
 
-    bool validate(const std::string &input) override {
+    void handleQuery(const string &input) {
         std::smatch matches;
         if (regex_search(input, matches,
                          regex("^\\s*create\\s+table\\s+(\\w+)\\s+\\(\\s*(\\w+\\s*(?:,\\s*\\w+)*)\\s*\\)",
                                regex_constants::icase))) {
             vector<string> tableColumns = StringManipulator::instance().splitString(matches[2], ',');
-            for (const string &columnName: tableColumns) {
+            for (string &columnName: tableColumns) {
+                StringManipulator::removeSpaces(columnName);
                 table->addHeader(columnName);
             }
             if(this->database)
-                addTableToDatabase();
+                this->database->addTable(*this->table);
             cout << *table;
-            cout << "Table " << matches[1] << " successfully added to " << database->getName() << endl;
-        } else if (regex_search(input, matches, regex("\\s*create\\s+table\\s+\\w+\\s*", regex_constants::icase))) {
+        } else {
+            runtimeErrors(input);
+        }
+    }
+
+    void runtimeErrors(const string& input) {
+        std::smatch matches;
+        if (regex_search(input, matches, regex("\\s*create\\s+table\\s+\\w+\\s*", regex_constants::icase))) {
             throw EBadArgumentsException("[ERROR] No table column names passed.");
         }
-        return true;
     }
-
-    void addTableToDatabase() const {
-
-        this->database->addTable(*this->table);
-    }
-
 
     string getTableNameFromCreateQuery(const string &query) {
         std::smatch matches;
