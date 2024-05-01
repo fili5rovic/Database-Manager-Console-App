@@ -230,6 +230,7 @@ private:
 
         if (!table)
             throw EBadArgumentsException("[RUNTIME_ERROR] Table " + getTableNameForErrorMsg(query) + " not found.");
+        return table;
     }
 
 
