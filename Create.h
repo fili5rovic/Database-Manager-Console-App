@@ -30,6 +30,7 @@ private:
             }
             if(this->database)
                 addTableToDatabase();
+            cout << *table;
             cout << "Table " << matches[1] << " successfully added to " << database->getName() << endl;
         } else if (regex_search(input, matches, regex("\\s*create\\s+table\\s+\\w+\\s*", regex_constants::icase))) {
             throw EBadArgumentsException("[ERROR] No table column names passed.");
@@ -38,6 +39,7 @@ private:
     }
 
     void addTableToDatabase() const {
+
         this->database->addTable(*this->table);
     }
 

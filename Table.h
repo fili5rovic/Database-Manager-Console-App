@@ -152,8 +152,7 @@ private:
         int rightPaddingHeder = paddingHeader - leftPaddingHeader + 1;
         cout << verticalLine << "\033[35m"
         << std::setw(leftPaddingHeader + name.size()) << std::right << name << "\033[0m"
-        << std::setw(rightPaddingHeder) << verticalLine;
-        cout << endl;
+        << std::setw(rightPaddingHeder) << verticalLine << endl;
 
 
         middlePartTablePrint(width, true);
