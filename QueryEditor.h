@@ -19,15 +19,17 @@ public:
     QueryEditor(Database *d) : database(d) {}
 
     QueryEditor(const QueryEditor &) = delete;
+    QueryEditor(QueryEditor &&) = delete;
 
     QueryEditor &operator=(const QueryEditor &) = delete;
+    QueryEditor &operator=(QueryEditor &&) = delete;
 
 
     void start() {
         vector<string> inputQueries = editor();
         for (auto inputQuery: inputQueries) {
             StringManipulator::removeMoreSpaces(inputQuery);
-            if(inputQuery.empty())
+            if (inputQuery.empty())
                 return;
             cout << endl << "INPUT QUERY: " << inputQuery << endl;
             try {
@@ -53,7 +55,7 @@ private:
 
     string colorKeywords(string str) {
         regex pattern;
-        vector<string> regexStrings{"SELECT", "FROM", "WHERE", "INSERT", "INTO", "CREATE", "TABLE"};
+        vector<string> regexStrings{"SELECT", "FROM", "WHERE", "INSERT", "INTO", "CREATE", "TABLE", "DROP"};
         vector<string> keywordReplacementStrings;
         keywordReplacementStrings.reserve(regexStrings.size());
         for (const string &reg: regexStrings) {
@@ -131,14 +133,14 @@ private:
     }
 
 
-    void deleteConsoleAndPrintHeader() {
+    void printHeaderAndClearConsole() {
         clearConsole();
         cout << "\033[47m" << "  SQL Query Editor                " << "\033[41m" << " X "
              << StringManipulator::instance().RESETCOLOR() << endl;
     }
 
     vector<string> editor() {
-        deleteConsoleAndPrintHeader();
+        printHeaderAndClearConsole();
         string sqlQuery;
         string line;
         string lineWithLineFeed;
@@ -152,12 +154,12 @@ private:
                                  StringManipulator::instance().RESETCOLOR() + "  " + line;
 
             lineWithLineFeed += (lineWithLineFeed.empty() ? lineWithNum : '\n' + lineWithNum);
-            deleteConsoleAndPrintHeader();
+            printHeaderAndClearConsole();
             // todo for properly painting split the same line into select, from, where for correct painting :)
             lineWithLineFeed = colorKeywords(lineWithLineFeed);
-            if(regex_match(lineWithLineFeed,regex(".*from.*",regex_constants::icase)))
+            if (regex_match(lineWithLineFeed, regex(".*from.*", regex_constants::icase)))
                 lineWithLineFeed = colorTables(lineWithLineFeed);
-            if(regex_match(lineWithLineFeed,regex(".*(?:select|where).*",regex_constants::icase)))
+            if (regex_match(lineWithLineFeed, regex(".*(?:select|where).*", regex_constants::icase)))
                 lineWithLineFeed = colorTableColumns(lineWithLineFeed);
             cout << lineWithLineFeed << endl;
             if (line.empty())
@@ -174,68 +176,18 @@ private:
     void findOutQueryType(const string &query) {
         Statement *type = nullptr;
         if (regex_match(query, regex("^\\s*select.*", regex_constants::icase))) {
-            // from not detected
-            if (!regex_match(query, regex(".*\\s+from\\s+.*", regex_constants::icase))) {
-                throw EMissingKeywordsException("[SYNTAX_ERROR] No FROM keyword specified.");
-            } // table name not detected
-            else if (!regex_search(query, regex(".*\\s+from\\s+\\w+\\s*", regex_constants::icase))) {
-                throw EMissingArgumentsException("[SYNTAX_ERROR] FROM has no arguments.");
-            }
-
-            Table *tableForSelect = tryToGetTableFromSelectQuery(query);
-
-            type = new Select(query, tableForSelect);
+            type = new Select(query, database);
         } else if (regex_match(query, regex("^\\s*create.*", regex_constants::icase))) {
-
             type = new Create(query, database);
-
         } else if (regex_match(query, regex("^\\s*drop.*", regex_constants::icase))) {
             cout << "DROP" << endl;
-//            type = new Drop(tabl);
+            type = new Drop(query, database);
         }
         if (!type) {
             throw ENoKeywordsException("[SYNTAX_ERROR] No keywords detected. Can't detect query.");
         }
         type->execute();
     }
-
-
-    const string getTableNameForErrorMsg(const string &query) {
-        std::smatch matches;
-        if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
-            return matches[1];
-        }
-        return "";
-    }
-
-    Table *tryToGetTableFromSelectQuery(const string &query) {
-        Table *table = nullptr;
-        vector<string> names;
-
-        std::smatch matches;
-        // without join
-        if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
-            return database->tryGettingTableByNameCaseI(matches[1]);
-        }
-        // with join on
-        else if (regex_search(query, matches,
-                              regex("from\\s+(\\w+)\\s+(\\w+)\\s+(?:(?:inner\\s+)?join\\s+(\\w+)\\s+(\\w+)\\s+(?:on\\s+(?:\\w+\\.\\w+\\s*\\=\\s*\\w+\\.\\w+\\s*)))+",
-                                    regex_constants::icase))) {
-            // make a new table that's joined
-        }
-        // with join using
-        else if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
-            // make a new table that's joined
-        }
-
-        if (!table)
-            throw EBadArgumentsException("[RUNTIME_ERROR] Table " + getTableNameForErrorMsg(query) + " not found.");
-        return table;
-    }
-
-
-
-
 };
 
 

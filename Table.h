@@ -21,6 +21,32 @@ public: // todo Can't contain numbers in table name
         move(t);
     }
 
+    Table &operator=(const Table &t) {
+        copy(t);
+        return *this;
+    }
+
+    Table &operator=(Table &&t) {
+        move(t);
+        return *this;
+    }
+
+    void addRecord(const Record &r) {
+        records.push_back(r);
+    }
+
+    void addHeader(const string &s) {
+        header.push_back(s);
+    }
+
+
+    friend ostream &operator<<(ostream &os, const Table &t) {
+        t.tablePrint();
+        return os;
+    }
+
+    //<editor-fold desc="Getters">
+
     // returns a table of a single column
     Table *getSubTable(const string &colName) const {
         Table *t = new Table(this->getName());
@@ -69,30 +95,6 @@ public: // todo Can't contain numbers in table name
 
     }
 
-    Table &operator=(const Table &t) {
-        copy(t);
-        return *this;
-    }
-
-    Table &operator=(Table &&t) {
-        move(t);
-        return *this;
-    }
-
-    void addRecord(const Record &r) {
-        records.push_back(r);
-    }
-
-    void addHeader(const string &s) {
-        header.push_back(s);
-    }
-
-
-    friend ostream &operator<<(ostream &os, const Table &t) {
-        t.tablePrint();
-
-        return os;
-    }
 
 
     const string &getName() const {
@@ -106,6 +108,7 @@ public: // todo Can't contain numbers in table name
     const vector<Record> &getTableRecords() const {
         return this->records;
     }
+    //</editor-fold>
 
 
 private:
