@@ -142,7 +142,7 @@ private:
         vector<int> width = getWidthVectorForTablePrinting();
         if(width.size() == 1){
             int tableNameLen = this->name.length();
-            width[0] = max(width[0],tableNameLen);
+            width[0] = max(width[0],tableNameLen+2);
         }
 
         upperPartTablePrint(width);
@@ -150,14 +150,12 @@ private:
         int headerSize = std::accumulate(width.begin(), width.end(), 0);
         headerSize += width.size() - 1;
 
-
         int paddingHeader = headerSize - name.size();
         int leftPaddingHeader = paddingHeader / 2;
         int rightPaddingHeder = paddingHeader - leftPaddingHeader + 1;
         cout << verticalLine << "\033[35m"
              << std::setw(leftPaddingHeader + name.size()) << std::right << name << "\033[0m"
              << std::setw(rightPaddingHeder) << verticalLine << endl;
-
 
         middlePartTablePrint(width, true);
 

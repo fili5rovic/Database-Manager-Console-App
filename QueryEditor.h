@@ -26,7 +26,9 @@ public:
         vector<string> inputQueries = editor();
         for (auto inputQuery: inputQueries) {
             StringManipulator::removeMoreSpaces(inputQuery);
-            cout << "INPUT QUERY: " << inputQuery << endl;
+            if(inputQuery.empty())
+                return;
+            cout << endl << "INPUT QUERY: " << inputQuery << endl;
             try {
                 findOutQueryType(inputQuery);
             } catch (exception &e) {
