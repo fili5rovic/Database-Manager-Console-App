@@ -141,33 +141,31 @@ void mainMenu() {
 int main() {
     mainMenu();
 
-//    Table* t = new Table("Hello");
-//    t->addHeader("ID");
-//    t->addHeader("Name");
+//    Table* table = new Table("Student");
 //
+//    table->addHeader("Index");
+//    table->addHeader("Name");
+//    table->addHeader("Surname");
+//    table->addHeader("Average Grades");
 //
-//    Record r1;
+//    Record r1 = Record();
 //    r1.addData("192");
-//    r1.addData("Fipi");
+//    r1.addData("Filip");
+//    r1.addData("Petrovic");
+//    r1.addData("8.1");
 //
-//    Record r2;
+//    table->addRecord(r1);
+//
+//    Record r2 = Record();
 //    r2.addData("589");
-//    r2.addData("Joki");
-//    t->addRecord(r1);
-//    t->addRecord(r2);
+//    r2.addData("Jovan");
+//    r2.addData("Mosurovic");
+//    r2.addData("8.0");
 //
-//
-//    cout << *t;
-//
-//    Table* t1 = t->getSubTable("id");
-//    Table* t2 = t->getSubTable("name");
-//
-//    cout << *t1;
-//    cout << *t2;
-//
-//    Table* table = Table::getMergedTable(t1,t2);
+//    table->addRecord(r2);
 //
 //    cout << *table;
+
 
     return 0;
 

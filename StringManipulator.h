@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include <regex>
+#include "Table.h"
 
 using namespace std;
 
@@ -164,6 +165,8 @@ public:
         }
         str = result;
     }
+
+
 
     static bool caseInsensitiveStringCompare(const std::string& str1, const std::string& str2) {
         if (str1.length() != str2.length())
