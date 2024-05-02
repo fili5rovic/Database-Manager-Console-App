@@ -84,3 +84,11 @@
 10	1300	7363630607581632	CMakeFiles/PrviProjekat.dir/QueryEditor.cpp.obj	6131bb31193be45a
 4	3900	7363630633434884	CMakeFiles/PrviProjekat.dir/main.cpp.obj	40bcf484d13dd07a
 3900	8283	7363630677338887	PrviProjekat.exe	4b4638a39899d337
+17	1627	7363634672988976	CMakeFiles/PrviProjekat.dir/Create.cpp.obj	2aac93686d67ad64
+19	1674	7363634673463689	CMakeFiles/PrviProjekat.dir/Drop.cpp.obj	9a7bcbdabfe850b3
+14	1680	7363634673523554	CMakeFiles/PrviProjekat.dir/Database.cpp.obj	162979c0f6f4edd7
+10	1702	7363634673757651	CMakeFiles/PrviProjekat.dir/Insert.cpp.obj	e781db710973f219
+1627	2945	7363634686177685	CMakeFiles/PrviProjekat.dir/QueryEditor.cpp.obj	6131bb31193be45a
+8	3029	7363634686958534	CMakeFiles/PrviProjekat.dir/Select.cpp.obj	70750b9e27319fb8
+4	4560	7363634702179044	CMakeFiles/PrviProjekat.dir/main.cpp.obj	40bcf484d13dd07a
+4560	8943	7363634746101501	PrviProjekat.exe	4b4638a39899d337

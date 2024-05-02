@@ -37,9 +37,9 @@ public:
         return os;
     }
 
-    Table* tryGettingTableByNameCaseI(const string& tableName) const{
+    Table* tryGettingTableByNameCaseI(const string& tableName) const {
         for(const auto& pair : tables) {
-            if(StringManipulator::instance().caseInsensitiveStringCompare(pair.first, tableName)) // todo regex here
+            if(regex_match(pair.first, regex(tableName,regex_constants::icase)))
                 return new Table(pair.second);
         }
         return nullptr;
