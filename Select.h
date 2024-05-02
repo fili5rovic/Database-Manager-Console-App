@@ -11,7 +11,7 @@
 
 class Select : public Statement {
 public:
-    Select(const string &input,const Database* database) : Statement(tryToGetTableFromQuery(input, database, getRegexForFindingTable()), input){}
+    Select(const string &input,Database* database) : Statement(input, database){}
 
 private:
     void checkForSyntaxErrors(const string &query) const {
@@ -69,33 +69,6 @@ private:
     regex getRegexForFindingTable() const override {
         return regex("from\\s+(\\w+)", regex_constants::icase);
     }
-
-//    Table *tryToGetTableFromQuery(const string &query, const Database* database) const {
-//        checkForSyntaxErrors(query);
-//
-//        Table *table = nullptr;
-//        vector<string> names;
-//
-//        std::smatch matches;
-//        // without join
-//        if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
-//            table = database->tryGettingTableByNameCaseI(matches[1]);
-//        }
-//            // with join on
-//        else if (regex_search(query, matches,
-//                              regex("from\\s+(\\w+)\\s+(\\w+)\\s+(?:(?:inner\\s+)?join\\s+(\\w+)\\s+(\\w+)\\s+(?:on\\s+(?:\\w+\\.\\w+\\s*\\=\\s*\\w+\\.\\w+\\s*)))+",
-//                                    regex_constants::icase))) {
-//            // make a new table that's joined
-//        }
-//            // with join using
-//        else if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
-//            // make a new table that's joined
-//        }
-//
-//        if (!table)
-//            throw EBadArgumentsException("[RUNTIME_ERROR] Table " + matches[1].str() + " not found.");
-//        return table;
-//    }
 
 
 };

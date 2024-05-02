@@ -6,11 +6,11 @@
 
 class Insert : public Statement {
 public:
-    Insert(const string &input, Database *database)
-            : Statement(tryToGetTableFromQuery(input, database, getRegexForFindingTable()), input), database(database) {}
 
+    Insert(const string &input, Database *database) : Statement(input, database) {}
 
 private:
+
 
     void executingQuery(const smatch &matches) const override {
         string tableName = matches[1];
@@ -30,6 +30,7 @@ private:
 
         cout << *table;
     }
+
 
     void checkIfAllColumnsAreThere(vector<string> listOfColumns, const size_t listOfValuesSize) const {
         if (listOfColumns.size() != table->getTableHeaders().size())
@@ -54,6 +55,7 @@ private:
         }
     }
 
+
     void runtimeErrors(const string &input) const override {
         cout << "DIDNT MATCH" << endl;
         if (!regex_match(this->table->getName(), regex("[a-zA-Z_]+", regex_constants::icase))) {
@@ -67,6 +69,7 @@ private:
         }
         throw EBadArgumentsException("[RUNTIME_ERROR] Table insert error.");
     }
+
 
     void checkForSyntaxErrors(const string &query) const {
         if (!regex_match(query, regex(".*\\s+into.*", regex_constants::icase)))

@@ -8,12 +8,15 @@
 
 class Create : public Statement {
 public:
-    Create(const string &input, Database *database)
-            : Statement(new Table(getTableNameFromCreateQuery(input)), input), database(database) {}
+    Create(const string &input, Database *database): Statement(input, database) {}
+
+    void execute() override {
+        table = new Table(getTableNameFromCreateQuery(inputQuery));
+        handleQuery(inputQuery);
+    }
 
 
 private:
-    Database *database;
 
     void executingQuery(const smatch &matches) const override {
         vector<string> tableColumns = StringManipulator::instance().splitString(matches[2], ',');
@@ -55,7 +58,7 @@ private:
         throw EBadArgumentsException("[SYNTAX_ERROR] Table creation error.");
     }
 
-
+    // it has to be different from virtual function
     void checkForSyntaxErrors(const string &query) const {
         if (!regex_match(query, regex(".*\\s+table.*", regex_constants::icase)))
             throw EMissingKeywordsException("[SYNTAX_ERROR] No TABLE keyword");
@@ -70,7 +73,6 @@ private:
         } else if (regex_match(query, regex(".*create.*create.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] Multiple CREATE keywords not allowed within the same statement.");
         }
-
     }
 
     string getTableNameFromCreateQuery(const string &query) const {

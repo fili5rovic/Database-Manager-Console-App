@@ -7,12 +7,9 @@
 
 class Drop : public Statement {
 public:
-
-    Drop(const string &input, Database *database)
-            : Statement(tryToGetTableFromQuery(input, database, getRegexForFindingTable()), input), database(database) {}
+    Drop(const string &input, Database *database) : Statement(input, database) {}
 
 private:
-    Database *database;
 
 
     regex getRegexPattern() const override {
