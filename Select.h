@@ -11,21 +11,9 @@
 
 class Select : public Statement {
 public:
-    Select(const string &input,const Database* database) : Statement(tryToGetTableFromSelectQuery(input, database), input){}
-
-
+    Select(const string &input,const Database* database) : Statement(tryToGetTableFromQuery(input, database, getRegexForFindingTable()), input){}
 
 private:
-
-
-    const regex getRegexPattern() const {
-        return regex(R"(^\s*select\s+((?:\w+|\*)(?:\s*,\s*(?:\w+|\*))*)\s+from\s+(\w+)+\s*(?:where\s+((\w+)\s*(\=|\<\>|\!\=)\s*('\w+'|"\w+"|\w+)(?:\s+(and|or)\s*(\w+)\s*(\=|\<\>|\!\=)\s*('\w+'|"\w+"|\w+))*))?)", regex_constants::icase);;
-    }
-
-    const regex getRegexForFindingTable() const override {
-        return regex("from\\s+(\\w+)", regex_constants::icase);
-    }
-
     void checkForSyntaxErrors(const string &query) const {
         // from not detected
         if (!regex_match(query, regex(".*\\s+from\\s*.*", regex_constants::icase))) {
@@ -73,40 +61,41 @@ private:
         }
     }
 
-    string getTableNameForErrorMsg(const string &query) const{
-        std::smatch matches;
-        if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
-            return matches[1];
-        }
-        return "";
+
+    regex getRegexPattern() const {
+        return regex(R"(^\s*select\s+((?:\w+|\*)(?:\s*,\s*(?:\w+|\*))*)\s+from\s+(\w+)+\s*(?:where\s+((\w+)\s*(\=|\<\>|\!\=)\s*('\w+'|"\w+"|\w+)(?:\s+(and|or)\s*(\w+)\s*(\=|\<\>|\!\=)\s*('\w+'|"\w+"|\w+))*))?)", regex_constants::icase);;
     }
 
-    Table *tryToGetTableFromSelectQuery(const string &query, const Database* database) const {
-        checkForSyntaxErrors(query);
-
-        Table *table = nullptr;
-        vector<string> names;
-
-        std::smatch matches;
-        // without join
-        if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
-            table = database->tryGettingTableByNameCaseI(matches[1]);
-        }
-            // with join on
-        else if (regex_search(query, matches,
-                              regex("from\\s+(\\w+)\\s+(\\w+)\\s+(?:(?:inner\\s+)?join\\s+(\\w+)\\s+(\\w+)\\s+(?:on\\s+(?:\\w+\\.\\w+\\s*\\=\\s*\\w+\\.\\w+\\s*)))+",
-                                    regex_constants::icase))) {
-            // make a new table that's joined
-        }
-            // with join using
-        else if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
-            // make a new table that's joined
-        }
-
-        if (!table)
-            throw EBadArgumentsException("[RUNTIME_ERROR] Table " + getTableNameForErrorMsg(query) + " not found.");
-        return table;
+    regex getRegexForFindingTable() const override {
+        return regex("from\\s+(\\w+)", regex_constants::icase);
     }
+
+//    Table *tryToGetTableFromQuery(const string &query, const Database* database) const {
+//        checkForSyntaxErrors(query);
+//
+//        Table *table = nullptr;
+//        vector<string> names;
+//
+//        std::smatch matches;
+//        // without join
+//        if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
+//            table = database->tryGettingTableByNameCaseI(matches[1]);
+//        }
+//            // with join on
+//        else if (regex_search(query, matches,
+//                              regex("from\\s+(\\w+)\\s+(\\w+)\\s+(?:(?:inner\\s+)?join\\s+(\\w+)\\s+(\\w+)\\s+(?:on\\s+(?:\\w+\\.\\w+\\s*\\=\\s*\\w+\\.\\w+\\s*)))+",
+//                                    regex_constants::icase))) {
+//            // make a new table that's joined
+//        }
+//            // with join using
+//        else if (regex_search(query, matches, regex("from\\s+(\\w+)", regex_constants::icase))) {
+//            // make a new table that's joined
+//        }
+//
+//        if (!table)
+//            throw EBadArgumentsException("[RUNTIME_ERROR] Table " + matches[1].str() + " not found.");
+//        return table;
+//    }
 
 
 };

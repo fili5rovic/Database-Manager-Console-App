@@ -9,17 +9,17 @@ class Drop : public Statement {
 public:
 
     Drop(const string &input, Database *database)
-            : Statement(tryToGetTableFromDropQuery(input, database), input), database(database) {}
+            : Statement(tryToGetTableFromQuery(input, database, getRegexForFindingTable()), input), database(database) {}
 
 private:
     Database *database;
 
 
-    const regex getRegexPattern() const override {
+    regex getRegexPattern() const override {
         return regex("^\\s*drop\\s+table\\s+([a-zA-Z_]+)\\s*",regex_constants::icase);
     }
 
-    const regex getRegexForFindingTable() const override {
+    regex getRegexForFindingTable() const override {
         return regex("table\\s+(\\w+)", regex_constants::icase);
     }
 
@@ -44,7 +44,6 @@ private:
         if (regex_match(query, regex(".*\\s+table\\s*$", regex_constants::icase))) {
             throw EMissingArgumentsException("[SYNTAX_ERROR] DROP TABLE has no argument.");
         }
-
         // multiple keywords
         if (regex_match(query, regex(".*create.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] CREATE with DROP not allowed within the same statement.");
@@ -59,30 +58,6 @@ private:
                     "[SYNTAX_ERROR] Multiple DROP keywords not allowed within the same statement.");
         }
 
-    }
-
-    string getTableNameForErrorMsg(const string &query) const {
-        std::smatch matches;
-        if (regex_search(query, matches, regex("table\\s+(\\w+)", regex_constants::icase))) {
-            return matches[1];
-        }
-        return "";
-    }
-
-    Table *tryToGetTableFromDropQuery(const string &query, const Database *database) const {
-        checkForSyntaxErrors(query);
-
-        Table *table = nullptr;
-        vector<string> names;
-
-        std::smatch matches;
-        if (regex_search(query, matches, regex("table\\s+(\\w+)", regex_constants::icase))) {
-            table = database->tryGettingTableByNameCaseI(matches[1]);
-        }
-
-        if (!table)
-            throw EBadArgumentsException("[RUNTIME_ERROR] Table " + getTableNameForErrorMsg(query) + " not found.");
-        return table;
     }
 
 };

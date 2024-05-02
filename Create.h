@@ -26,12 +26,12 @@ private:
         cout << *table;
     }
 
-    const regex getRegexPattern() const override {
+    regex getRegexPattern() const override {
         return regex("^\\s*create\\s+table\\s+([a-zA-Z_]+)\\s*\\(\\s*(\\w+\\s*(?:,\\s*\\w+)*)\\s*\\)",
                      regex_constants::icase);
     }
 
-    const regex getRegexForFindingTable() const override {
+    regex getRegexForFindingTable() const override {
         return regex("^\\s*create\\s+table\\s+(\\w+)(?:s*|\\()", regex_constants::icase);
     }
 
@@ -56,7 +56,7 @@ private:
     }
 
 
-    void checkForSyntaxErrors(const string &query) const  {
+    void checkForSyntaxErrors(const string &query) const {
         if (!regex_match(query, regex(".*\\s+table.*", regex_constants::icase)))
             throw EMissingKeywordsException("[SYNTAX_ERROR] No TABLE keyword");
 
@@ -73,8 +73,7 @@ private:
 
     }
 
-
-    string getTableNameFromCreateQuery(const string &query) {
+    string getTableNameFromCreateQuery(const string &query) const {
         checkForSyntaxErrors(query);
 
         std::smatch matches;

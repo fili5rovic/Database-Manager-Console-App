@@ -3,6 +3,7 @@
 
 
 #include "Table.h"
+#include "Database.h"
 
 class Statement {
 public:
@@ -25,16 +26,38 @@ protected:
             runtimeErrors(input);
     }
 
+    Table* tryToGetTableFromQuery(const string &query, const Database *database, const regex& regexPattern) const {
+        if (!database) {
+            throw EBadArgumentsException("[RUNTIME_ERROR] Database is null.");
+        }
+        checkForSyntaxErrors(query);
+
+        Table *currTable = nullptr;
+
+        std::smatch matches;
+        if (regex_search(query, matches, regexPattern)) { // here
+            if (matches.size() > 1) {
+                currTable = database->tryGettingTableByNameCaseI(matches[1]);
+            }
+        }
+
+        if (!currTable) {
+            string tableName = matches.size() > 1 ? matches[1].str() : "Unknown";
+            throw EBadArgumentsException("[RUNTIME_ERROR] Table " + tableName + " not found.");
+        }
+        return currTable;
+    }
+
 
     virtual void executingQuery(const smatch &matches) const = 0;
 
-    virtual const regex getRegexPattern() const = 0;
+    virtual regex getRegexPattern() const = 0;
 
-    virtual const regex getRegexForFindingTable() const = 0;
+    virtual regex getRegexForFindingTable() const = 0;
 
     virtual void runtimeErrors(const string &input) const = 0;
 
-//    virtual void checkForSyntaxErrors(const string &query) const = 0;
+    virtual void checkForSyntaxErrors(const string &query) const {};
 
 };
 

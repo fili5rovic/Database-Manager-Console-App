@@ -7,21 +7,10 @@
 class Insert : public Statement {
 public:
     Insert(const string &input, Database *database)
-            : Statement(tryToGetTableFromQuery(input, database), input), database(database) {}
+            : Statement(tryToGetTableFromQuery(input, database, getRegexForFindingTable()), input), database(database) {}
 
 
 private:
-    Database *database;
-
-    const regex getRegexPattern() const override {
-        return regex(
-                "^\\s*insert\\s+into\\s+([a-zA-Z_]+)\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\")\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\")\\s*)*)\\s*\\)\\s+values\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\")\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\"))*)*\\s*\\)\\s*$",
-                regex_constants::icase);
-    }
-
-    const regex getRegexForFindingTable() const override {
-        return regex("into\\s+(\\w+)",regex_constants::icase);
-    }
 
     void executingQuery(const smatch &matches) const override {
         string tableName = matches[1];
@@ -79,7 +68,7 @@ private:
         throw EBadArgumentsException("[RUNTIME_ERROR] Table insert error.");
     }
 
-    void checkForSyntaxErrors(const string &query) const  {
+    void checkForSyntaxErrors(const string &query) const {
         if (!regex_match(query, regex(".*\\s+into.*", regex_constants::icase)))
             throw EMissingKeywordsException("[SYNTAX_ERROR] No INTO keyword");
         if (!regex_match(query, regex(".*\\s+values.*", regex_constants::icase)))
@@ -100,28 +89,18 @@ private:
         }
     }
 
-    string getTableNameForErrorMsg(const string &query) const {
-        std::smatch matches;
-        if (regex_search(query, matches, regex("into\\s+(\\w+)", regex_constants::icase))) {
-            return matches[1];
-        }
-        return "";
+
+    regex getRegexPattern() const override {
+        return regex(
+                "^\\s*insert\\s+into\\s+([a-zA-Z_]+)\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\")\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\")\\s*)*)\\s*\\)\\s+values\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\")\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\"))*)*\\s*\\)\\s*$",
+                regex_constants::icase);
     }
 
-    Table *tryToGetTableFromQuery(const string &query, const Database *database) const {
-        checkForSyntaxErrors(query);
 
-        Table *table = nullptr;
-
-        std::smatch matches;
-        if (regex_search(query, matches, regex("into\\s+(\\w+)", regex_constants::icase))) {
-            table = database->tryGettingTableByNameCaseI(matches[1]);
-        }
-
-        if (!table)
-            throw EBadArgumentsException("[RUNTIME_ERROR] Table " + getTableNameForErrorMsg(query) + " not found.");
-        return table;
+    regex getRegexForFindingTable() const override {
+        return regex("into\\s+(\\w+)",regex_constants::icase);
     }
+
 };
 
 
