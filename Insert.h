@@ -17,13 +17,18 @@ private:
     Database *database;
 
     void handleInput(const string &input) const {
-        std::smatch matches;
-        if (regex_search(input, matches,
-                         regex("^\\s*insert\\s+into\\s+([a-zA-Z_]+)\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\")\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\")\\s*)*)\\s*\\)\\s+values\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\")\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\"))*)*\\s*\\)\\s*",
-                               regex_constants::icase))) {
+        smatch matches;
+        if (regex_search(input, matches, getRegexPattern()))
             executingQuery(matches);
+        else
+            runtimeErrors(input);
+    }
 
-        } else runtimeErrors(input);
+
+    regex getRegexPattern() const {
+        return regex(
+                "^\\s*insert\\s+into\\s+([a-zA-Z_]+)\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\")\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\")\\s*)*)\\s*\\)\\s+values\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\")\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\"))*)*\\s*\\)\\s*$",
+                regex_constants::icase);
     }
 
     void executingQuery(const smatch &matches) const {
@@ -36,7 +41,7 @@ private:
         StringManipulator::instance().removeQuotesAndLeadingSpaces(values);
 
         Record record = Record();
-        for(const string& val : values) {
+        for (const string &val: values) {
             record.addData(val);
         }
 
@@ -47,20 +52,23 @@ private:
 
     void checkIfAllColumnsAreThere(vector<string> listOfColumns, const size_t listOfValuesSize) const {
         if (listOfColumns.size() != table->getTableHeaders().size())
-            throw EBadArgumentsException("[RUNTIME_ERROR] Every column from " + table->getName() + " should be selected while inserting");
+            throw EBadArgumentsException(
+                    "[RUNTIME_ERROR] Every column from " + table->getName() + " should be selected while inserting");
 
-        if(listOfValuesSize != listOfColumns.size())
-            throw EBadArgumentsException("[RUNTIME_ERROR] Every column from " + table->getName() + " should be given value.");
+        if (listOfValuesSize != listOfColumns.size())
+            throw EBadArgumentsException(
+                    "[RUNTIME_ERROR] Every column from " + table->getName() + " should be given value.");
 
         bool found = false;
-        for(string& column : listOfColumns) {
-            for(const string& tableColumn : table->getTableHeaders()) {
-                if(regex_match(column, regex("\\s*(?:\\'|\\\")\\s*" + tableColumn + "\\s*(?:\\'|\\\")\\s*", regex_constants::icase))) {
+        for (string &column: listOfColumns) {
+            for (const string &tableColumn: table->getTableHeaders()) {
+                if (regex_match(column, regex("\\s*(?:\\'|\\\")\\s*" + tableColumn + "\\s*(?:\\'|\\\")\\s*",
+                                              regex_constants::icase))) {
                     found = true;
                     break;
                 }
             }
-            if(!found)
+            if (!found)
                 throw EBadArgumentsException("[RUNTIME_ERROR] " + column + " does not exist in " + table->getName());
         }
     }
@@ -86,6 +94,17 @@ private:
             throw EMissingKeywordsException("[SYNTAX_ERROR] No VALUES keyword");
         if (regex_match(query, regex(".*\\s+into\\s*$", regex_constants::icase))) {
             throw EMissingArgumentsException("[SYNTAX_ERROR] INSERT INTO has no argument.");
+        }
+
+        // multiple keywords
+        if (regex_match(query, regex(".*create.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] CREATE with INSERT not allowed within the same statement.");
+        } else if (regex_match(query, regex(".*select.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] SELECT with INSERT not allowed within the same statement.");
+        } else if (regex_match(query, regex(".*delete.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] DELETE with INSERT not allowed within the same statement.");
+        } else if (regex_match(query, regex(".*create.*create.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] Multiple INSERT keywords not allowed within the same statement.");
         }
     }
 

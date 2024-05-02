@@ -5,6 +5,9 @@
 #include "Statement.h"
 
 class Update : public Statement {
+public:
+
+private:
 
 };
 

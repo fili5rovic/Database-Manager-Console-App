@@ -20,14 +20,21 @@ private:
 
     void handleInput(const string &input) const {
         std::smatch matches;
-        if (regex_search(input, matches,
-                         regex("^\\s*drop\\s+table\\s+([a-zA-Z_]+)\\s*",
-                               regex_constants::icase))) {
-            if (this->database)
-                database->removeTable(table->getName());
-            StringManipulator::instance().newMessageGreen("Table " + table->getName() + " successfully dropped.");
+        if (regex_search(input, matches, getRegexPattern()))
+            executingQuery(matches);
+        else runtimeErrors(input);
+    }
 
-        } else runtimeErrors(input);
+    regex getRegexPattern() const {
+        return regex("^\\s*drop\\s+table\\s+([a-zA-Z_]+)\\s*",regex_constants::icase);
+    }
+
+
+    void executingQuery(const smatch) const {
+        if (this->database)
+            database->removeTable(table->getName());
+
+        StringManipulator::instance().newMessageGreen("Table " + table->getName() + " successfully dropped.");
     }
 
     void runtimeErrors(const string &input) const {
@@ -40,9 +47,24 @@ private:
     void checkForSyntaxErrors(const string &query) const {
         if (!regex_match(query, regex(".*\\s+table.*", regex_constants::icase)))
             throw EMissingKeywordsException("[SYNTAX_ERROR] No TABLE keyword");
-        if (regex_match(query,regex(".*\\s+table\\s*$", regex_constants::icase))) {
+        if (regex_match(query, regex(".*\\s+table\\s*$", regex_constants::icase))) {
             throw EMissingArgumentsException("[SYNTAX_ERROR] DROP TABLE has no argument.");
         }
+
+        // multiple keywords
+        if (regex_match(query, regex(".*create.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] CREATE with DROP not allowed within the same statement.");
+        } else if (regex_match(query, regex(".*select.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] SELECT with DROP not allowed within the same statement.");
+        } else if (regex_match(query, regex(".*delete.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] DELETE with DROP not allowed within the same statement.");
+        } else if (regex_match(query, regex(".*insert.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] TABLE with INSERT not allowed within the same statement.");
+        } else if (regex_match(query, regex(".*drop.*drop.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException(
+                    "[SYNTAX_ERROR] Multiple DROP keywords not allowed within the same statement.");
+        }
+
     }
 
     string getTableNameForErrorMsg(const string &query) const {
