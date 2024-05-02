@@ -13,9 +13,7 @@ class Select : public Statement {
 public:
     Select(const string &input,const Database* database) : Statement(tryToGetTableFromSelectQuery(input, database), input){}
 
-    void execute() override {
-        handleQuery(inputQuery);
-    }
+
 
 private:
 
@@ -24,8 +22,11 @@ private:
         return regex(R"(^\s*select\s+((?:\w+|\*)(?:\s*,\s*(?:\w+|\*))*)\s+from\s+(\w+)+\s*(?:where\s+((\w+)\s*(\=|\<\>|\!\=)\s*('\w+'|"\w+"|\w+)(?:\s+(and|or)\s*(\w+)\s*(\=|\<\>|\!\=)\s*('\w+'|"\w+"|\w+))*))?)", regex_constants::icase);;
     }
 
+    const regex getRegexForFindingTable() const override {
+        return regex("from\\s+(\\w+)", regex_constants::icase);
+    }
 
-    static void checkForSyntaxErrors(const string &query) {
+    void checkForSyntaxErrors(const string &query) const {
         // from not detected
         if (!regex_match(query, regex(".*\\s+from\\s*.*", regex_constants::icase))) {
             throw EMissingKeywordsException("[SYNTAX_ERROR] No FROM keyword specified.");
@@ -53,25 +54,22 @@ private:
         }
     }
 
+    void runtimeErrors(const std::string &input) const override {
+        StringManipulator::instance().newMessageRed("[RUNTIME_ERROR] Runtime error.");
+    }
 
-    void handleQuery(const string &inputQuery) const{
-        std::smatch matches;
-        if (regex_search(inputQuery, matches, getRegexPattern())) {
-            string argumentsStr = matches[1];
-            StringManipulator::removeSpaces(argumentsStr);
-            string fromTableStr = matches[2];
-            string whereStr = matches[3];
+    void executingQuery(const smatch &matches) const override {
+        string argumentsStr = matches[1];
+        StringManipulator::removeSpaces(argumentsStr);
+        string fromTableStr = matches[2];
+        string whereStr = matches[3];
 
-            vector<string> arguments = StringManipulator::splitString(argumentsStr, ',');
-            try {
-                Filter f(this->table, arguments, whereStr);
-                cout << *f.getTableWithAppliedFilter();
-            } catch(EInvalidColumnNameException& e) {
-                StringManipulator::instance().newMessageRed(e.what());
-            }
-
-        } else {
-            StringManipulator::instance().newMessageRed("[ERROR] Syntax error");
+        vector<string> arguments = StringManipulator::splitString(argumentsStr, ',');
+        try {
+            Filter f(this->table, arguments, whereStr);
+            cout << *f.getTableWithAppliedFilter();
+        } catch(EInvalidColumnNameException& e) {
+            StringManipulator::instance().newMessageRed(e.what());
         }
     }
 

@@ -174,6 +174,7 @@ void mainMenu() {
                 //TODO: After making formats, consider exporting
                 break;
             case 0:
+                printActualInput(opts[3]);
                 StringManipulator::instance().newMessageGreen("Program exited successfully.");
                 userWantsToQuit = true;
         }

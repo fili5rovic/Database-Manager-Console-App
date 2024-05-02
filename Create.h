@@ -12,23 +12,10 @@ public:
             : Statement(new Table(getTableNameFromCreateQuery(input)), input), database(database) {}
 
 
-    void execute() override {
-        handleQuery(inputQuery);
-    }
-
-
 private:
     Database *database;
 
-    void handleQuery(const string &input) {
-        smatch matches;
-        if (regex_search(input, matches, getRegexPattern()))
-            executingQuery(matches);
-        else
-            runtimeErrors(input);
-    }
-
-    void executingQuery(const smatch &matches) const {
+    void executingQuery(const smatch &matches) const override {
         vector<string> tableColumns = StringManipulator::instance().splitString(matches[2], ',');
         for (string &columnName: tableColumns) {
             StringManipulator::removeSpaces(columnName);
@@ -39,9 +26,13 @@ private:
         cout << *table;
     }
 
-    const regex getRegexPattern() const {
+    const regex getRegexPattern() const override {
         return regex("^\\s*create\\s+table\\s+([a-zA-Z_]+)\\s*\\(\\s*(\\w+\\s*(?:,\\s*\\w+)*)\\s*\\)",
                      regex_constants::icase);
+    }
+
+    const regex getRegexForFindingTable() const override {
+        return regex("^\\s*create\\s+table\\s+(\\w+)(?:s*|\\()", regex_constants::icase);
     }
 
 
@@ -52,7 +43,7 @@ private:
     }
 
 
-    void runtimeErrors(const string &input) const {
+    void runtimeErrors(const string &input) const override {
         std::smatch matches;
         if (regex_match(input, regex("\\s*create\\s+table\\s+\\w+\\s*", regex_constants::icase))) {
             throw EBadArgumentsException("[RUNTIME_ERROR] No table column names passed.");
@@ -65,7 +56,7 @@ private:
     }
 
 
-    void checkForSyntaxErrors(const string &query) const {
+    void checkForSyntaxErrors(const string &query) const  {
         if (!regex_match(query, regex(".*\\s+table.*", regex_constants::icase)))
             throw EMissingKeywordsException("[SYNTAX_ERROR] No TABLE keyword");
 

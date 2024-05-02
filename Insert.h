@@ -9,29 +9,21 @@ public:
     Insert(const string &input, Database *database)
             : Statement(tryToGetTableFromQuery(input, database), input), database(database) {}
 
-    void execute() override {
-        handleInput(inputQuery);
-    }
 
 private:
     Database *database;
 
-    void handleInput(const string &input) const {
-        smatch matches;
-        if (regex_search(input, matches, getRegexPattern()))
-            executingQuery(matches);
-        else
-            runtimeErrors(input);
-    }
-
-
-    regex getRegexPattern() const {
+    const regex getRegexPattern() const override {
         return regex(
                 "^\\s*insert\\s+into\\s+([a-zA-Z_]+)\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\")\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\")\\s*)*)\\s*\\)\\s+values\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\")\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\"))*)*\\s*\\)\\s*$",
                 regex_constants::icase);
     }
 
-    void executingQuery(const smatch &matches) const {
+    const regex getRegexForFindingTable() const override {
+        return regex("into\\s+(\\w+)",regex_constants::icase);
+    }
+
+    void executingQuery(const smatch &matches) const override {
         string tableName = matches[1];
         vector<string> listOfColumns = StringManipulator::instance().splitString(matches[2], ',');
         vector<string> values = StringManipulator::instance().splitString(matches[3], ',');
@@ -73,7 +65,7 @@ private:
         }
     }
 
-    void runtimeErrors(const string &input) const {
+    void runtimeErrors(const string &input) const override {
         cout << "DIDNT MATCH" << endl;
         if (!regex_match(this->table->getName(), regex("[a-zA-Z_]+", regex_constants::icase))) {
             throw EBadArgumentsException("[RUNTIME_ERROR] Invalid table name.");
@@ -87,7 +79,7 @@ private:
         throw EBadArgumentsException("[RUNTIME_ERROR] Table insert error.");
     }
 
-    void checkForSyntaxErrors(const string &query) const {
+    void checkForSyntaxErrors(const string &query) const  {
         if (!regex_match(query, regex(".*\\s+into.*", regex_constants::icase)))
             throw EMissingKeywordsException("[SYNTAX_ERROR] No INTO keyword");
         if (!regex_match(query, regex(".*\\s+values.*", regex_constants::icase)))

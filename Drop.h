@@ -11,33 +11,27 @@ public:
     Drop(const string &input, Database *database)
             : Statement(tryToGetTableFromDropQuery(input, database), input), database(database) {}
 
-    void execute() override {
-        handleInput(inputQuery);
-    }
-
 private:
     Database *database;
 
-    void handleInput(const string &input) const {
-        std::smatch matches;
-        if (regex_search(input, matches, getRegexPattern()))
-            executingQuery(matches);
-        else runtimeErrors(input);
-    }
 
-    regex getRegexPattern() const {
+    const regex getRegexPattern() const override {
         return regex("^\\s*drop\\s+table\\s+([a-zA-Z_]+)\\s*",regex_constants::icase);
     }
 
+    const regex getRegexForFindingTable() const override {
+        return regex("table\\s+(\\w+)", regex_constants::icase);
+    }
 
-    void executingQuery(const smatch) const {
+
+    void executingQuery(const smatch& matches) const override {
         if (this->database)
             database->removeTable(table->getName());
 
         StringManipulator::instance().newMessageGreen("Table " + table->getName() + " successfully dropped.");
     }
 
-    void runtimeErrors(const string &input) const {
+    void runtimeErrors(const string &input) const override {
         if (!regex_match(this->table->getName(), regex("[a-zA-Z_]+", regex_constants::icase))) {
             throw EBadArgumentsException("[RUNTIME_ERROR] Invalid table name.");
         }
