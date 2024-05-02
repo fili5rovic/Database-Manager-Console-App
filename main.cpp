@@ -165,8 +165,6 @@ int main() {
 //    table->addRecord(r2);
 //
 //    cout << *table;
-
-
     return 0;
 
 

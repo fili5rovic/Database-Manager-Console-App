@@ -10,6 +10,7 @@
 #include "Select.h"
 #include "Create.h"
 #include "Drop.h"
+#include "Insert.h"
 
 using namespace std;
 
@@ -28,7 +29,7 @@ public:
     void start() {
         vector<string> inputQueries = editor();
         for (auto inputQuery: inputQueries) {
-            StringManipulator::removeMoreSpaces(inputQuery);
+            StringManipulator::removeDuplicateSpaces(inputQuery);
             if (inputQuery.empty())
                 return;
             cout << endl << "INPUT QUERY: " << inputQuery << endl;
@@ -52,18 +53,18 @@ private:
     const string TABLECOLOR = StringManipulator::instance().MYCOLOR(66, 255, 186);
     const string RESETCOLOR = StringManipulator::instance().RESETCOLOR();
 
-
+    // todo proper painting
     string colorKeywords(string str) {
-        regex pattern;
-        vector<string> regexStrings{"SELECT", "FROM", "WHERE", "INSERT", "INTO", "CREATE", "TABLE", "DROP"};
+        regex pattern;      // add AND, OR later to keywords
+        vector<string> keywords{"SELECT", "FROM", "WHERE", "INSERT", "INTO", "CREATE", "TABLE", "DROP"};
         vector<string> keywordReplacementStrings;
-        keywordReplacementStrings.reserve(regexStrings.size());
-        for (const string &reg: regexStrings) {
+        keywordReplacementStrings.reserve(keywords.size());
+        for (const string &reg: keywords) {
             keywordReplacementStrings.push_back(KEYWORDCOLOR + reg + RESETCOLOR);
         }
 
-        for (int i = 0; i < regexStrings.size(); i++) {
-            pattern = regex(regexStrings[i], regex_constants::icase);
+        for (int i = 0; i < keywords.size(); i++) {
+            pattern = regex(keywords[i], regex_constants::icase);
             str = regex_replace(str, pattern, keywordReplacementStrings[i]);
         }
         return str;
@@ -174,14 +175,19 @@ private:
 
     // throws Errors, should be caught when being called
     void findOutQueryType(const string &query) {
-        Statement *type = nullptr;
+//        Statement *type = nullptr;
+        std::shared_ptr<Statement> type = nullptr;
         if (regex_match(query, regex("^\\s*select.*", regex_constants::icase))) {
-            type = new Select(query, database);
+            type = std::make_shared<Select>(query, database);
         } else if (regex_match(query, regex("^\\s*create.*", regex_constants::icase))) {
-            type = new Create(query, database);
+            type = std::make_shared<Create>(query, database);
         } else if (regex_match(query, regex("^\\s*drop.*", regex_constants::icase))) {
-            cout << "DROP" << endl;
-            type = new Drop(query, database);
+            type = std::make_shared<Drop>(query, database);
+        } else if(regex_match(query, regex("^\\s*insert.*",regex_constants::icase))) {
+            type = std::make_shared<Insert>(query, database);
+        } else if(regex_match(query, regex("^\\s*show\\s+tables\\s*", regex_constants::icase))) {
+            cout << *database;
+            return;
         }
         if (!type) {
             throw ENoKeywordsException("[SYNTAX_ERROR] No keywords detected. Can't detect query.");

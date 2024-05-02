@@ -15,8 +15,8 @@ protected:
     Table* table;
     const string inputQuery;
 
-
     Statement(Table* table, const string& inputQuery) : table(table), inputQuery(inputQuery) {}
+
 };
 
 

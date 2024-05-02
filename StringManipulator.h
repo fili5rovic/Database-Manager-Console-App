@@ -150,7 +150,7 @@ public:
         return tokens;
     }
 
-    static void removeMoreSpaces(string &str) {
+    static void removeDuplicateSpaces(string &str) {
         str.erase(std::unique(str.begin(), str.end(), [](char a, char b) {
             return a == ' ' && b == ' ';
         }), str.end());
@@ -166,8 +166,6 @@ public:
         str = result;
     }
 
-
-
     static bool caseInsensitiveStringCompare(const std::string& str1, const std::string& str2) {
         if (str1.length() != str2.length())
             return false;
@@ -180,12 +178,26 @@ public:
         return true;
     }
 
-    void removeSubstring(string& mainStr, const string& substr) {
-        size_t pos = mainStr.find(substr);
-        if (pos != string::npos) {
-            mainStr.erase(pos, substr.length());
+    // Trim whitespaces from the beginning and end of a string
+    string trim(const string& str) {
+        size_t first = str.find_first_not_of(" \t\n\r");
+        if (first == string::npos)
+            return "";
+
+        size_t last = str.find_last_not_of(" \t\n\r");
+        return str.substr(first, last - first + 1);
+    }
+
+    void removeQuotesAndLeadingSpaces(vector<string>& strings) {
+        vector<string> result;
+        for (string& str : strings) {
+            str = trim(str);
+            if ((str.front() == '\"' && str.back() == '\"') || (str.front() == '\'' && str.back() == '\''))
+                str = str.substr(1, str.size() - 2);
+            result.push_back(str);
         }
     }
+
 
 
 };

@@ -8,8 +8,8 @@
 class Drop : public Statement {
 public:
 
-    Drop(const string &inputQuery, Database *database)
-            : Statement(tryToGetTableFromDropQuery(inputQuery, database), inputQuery), database(database) {}
+    Drop(const string &input, Database *database)
+            : Statement(tryToGetTableFromDropQuery(input, database), input), database(database) {}
 
     void execute() override {
         handleInput(inputQuery);
@@ -18,7 +18,7 @@ public:
 private:
     Database *database;
 
-    void handleInput(const string &input) {
+    void handleInput(const string &input) const {
         std::smatch matches;
         if (regex_search(input, matches,
                          regex("^\\s*drop\\s+table\\s+([a-zA-Z_]+)\\s*",
@@ -30,11 +30,11 @@ private:
         } else runtimeErrors(input);
     }
 
-    void runtimeErrors(const string &input) {
+    void runtimeErrors(const string &input) const {
         if (!regex_match(this->table->getName(), regex("[a-zA-Z_]+", regex_constants::icase))) {
             throw EBadArgumentsException("[RUNTIME_ERROR] Invalid table name.");
         }
-        throw EBadArgumentsException("[SYNTAX_ERROR] Table drop error.");
+        throw EBadArgumentsException("[RUNTIME_ERROR] Table drop error.");
     }
 
     void checkForSyntaxErrors(const string &query) const {
