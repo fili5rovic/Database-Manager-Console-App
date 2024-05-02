@@ -13,20 +13,17 @@ class Select : public Statement {
 public:
     Select(const string &input,const Database* database) : Statement(tryToGetTableFromSelectQuery(input, database), input){}
 
-
     void execute() override {
-        checkForSyntaxErrors(inputQuery);
         handleQuery(inputQuery);
     }
 
+private:
 
-    static const regex &getRegexPattern() {
-        return regexPattern;
+
+    const regex getRegexPattern() const {
+        return regex(R"(^\s*select\s+((?:\w+|\*)(?:\s*,\s*(?:\w+|\*))*)\s+from\s+(\w+)+\s*(?:where\s+((\w+)\s*(\=|\<\>|\!\=)\s*('\w+'|"\w+"|\w+)(?:\s+(and|or)\s*(\w+)\s*(\=|\<\>|\!\=)\s*('\w+'|"\w+"|\w+))*))?)", regex_constants::icase);;
     }
 
-
-private:
-    static const regex regexPattern;
 
     static void checkForSyntaxErrors(const string &query) {
         // from not detected
@@ -57,9 +54,9 @@ private:
     }
 
 
-    void handleQuery(const string &inputQuery) {
+    void handleQuery(const string &inputQuery) const{
         std::smatch matches;
-        if (regex_search(inputQuery, matches, Select::getRegexPattern())) {
+        if (regex_search(inputQuery, matches, getRegexPattern())) {
             string argumentsStr = matches[1];
             StringManipulator::removeSpaces(argumentsStr);
             string fromTableStr = matches[2];
