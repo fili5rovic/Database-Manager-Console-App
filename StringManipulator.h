@@ -167,8 +167,6 @@ public:
     }
 
 
-
-    // Trim whitespaces from the beginning and end of a string
     string trim(const string& str) {
         size_t first = str.find_first_not_of(" \t\n\r");
         if (first == string::npos)
@@ -177,6 +175,7 @@ public:
         size_t last = str.find_last_not_of(" \t\n\r");
         return str.substr(first, last - first + 1);
     }
+
 
     void removeQuotesAndLeadingSpaces(vector<string>& strings) {
         vector<string> result;
