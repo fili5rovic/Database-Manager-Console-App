@@ -10,6 +10,7 @@ class Create : public Statement {
 public:
     Create(const string &input, Database *database): Statement(input, database) {}
 
+
     void execute() override {
         table = new Table(getTableNameFromCreateQuery(inputQuery));
         handleQuery(inputQuery);
@@ -24,16 +25,12 @@ private:
             StringManipulator::removeSpaces(columnName);
             table->addHeader(columnName);
         }
-        if (this->database)
-            addTableToDatabaseIfUnique();
+        if (this->database) {
+            if (this->database->tryGettingTableByNameCaseI(table->getName()))
+                throw EBadArgumentsException("[RUNTIME_ERROR] Table with identical name exists inside a database!");
+            this->database->addTable(*this->table);
+        }
         cout << *table;
-    }
-
-
-    void addTableToDatabaseIfUnique() const {
-        if (this->database->tryGettingTableByNameCaseI(table->getName()))
-            throw EBadArgumentsException("[RUNTIME_ERROR] Table with identical name exists inside a database!");
-        this->database->addTable(*this->table);
     }
 
     string getTableNameFromCreateQuery(const string &query) const {

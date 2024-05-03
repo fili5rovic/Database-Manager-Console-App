@@ -59,11 +59,12 @@ public: // todo Can't contain numbers in table name
                 break;
             }
         }
+
         if (columnIndex == -1) {
-            throw EBadArgumentsException("[ERROR] Column " + colName + " does not exist inside " + this->name);
+            throw EBadArgumentsException("[RUNTIME_ERROR] Column " + colName + " does not exist inside " + this->name);
         }
 
-        for (const auto &record: this->records) {
+        for (const Record& record: this->records) {
             Record r = Record();
             r.addData(record.getData().at(columnIndex));
             t->addRecord(r);
@@ -107,6 +108,10 @@ public: // todo Can't contain numbers in table name
 
     const vector<Record> &getTableRecords() const {
         return this->records;
+    }
+
+    vector<Record>& getTableRecordsByReference() const {
+        return records;
     }
     //</editor-fold>
 

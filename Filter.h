@@ -28,13 +28,16 @@ public:
         }
         return finalTable;
     }
+
+
+
 private:
     // outer vector stores conditions seperated by OR, inner by AND
     vector<vector<shared_ptr<Condition>>> conditions;
     Table* table;
     vector<string> selectedColumns;
 
-    void updateTableRows() const{
+    void updateTableRows() const {
         Table* tempTable;
         for(const auto& vec : conditions) {
             // last vector has the result of all ANDs between an OR
@@ -66,6 +69,8 @@ private:
         }
         return "-1";
     }
+
+
     void setHeaderAndNameFromParameterTable(const Table* t) {
         table = new Table("RESULT");
         for(const string& header : t->getTableHeaders()) {
@@ -80,25 +85,27 @@ private:
             return;
         }
         setHeaderAndNameFromParameterTable(t);
+
         vector<string> orStrings = getOrStringsFromWhere(whereArgs);
         for (const string &conditionWithAnds: orStrings) {
             Table* tempTable = new Table(*t);
             vector<string> conditionStrings = getAndStringsFromOrStrings(conditionWithAnds);
             vector<shared_ptr<Condition>> innerVector;
             for (string &condStr: conditionStrings) {
-                cout << condStr << " ";
+                shared_ptr<Condition> condition;
                 string valueStr;
+
                 smatch matches;
-                shared_ptr<Condition> e;
                 if (regex_search(condStr, matches,regex("^(\\w+)\\s+\\=\\s+(?:(\\w+)|'(\\w+)'|\"(\\w+)\")$", regex_constants::icase))) {
                     valueStr = getCorrectMatch(matches);
-                    e = std::make_shared<Equal>(tempTable, matches[1], valueStr);
+                    condition = std::make_shared<Equal>(tempTable, matches[1], valueStr);
                 } else if(regex_search(condStr, matches,regex("^(\\w+)\\s+(?:\\!\\=|\\<\\>)\\s+(?:(\\w+)|'(\\w+)'|\"(\\w+)\")$", regex_constants::icase))) {
                     valueStr = getCorrectMatch(matches);
-                    e = std::make_shared<NotEqual>(tempTable, matches[1], valueStr);
+                    condition = std::make_shared<NotEqual>(tempTable, matches[1], valueStr);
                 }
-                tempTable = e->getConditionedTable();
-                innerVector.push_back(e);
+
+                tempTable = condition->getConditionedTable();
+                innerVector.push_back(condition);
             }
             this->conditions.push_back(innerVector);
             cout << endl;

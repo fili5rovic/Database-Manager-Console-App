@@ -11,6 +11,7 @@
 #include "Create.h"
 #include "Drop.h"
 #include "Insert.h"
+#include "Update.h"
 
 using namespace std;
 
@@ -185,6 +186,8 @@ private:
             type = std::make_shared<Drop>(query, database);
         } else if(regex_match(query, regex("^\\s*insert.*",regex_constants::icase))) {
             type = std::make_shared<Insert>(query, database);
+        } else if(regex_match(query, regex("^\\s*update.*",regex_constants::icase))) {
+            type = std::make_shared<Update>(query, database);
         } else if(regex_match(query, regex("^\\s*show\\s+tables\\s*", regex_constants::icase))) {
             cout << *database;
             return;

@@ -13,20 +13,6 @@ public:
         initFieldPositionInVector(columnName);
     }
 
-    shared_ptr<Table> getConditionedTableShared() const {
-        shared_ptr<Table> nTable = std::make_shared<Table>(table->getName());
-
-        for(const string& columnName : table->getTableHeaders()) {
-            nTable->addHeader(columnName);
-        }
-
-        for(const Record& record : table->getTableRecords()) {
-            if(evaluate(record))
-                nTable->addRecord(record);
-        }
-        return nTable;
-    }
-
     Table* getConditionedTable() const {
         Table* nTable = new Table(table->getName());
 
@@ -34,7 +20,7 @@ public:
             nTable->addHeader(columnName);
         }
 
-        for(const Record& record : table->getTableRecords()) {
+        for(Record& record : table->getTableRecordsByReference()) {
             if(evaluate(record))
                 nTable->addRecord(record);
         }
