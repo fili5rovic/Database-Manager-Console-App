@@ -20,13 +20,49 @@ private:
         string fromTableStr = matches[2];
         string whereStr = matches[3];
 
-        vector<string> arguments = StringManipulator::splitString(argumentsStr, ',');
+        vector<string> selectedColumns = StringManipulator::splitString(argumentsStr, ',');
+
+        Table* filteredTable;
+
         try {
-            Filter f(this->table, arguments, whereStr);
-            cout << *f.getTableWithAppliedFilter();
+            Filter f(this->table,whereStr);
+            filteredTable = f.getFilteredTable();
         } catch(EInvalidColumnNameException& e) {
             StringManipulator::instance().newMessageRed(e.what());
         }
+
+        cout << *getTableWithSelectedColumns(filteredTable,selectedColumns);
+    }
+
+    static Table* getTableWithSelectedColumns(Table* tableArg, vector<string> selectedColumns)  {
+        if(selectedColumns.size() == 1 && selectedColumns.at(0) == "*") {
+            return tableArg;
+        }
+
+        Table* finalTable = new Table(tableArg->getName());
+        selectedColumns = getProcessedSelectedColumns(tableArg, selectedColumns);
+
+        for(int i = 0; i < tableArg->getTableRecords().size(); i++)
+            finalTable->addRecord(Record());
+
+        for(const auto& selectedColumn : selectedColumns) {
+            Table* tempTable = tableArg->getSubTable(selectedColumn);
+            finalTable = Table::getMergedTable(finalTable, tempTable);
+        }
+        return finalTable;
+    }
+
+    static vector<string> getProcessedSelectedColumns(Table* tableArg, vector<string> selectedColumns) {
+        vector<string> processedSelectedColumns;
+        processedSelectedColumns.reserve(selectedColumns.size());
+        for(const string& column : selectedColumns) {
+            if(column == "*") {
+                for(const string& header : tableArg->getTableHeaders())
+                    processedSelectedColumns.push_back(header);
+            } else
+                processedSelectedColumns.push_back(column);
+        }
+        return processedSelectedColumns;
     }
 
 

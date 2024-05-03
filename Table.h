@@ -31,6 +31,11 @@ public: // todo Can't contain numbers in table name
         return *this;
     }
 
+    friend ostream &operator<<(ostream &os, const Table &t) {
+        t.tablePrint();
+        return os;
+    }
+
     void addRecord(const Record &r) {
         records.push_back(r);
     }
@@ -39,10 +44,32 @@ public: // todo Can't contain numbers in table name
         header.push_back(s);
     }
 
+    Record& getRecordByIndex(int index) {
+        if(index < 0 || index >= records.size()) {
+            throw std::out_of_range("Index out of range");
+        }
+        return records[index];
+    }
 
-    friend ostream &operator<<(ostream &os, const Table &t) {
-        t.tablePrint();
-        return os;
+    int getRecordIndex(const vector<string>& values) const {
+        for(int i = 0; i < records.size(); i++) {
+            bool same = true;
+            for(int j = 0; j < records[i].getData().size() ; j++) {
+                if(values[j] != records[i].getData()[j]) {
+                    same = false;
+                    break;
+                }
+            }
+            if(same)
+                return i;
+        }
+        return -1;
+    }
+
+    void removeRecordFromIndex(int index) {
+        if(index < 0 || index >= records.size())
+            throw std::out_of_range("[RUNTIME_ERROR] Index out of range");
+        records.erase(records.begin() + index);
     }
 
     //<editor-fold desc="Getters">
@@ -77,25 +104,24 @@ public: // todo Can't contain numbers in table name
         for (const string &h1: t1->header) {
             finalTable->addHeader(h1);
         }
+
         for (const string &h2: t2->header) {
             finalTable->addHeader(h2);
         }
+
         for (int i = 0; i < t1->records.size(); i++) {
             Record record = Record();
-
-            for (const auto &str1: t1->records.at(i).getData()) {
+            for (const string& str1: t1->records.at(i).getData()) {
                 record.addData(str1);
             }
-            for (const auto &str2: t2->records.at(i).getData()) {
+            for (const string& str2: t2->records.at(i).getData()) {
                 record.addData(str2);
             }
             finalTable->addRecord(record);
         }
 
         return finalTable;
-
     }
-
 
 
     const string &getName() const {
@@ -183,7 +209,7 @@ private:
             middlePartTablePrint(width);
 
         for (auto it = records.begin(); it != records.end(); ++it) {
-            const auto &record = *it;
+            const Record& record = *it;
             cout << verticalLine;
             for (int i = 0; i < record.getData().size(); i++) {
                 int padding = width[i] - record.getData()[i].size();
@@ -281,21 +307,6 @@ private:
 
         return width;
     }
-
-    static void tablePrint1(ostream &os, const Table &t) {
-        os << "Table \033[35m" << t.name << "\033[0m:" << endl;
-        for (auto it = t.header.begin(); it != t.header.end(); ++it) {
-            if (it != t.header.begin())
-                os << ' ';
-            os << *it;
-        }
-        os << endl;
-        for (auto it = t.records.begin(); it != t.records.end(); ++it) {
-            os << *it;
-        }
-        os << endl;
-    }
-
 
 };
 

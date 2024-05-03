@@ -10,77 +10,24 @@
 class Filter {
 public:
 
-    Filter(const Table *t, const vector<string> &selectedColumns, const string &whereArgsString) : selectedColumns(selectedColumns){
+    Filter(const Table *t, const string &whereArgsString)  {
         init(t, whereArgsString);
     }
 
-    Table* getTableWithAppliedFilter() {
-        Table* finalTable = new Table(table->getName());
-        this->selectedColumns = getProcessedSelectedColumns();
-
-        for(int i = 0; i < table->getTableRecords().size(); i++)
-            finalTable->addRecord(Record());
-
-
-        for(const auto& selectedColumn : selectedColumns) {
-            Table* tempTable = table->getSubTable(selectedColumn);
-            finalTable = Table::getMergedTable(finalTable, tempTable);
-        }
-        return finalTable;
+    Table* getFilteredTable() {
+        return this->table;
     }
-
 
 
 private:
     // outer vector stores conditions seperated by OR, inner by AND
     vector<vector<shared_ptr<Condition>>> conditions;
     Table* table;
-    vector<string> selectedColumns;
 
-    void updateTableRows() const {
-        Table* tempTable;
-        for(const auto& vec : conditions) {
-            // last vector has the result of all ANDs between an OR
-            tempTable = vec.at(vec.size()-1)->getConditionedTable();
-
-            for(const auto& rec : tempTable->getTableRecords()) {
-                table->addRecord(rec);
-            }
-        }
-    }
-
-    vector<string> getProcessedSelectedColumns() {
-        vector<string> processedSelectedColumns;
-        processedSelectedColumns.reserve(selectedColumns.size());
-        for(const string& column : this->selectedColumns) {
-            if(column == "*") {
-                for(const string& header : table->getTableHeaders())
-                    processedSelectedColumns.push_back(header);
-            } else
-                processedSelectedColumns.push_back(column);
-        }
-        return processedSelectedColumns;
-    }
-
-    const string getCorrectMatch(const std::smatch& matches) const {
-        for(int i = 2; i < matches.length();i++) {
-            if(matches[i].length() > 0)
-                return matches[i];
-        }
-        return "-1";
-    }
-
-
-    void setHeaderAndNameFromParameterTable(const Table* t) {
-        table = new Table("RESULT");
-        for(const string& header : t->getTableHeaders()) {
-            table->addHeader(header);
-        }
-    }
 
     // creates conditions, only called during object creation
     void init(const Table *t, const string &whereArgs) {
-        if(whereArgs.length() == 0) {
+        if(whereArgs.empty()) {
             table = new Table(*t);
             return;
         }
@@ -108,11 +55,40 @@ private:
                 innerVector.push_back(condition);
             }
             this->conditions.push_back(innerVector);
-            cout << endl;
         }
 
         updateTableRows();
     }
+
+    void updateTableRows() const {
+        Table* tempTable;
+        for(const auto& vec : conditions) {
+            // last vector has the result of all ANDs between an OR
+            tempTable = vec.at(vec.size()-1)->getConditionedTable();
+            for(Record& rec : tempTable->getTableRecordsByReference()) {
+                table->addRecord(rec);
+            }
+        }
+    }
+
+
+    const string getCorrectMatch(const std::smatch& matches) const {
+        for(int i = 2; i < matches.length();i++) {
+            if(matches[i].length() > 0)
+                return matches[i];
+        }
+        return "-1";
+    }
+
+
+    void setHeaderAndNameFromParameterTable(const Table* t) {
+        table = new Table("RESULT");
+        for(const string& header : t->getTableHeaders()) {
+            table->addHeader(header);
+        }
+    }
+
+
 
     // gets normal strings
     static vector<string> getAndStringsFromOrStrings(const string &whereStr) {

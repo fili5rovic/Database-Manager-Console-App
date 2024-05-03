@@ -12,6 +12,7 @@
 #include "Drop.h"
 #include "Insert.h"
 #include "Update.h"
+#include "Delete.h"
 
 using namespace std;
 
@@ -35,8 +36,8 @@ public:
                 return;
             cout << endl << "INPUT QUERY: " << inputQuery << endl;
             try {
-                findOutQueryType(inputQuery);
-            } catch (exception &e) {
+                startQuery(inputQuery);
+            } catch (MyException &e) {  //TODO catch all exceptions at the end
                 cout << StringManipulator::instance().REDCOLOR() << e.what()
                      << StringManipulator::instance().RESETCOLOR() << endl;
                 cout << "Press any key to continue..." << endl;
@@ -175,7 +176,7 @@ private:
 
 
     // throws Errors, should be caught when being called
-    void findOutQueryType(const string &query) {
+    void startQuery(const string &query) {
 //        Statement *type = nullptr;
         std::shared_ptr<Statement> type = nullptr;
         if (regex_match(query, regex("^\\s*select.*", regex_constants::icase))) {
@@ -188,13 +189,15 @@ private:
             type = std::make_shared<Insert>(query, database);
         } else if(regex_match(query, regex("^\\s*update.*",regex_constants::icase))) {
             type = std::make_shared<Update>(query, database);
-        } else if(regex_match(query, regex("^\\s*show\\s+tables\\s*", regex_constants::icase))) {
+        } else if(regex_match(query, regex("^\\s*delete.*",regex_constants::icase))) {
+            type = std::make_shared<Delete>(query, database);
+        }else if(regex_match(query, regex("^\\s*show\\s+tables\\s*", regex_constants::icase))) {
             cout << *database;
             return;
         }
-        if (!type) {
+        if (!type)
             throw ENoKeywordsException("[SYNTAX_ERROR] No keywords detected. Can't detect query.");
-        }
+
         type->execute();
     }
 };

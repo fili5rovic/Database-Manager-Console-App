@@ -186,6 +186,15 @@ void mainMenu() {
 int main() {
     mainMenu(); // todo created should also be colored in some way
 
+//    std::cout << "Type something: ";
+//
+//    int count = 0;
+//    char ch;
+//    while ((ch = _getch()) != '\r') { // Read characters one by one
+//        count++;
+//        std::cout << "\rYou have typed " << count << " characters so far";
+//    }
+
 //    Table* table = new Table("Student");
 //
 //    table->addHeader("Index");
@@ -209,12 +218,13 @@ int main() {
 //
 //    table->addRecord(r2);
 //
+//    // Retrieve a reference to the second record and modify it
+//    Record& rec = table->getRecordByIndex(1);
+//    rec.getDataReference().at(0) = "SOMETHING";
+//
 //    cout << *table;
     return 0;
 
 
 
 }
-
-
-

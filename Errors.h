@@ -4,9 +4,9 @@
 #include <iostream>
 using namespace std;
 
-class EMultipleKeywordsException : public exception {
+class MyException : public exception {
 public:
-    EMultipleKeywordsException(const string msg) : msg(msg) {}
+    MyException(const string msg) : msg(msg) {}
 
     virtual const char * what() const noexcept override {
         return msg.c_str();
@@ -16,78 +16,41 @@ private:
     string msg;
 };
 
-class EMissingKeywordsException : public exception {
+class EMultipleKeywordsException : public MyException {
 public:
-    EMissingKeywordsException(const string msg) : msg(msg) {}
-
-    virtual const char * what() const noexcept override {
-        return msg.c_str();
-    }
-
-private:
-    string msg;
+    EMultipleKeywordsException(const string msg) : MyException(msg) {}
 };
 
-class EMissingArgumentsException : public exception {
+class EMissingKeywordsException : public MyException {
 public:
-    EMissingArgumentsException(const string msg) : msg(msg) {}
-
-    virtual const char * what() const noexcept override {
-        return msg.c_str();
-    }
-
-private:
-    string msg;
+    EMissingKeywordsException(const string msg) : MyException(msg) {}
 };
 
-class EBadArgumentsException : public exception {
+class EMissingArgumentsException : public MyException {
 public:
-    EBadArgumentsException(const string msg) : msg(msg) {}
-
-    virtual const char * what() const noexcept override {
-        return msg.c_str();
-    }
-
-private:
-    string msg;
+    EMissingArgumentsException(const string msg) : MyException(msg) {}
 };
 
-class ENoKeywordsException : public exception {
+class EBadArgumentsException : public MyException {
 public:
-    ENoKeywordsException(const string msg) : msg(msg) {}
+    EBadArgumentsException(const string msg) : MyException(msg) {}
+};
 
-    virtual const char * what() const noexcept override {
-        return msg.c_str();
-    }
-
-private:
-    string msg;
+class ENoKeywordsException : public MyException {
+public:
+    ENoKeywordsException(const string msg) : MyException(msg) {}
 };
 
 
-class EInvalidColumnNameException : public exception {
+class EInvalidColumnNameException : public MyException {
 public:
-    EInvalidColumnNameException(const string msg) : msg(msg) {}
-
-    virtual const char * what() const noexcept override {
-        return msg.c_str();
-    }
-
-private:
-    string msg;
+    EInvalidColumnNameException(const string msg) : MyException(msg) {}
 };
 
 
-class EDifferentTableLengthException : public exception {
+class EDifferentTableLengthException : public MyException {
 public:
-    EDifferentTableLengthException(const string msg) : msg(msg) {}
-
-    virtual const char * what() const noexcept override {
-        return msg.c_str();
-    }
-
-private:
-    string msg;
+    EDifferentTableLengthException(const string msg) : MyException(msg) {}
 };
 
 

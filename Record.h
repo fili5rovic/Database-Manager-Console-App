@@ -47,6 +47,10 @@ public:
         return this->columns;
     }
 
+    vector<string>& getDataReference() {
+        return this->columns;
+    }
+
 private:
     vector<string> columns;
 

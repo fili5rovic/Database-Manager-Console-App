@@ -9,7 +9,7 @@
 
 class Condition {
 public:
-    Condition(const Table* table, const string& columnName, const string& value) : table(table), value(value) {
+    Condition(Table* table, const string& columnName, const string& value) : table(table), value(value) {
         initFieldPositionInVector(columnName);
     }
 
@@ -30,7 +30,7 @@ public:
 
     virtual bool evaluate(const Record& record) const = 0;
 protected:
-    const Table* table;
+    Table* table;
     int fieldPositionInVector;
     string value;
 

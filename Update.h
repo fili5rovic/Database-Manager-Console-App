@@ -3,21 +3,81 @@
 
 
 #include "Statement.h"
+#include "Filter.h"
 
 class Update : public Statement {
 public:
-    Update(const string &input,Database* database) : Statement(input, database){}
+    Update(const string &input, Database *database) : Statement(input, database) {}
 
 private:
 
     void executingQuery(const std::smatch &matches) const override {
         string tableName = matches[1];
         string setArgStr = matches[2];
-        string whereArgsStr = matches[3];
+        string whereStr = matches[3];
 
         vector<string> setArgs = StringManipulator::instance().splitString(setArgStr, ',');
-        vector<string> whereArgs = StringManipulator::instance().splitString(whereArgsStr, ',');
         // trim them
+        for (string &str: setArgs) {
+            str = StringManipulator::instance().trim(str);
+        }
+
+        Table *filterTable;
+
+        try {
+            Filter f(this->table, whereStr);
+            filterTable = f.getFilteredTable();
+        } catch (EInvalidColumnNameException &e) {
+            StringManipulator::instance().newMessageRed(e.what());
+        }
+
+        vector<int> indices;
+        indices.reserve(filterTable->getTableRecords().size());
+        for (const Record &rec: filterTable->getTableRecords()) {
+            indices.push_back(table->getRecordIndex(rec.getData()));
+        }
+
+        for (int index: indices) {
+            for (const string &setArg: setArgs) {
+                std::smatch matches1;
+                if (regex_search(setArg, matches1,
+                                 regex("^\\s*(\\w+)\\s*\\=\\s*[\'\"](\\w+)[\'\"]", regex_constants::icase))) {
+                    string columnName = matches1[1];
+                    string columnValue = matches1[2];
+
+                    StringManipulator::instance().trim(columnName);
+                    StringManipulator::instance().trim(columnValue);
+
+                    cout << "Column Name: " << columnName << " , Column Value: " << columnValue << endl;
+
+                    int columnIndex = -1;
+                    for (int i = 0; i < filterTable->getTableHeaders().size(); i++) {
+                        if (regex_match(columnName,
+                                        regex(filterTable->getTableHeaders().at(i), regex_constants::icase))) {
+                            columnIndex = i;
+                            break;
+                        }
+                    }
+                    cout << "COLUMN INDEX: " << columnIndex << endl;
+                    table->getRecordByIndex(index).getDataReference()[columnIndex] = columnValue;
+                }
+            }
+        }
+        cout << *table;
+
+        printAffectedRowsMessage(indices.size());
+    }
+
+    void printAffectedRowsMessage(int num) const {
+        string msg;
+        if (num == 0) {
+            msg = "No rows affected.";
+        } else if (num == 1) {
+            msg = "1 row was affected through this change.";
+        } else {
+            msg = to_string(num) + " rows were affected through this update.";
+        }
+        StringManipulator::instance().newMessage(msg);
     }
 
     //<editor-fold desc="Error Handling">
@@ -26,13 +86,37 @@ private:
     }
 
     void checkForSyntaxErrors(const std::string &query) const override {
-
+        // set not detected
+        if (!regex_match(query, regex(".*\\s+set\\s*.*", regex_constants::icase))) {
+            throw EMissingKeywordsException("[SYNTAX_ERROR] No SET keyword specified.");
+        } // table name not detected
+        else if (!regex_search(query, regex(".*\\s+set\\s+\\w+\\s*", regex_constants::icase))) {
+            throw EMissingArgumentsException("[SYNTAX_ERROR] SET has no arguments.");
+        }
+        // multiple keywords
+        if (regex_match(query, regex(".*create.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] CREATE with UPDATE not allowed.");
+        } else if (regex_match(query, regex(".*insert.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] INSERT with UPDATE not allowed.");
+        } else if (regex_match(query, regex(".*into.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] INTO with UPDATE not allowed.");
+        } else if (regex_match(query, regex(".*delete.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] DELETE with UPDATE not allowed.");
+        } else if (regex_match(query, regex(".*table.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] TABLE with UPDATE not allowed.");
+        } else if (regex_match(query, regex(".*update.*update.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] Multiple UPDATE keywords not allowed.");
+        }
+        // update has no arguments
+        if (!regex_search(query, regex("^\\s*update\\s+(\\w+)", regex_constants::icase))) {
+            throw EMissingArgumentsException("[SYNTAX_ERROR] UPDATE has no arguments.");
+        }
     }
     //</editor-fold>
 
     //<editor-fold desc="Getters">
     regex getRegexForFindingTable() const override {
-        return regex("^\\s*update\\s+(\\w+)",regex_constants::icase);
+        return regex("^\\s*update\\s+(\\w+)", regex_constants::icase);
     }
 
 
