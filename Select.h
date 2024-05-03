@@ -14,6 +14,27 @@ public:
     Select(const string &input,Database* database) : Statement(input, database){}
 
 private:
+    void executingQuery(const smatch &matches) const override {
+        string argumentsStr = matches[1];
+        StringManipulator::removeSpaces(argumentsStr);
+        string fromTableStr = matches[2];
+        string whereStr = matches[3];
+
+        vector<string> arguments = StringManipulator::splitString(argumentsStr, ',');
+        try {
+            Filter f(this->table, arguments, whereStr);
+            cout << *f.getTableWithAppliedFilter();
+        } catch(EInvalidColumnNameException& e) {
+            StringManipulator::instance().newMessageRed(e.what());
+        }
+    }
+
+
+    //<editor-fold desc="Error Handling">
+    void runtimeErrors(const std::string &input) const override {
+        StringManipulator::instance().newMessageRed("[RUNTIME_ERROR] Runtime error.");
+    }
+
     void checkForSyntaxErrors(const string &query) const {
         // from not detected
         if (!regex_match(query, regex(".*\\s+from\\s*.*", regex_constants::icase))) {
@@ -41,27 +62,10 @@ private:
             throw EMissingArgumentsException("[SYNTAX_ERROR] SELECT has no arguments.");
         }
     }
-
-    void runtimeErrors(const std::string &input) const override {
-        StringManipulator::instance().newMessageRed("[RUNTIME_ERROR] Runtime error.");
-    }
-
-    void executingQuery(const smatch &matches) const override {
-        string argumentsStr = matches[1];
-        StringManipulator::removeSpaces(argumentsStr);
-        string fromTableStr = matches[2];
-        string whereStr = matches[3];
-
-        vector<string> arguments = StringManipulator::splitString(argumentsStr, ',');
-        try {
-            Filter f(this->table, arguments, whereStr);
-            cout << *f.getTableWithAppliedFilter();
-        } catch(EInvalidColumnNameException& e) {
-            StringManipulator::instance().newMessageRed(e.what());
-        }
-    }
+    //</editor-fold>
 
 
+    //<editor-fold desc="Getters">
     regex getRegexPattern() const {
         return regex(R"(^\s*select\s+((?:\w+|\*)(?:\s*,\s*(?:\w+|\*))*)\s+from\s+(\w+)+\s*(?:where\s+((\w+)\s*(\=|\<\>|\!\=)\s*('\w+'|"\w+"|\w+)(?:\s+(and|or)\s*(\w+)\s*(\=|\<\>|\!\=)\s*('\w+'|"\w+"|\w+))*))?)", regex_constants::icase);;
     }
@@ -69,6 +73,7 @@ private:
     regex getRegexForFindingTable() const override {
         return regex("from\\s+(\\w+)", regex_constants::icase);
     }
+    //</editor-fold>
 
 
 };

@@ -10,17 +10,6 @@ public:
     Drop(const string &input, Database *database) : Statement(input, database) {}
 
 private:
-
-
-    regex getRegexPattern() const override {
-        return regex("^\\s*drop\\s+table\\s+([a-zA-Z_]+)\\s*",regex_constants::icase);
-    }
-
-    regex getRegexForFindingTable() const override {
-        return regex("table\\s+(\\w+)", regex_constants::icase);
-    }
-
-
     void executingQuery(const smatch& matches) const override {
         if (this->database)
             database->removeTable(table->getName());
@@ -28,6 +17,7 @@ private:
         StringManipulator::instance().newMessageGreen("Table " + table->getName() + " successfully dropped.");
     }
 
+    //<editor-fold desc="Error Handling">
     void runtimeErrors(const string &input) const override {
         if (!regex_match(this->table->getName(), regex("[a-zA-Z_]+", regex_constants::icase))) {
             throw EBadArgumentsException("[RUNTIME_ERROR] Invalid table name.");
@@ -56,6 +46,17 @@ private:
         }
 
     }
+    //</editor-fold>
+
+    //<editor-fold desc="Getters">
+    regex getRegexPattern() const override {
+        return regex("^\\s*drop\\s+table\\s+([a-zA-Z_]+)\\s*",regex_constants::icase);
+    }
+
+    regex getRegexForFindingTable() const override {
+        return regex("table\\s+(\\w+)", regex_constants::icase);
+    }
+    //</editor-fold>
 
 };
 

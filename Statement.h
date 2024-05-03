@@ -8,7 +8,7 @@
 class Statement {
 public:
 
-    virtual void execute(){
+    virtual void execute() {
         table = tryToGetTableFromQuery(inputQuery, database, getRegexForFindingTable());
         handleQuery(inputQuery);
     }
@@ -38,7 +38,7 @@ protected:
 
     virtual void checkForSyntaxErrors(const string &query) const {};
 
-
+private:
     Table *tryToGetTableFromQuery(const string &query, const Database *database, const regex &regexPattern) const {
         checkForSyntaxErrors(query);
 

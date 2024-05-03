@@ -6,12 +6,9 @@
 
 class Insert : public Statement {
 public:
-
     Insert(const string &input, Database *database) : Statement(input, database) {}
 
 private:
-
-
     void executingQuery(const smatch &matches) const override {
         string tableName = matches[1];
         vector<string> listOfColumns = StringManipulator::instance().splitString(matches[2], ',');
@@ -56,6 +53,7 @@ private:
     }
 
 
+    //<editor-fold desc="Error Handling">
     void runtimeErrors(const string &input) const override {
         cout << "DIDNT MATCH" << endl;
         if (!regex_match(this->table->getName(), regex("[a-zA-Z_]+", regex_constants::icase))) {
@@ -91,8 +89,10 @@ private:
             throw EMultipleKeywordsException("[SYNTAX_ERROR] Multiple INSERT keywords not allowed within the same statement.");
         }
     }
+    //</editor-fold>
 
 
+    //<editor-fold desc="Getters">
     regex getRegexPattern() const override {
         return regex(
                 "^\\s*insert\\s+into\\s+([a-zA-Z_]+)\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\")\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\")\\s*)*)\\s*\\)\\s+values\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\")\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\"))*)*\\s*\\)\\s*$",
@@ -103,6 +103,7 @@ private:
     regex getRegexForFindingTable() const override {
         return regex("into\\s+(\\w+)",regex_constants::icase);
     }
+    //</editor-fold>
 
 };
 
