@@ -110,7 +110,7 @@ public: // todo Can't contain numbers in table name
         return this->records;
     }
 
-    vector<Record>& getTableRecordsByReference() const {
+    vector<Record>& getTableRecordsByReference() {
         return records;
     }
     //</editor-fold>
