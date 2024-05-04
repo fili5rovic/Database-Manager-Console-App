@@ -36,9 +36,8 @@ private:
         std::reverse(indices.begin(), indices.end());
 
         string headerStr = "This will delete " + to_string(indices.size()) + (indices.size() == 1 ? " row":" rows") + ". Proceed?";
-        string* opts = new string[]{"Security Warning", headerStr, "[1] Yes", "[0] Go back"};
+        vector<string> opts = {"Security Warning", headerStr, "[1] Yes", "[0] Go back"};
         StringManipulator::instance().newMenu(44, 4, opts);
-        delete[] opts;
         string opt;
         cin >> opt;
         if(opt == "1") {

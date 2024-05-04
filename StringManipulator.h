@@ -94,7 +94,7 @@ public:
         if (end) cout << endl;
     }
 
-    void newMenu(int line_len, int strlen, string options[], int pomeraj = 7) {
+    void newMenu(int line_len, int strlen, vector<string> options, int pomeraj = 7) {
         for (int i = 0; i < strlen; ++i) {
             if (options[i].length() % 2 != 0)
                 options[i] += " ";

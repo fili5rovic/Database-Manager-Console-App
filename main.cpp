@@ -11,25 +11,25 @@ using namespace std;
 const string GRAY = "\033[37m";
 const string RESET = "\033[0m";
 
-void printActualInput(string selectedMenuOptionString, int substrNum = 4, int toTheRight=3) {
+void printActualInput(string selectedMenuOptionString, int substrNum = 4, int toTheRight = 3) {
     substrNum = (selectedMenuOptionString.length() > substrNum ? substrNum : 0);
     const string moveCursorUp = "\033[F";
     const string moveCursorRight = "\033[C";
     const string userInputColor = StringManipulator::instance().CYANCOLOR();
 
     cout << moveCursorUp;
-
     for (int i = 0; i < toTheRight; ++i) {
         cout << moveCursorRight;
     }
 
-    // todo move it 4 places to the right don't print arrow
-    cout  << userInputColor << selectedMenuOptionString.substr(substrNum) << RESET
-         << endl;
+    cout << userInputColor;
+    cout << selectedMenuOptionString.substr(substrNum);
+    cout << RESET << endl;
 }
 
 Database *createNewDatabaseMenu() {
-    string databaseName, *opts, menuHeader, msg;
+    string databaseName, menuHeader, msg;
+    vector<string> opts;
 
     StringManipulator::instance().newMessage("Insert database name:");
     cout << GRAY << "-> " << RESET;
@@ -40,7 +40,7 @@ Database *createNewDatabaseMenu() {
     int opt = -1;
     while (opt != 0) {
         menuHeader = "     Add new table to \033[35m'" + databaseName + "'\033[0m?    ";
-        opts = new string[]{menuHeader, "[1] Yes", "[0] No"};
+        opts = {menuHeader, "[1] Yes", "[0] No"};
         int formula = menuHeader.length() - 8 + menuHeader.length() % 2 - 1; // za pravilnu velicinu tabele
         StringManipulator::instance().newMenu(formula, 3, opts);
         cout << GRAY << "-> " << RESET;
@@ -107,7 +107,7 @@ Database *createNewDatabaseMenu() {
                     cout << "\033[F\033[F\033[F";
                     continue;
                 }
-                printActualInput(row, 0,0);
+                printActualInput(row, 0, 0);
 
                 for (const string &d: rowData) {
                     r.addData(d);
@@ -124,20 +124,58 @@ Database *createNewDatabaseMenu() {
         }
 
     }
-    delete[] opts;
 
     string successfulCreation = "Database \'" + databaseName + "\' successfully created.";
     StringManipulator::instance().newMessageGreen(successfulCreation);
     return database;
 }
 
-Database *loadDatabase() {
-
-
-
-    // TODO: User can load database from existing
-    return nullptr;
+int getFileCount(const std::string &path) {
+    int fileCount = 0;
+    for (const auto &entry: std::filesystem::directory_iterator(path)) {
+        if (std::filesystem::is_regular_file(entry.status())) {
+            ++fileCount;
+        }
+    }
+    return fileCount;
 }
+
+Database *loadDatabase() {
+    std::string path = "./CustomFormatExports/";
+    vector<string> options;
+    options.reserve(getFileCount(path) + 1);
+
+    options.push_back("Choose database");
+    int cnt = 1;
+    for (const auto &entry: std::filesystem::directory_iterator(path)) {
+        string dbName = entry.path().string().substr(path.length());
+        dbName = dbName.substr(0, dbName.length() - 4);
+        options.push_back("[" + to_string(cnt) + "] " + dbName);
+    }
+    options.push_back("[0] Back.");
+
+    int maxLineLength = 15;
+    for (const auto &opt: options) {
+        if (opt.length() > maxLineLength)
+            maxLineLength = opt.length();
+    }
+
+    maxLineLength += 8 + maxLineLength % 2;
+
+    StringManipulator::instance().newMenu(maxLineLength, options.size(), options);
+    cout << GRAY << "-> " << RESET;
+    int choice;
+    cin >> choice;
+
+    if (choice == 0 || choice >= options.size()-1)
+        return nullptr;
+
+    string dbName = options[choice].substr(4);
+    return CustomFormat::createDatabaseFromFile(path, dbName);
+
+}
+
+
 
 void sqlQuery(Database *d) {
 //    cin.ignore();
@@ -149,7 +187,7 @@ void sqlQuery(Database *d) {
 void mainMenu() {
     Database *database = nullptr;
     int opt = 1;
-    string *opts = new string[]{"MAIN MENU", "[1] Create a new database", "[2] Load database", "[0] Exit"};
+    vector<string> opts = {"MAIN MENU", "[1] Create a new database", "[2] Load database", "[0] Exit"};
     while (!database) {
         StringManipulator::instance().newMenu(34, 4, opts, 4);
         cout << GRAY << "-> " << RESET;
@@ -170,7 +208,7 @@ void mainMenu() {
     cout << *database;
 
 
-    opts = new string[]{"MAIN MENU", "[1] SQL Query", "[2] Export database", "[0] Exit"};
+    opts = {"MAIN MENU", "[1] SQL Query", "[2] Export database", "[0] Exit"};
     bool userWantsToQuit = false;
     while (!userWantsToQuit) {
         StringManipulator::instance().newMenu(34, 4, opts);
@@ -183,8 +221,8 @@ void mainMenu() {
                 break;
             case 2: {
                 shared_ptr<Format> chosenFormat;
-                string *opts1 = new string[]{"Choose export option", "[1] Standard SQL Export", "[2] WYL Export",
-                                             "[0] Back"};
+                vector<string> opts1 = {"Choose export option", "[1] Standard SQL Export", "[2] WYL Export",
+                                        "[0] Back"};
                 StringManipulator::instance().newMenu(34, 4, opts1);
                 string optStr;
                 bool back = false;
@@ -205,7 +243,6 @@ void mainMenu() {
                 if (back)
                     break;
                 chosenFormat->exportDatabase();
-                delete[] opts1;
                 break;
             }
             case 0:
@@ -214,7 +251,7 @@ void mainMenu() {
                 userWantsToQuit = true;
         }
     }
-    delete[] opts;
+
     delete database;
 }
 

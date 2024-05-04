@@ -10,7 +10,7 @@ public:
     Format(const Database* database) : database(database) {}
 
     void message() const {
-        cout << "Successfully created " << database->getName() << getFileExtension() << endl;
+        cout << "Successfully exported " << database->getName() << getFileExtension() << endl;
     }
 
     void exportDatabase() const {
