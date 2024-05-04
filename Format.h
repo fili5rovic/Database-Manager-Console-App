@@ -9,7 +9,7 @@ public:
     Format(const Database* database) : database(database) {}
 
     void exportDatabase() const {
-        std::ofstream outFile(database->getName()+".txt");
+        std::ofstream outFile(database->getName()+".sql");
         if(!outFile.is_open())
             throw EFileNotOpen("[RUNTIME_ERROR] Can't open file.");
         std::stringstream ss;
