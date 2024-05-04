@@ -46,6 +46,10 @@ private:
             }
         }
     }
+
+    string getFileExtension() const override {
+        return ".sql";
+    }
 };
 
 

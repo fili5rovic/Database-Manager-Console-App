@@ -3,6 +3,7 @@
 #include "QueryEditor.h"
 #include "Equal.h"
 #include "SQLFormat.h"
+#include "CustomFormat.h"
 #include <vector>
 
 using namespace std;
@@ -10,12 +11,21 @@ using namespace std;
 const string GRAY = "\033[37m";
 const string RESET = "\033[0m";
 
-void printActualInput(string selectedMenuOptionString, int substrNum = 4) {
+void printActualInput(string selectedMenuOptionString, int substrNum = 4, int toTheRight=3) {
     substrNum = (selectedMenuOptionString.length() > substrNum ? substrNum : 0);
-    const string moveUpCursor = "\033[F";
+    const string moveCursorUp = "\033[F";
+    const string moveCursorRight = "\033[C";
     const string userInputColor = StringManipulator::instance().CYANCOLOR();
-    // todo move it 4 places to the rigth don't print arrow
-    cout << moveUpCursor << GRAY << "-> " << userInputColor << selectedMenuOptionString.substr(substrNum) << RESET << endl;
+
+    cout << moveCursorUp;
+
+    for (int i = 0; i < toTheRight; ++i) {
+        cout << moveCursorRight;
+    }
+
+    // todo move it 4 places to the right don't print arrow
+    cout  << userInputColor << selectedMenuOptionString.substr(substrNum) << RESET
+         << endl;
 }
 
 Database *createNewDatabaseMenu() {
@@ -24,10 +34,9 @@ Database *createNewDatabaseMenu() {
     StringManipulator::instance().newMessage("Insert database name:");
     cout << GRAY << "-> " << RESET;
     cin >> databaseName;
-    printActualInput(databaseName,0);
+    printActualInput(databaseName, 0);
 
     Database *database = new Database(databaseName);
-    //TODO Ask user for database format
     int opt = -1;
     while (opt != 0) {
         menuHeader = "     Add new table to \033[35m'" + databaseName + "'\033[0m?    ";
@@ -50,14 +59,14 @@ Database *createNewDatabaseMenu() {
             Table t = Table(tableName);
             string header;
             vector<string> unos;
-            while(true) {
+            while (true) {
                 msg = "     Insert columns for \033[35m" + tableName + "\033[0m    ";
                 StringManipulator::instance().newMessage(msg, msg.length() - 8 + msg.length() % 2 - 1);
                 cin.ignore();
                 cout << GRAY << "-> " << RESET;
                 getline(std::cin, header);
                 printActualInput(header, 0);
-                if(header.empty())
+                if (header.empty())
                     continue;
                 unos = StringManipulator::splitString(header);
                 for (const string &u: unos) {
@@ -67,11 +76,10 @@ Database *createNewDatabaseMenu() {
             }
 
 
-
             msg = "     Insert data for \033[35m" + tableName + "\033[0m    ";
             StringManipulator::instance().newMessage(msg, msg.length() - 8 + msg.length() % 2 - 1);
             for (const string &u: unos) {
-                cout << StringManipulator::instance().BOLDCOLOR() <<  u << ' ';
+                cout << StringManipulator::instance().BOLDCOLOR() << u << ' ';
             }
             cout << endl;
 
@@ -83,11 +91,12 @@ Database *createNewDatabaseMenu() {
                 Record r = Record();
                 vector<string> rowData = StringManipulator::splitString(row);
 
-                if(rowData.size() != unos.size()) {
+                if (rowData.size() != unos.size()) {
                     cout << "\033[F";
                     cout << StringManipulator::instance().REDCOLOR();
                     cout << row << endl;
-                    cout << "[ERROR] Given row has " << (rowData.size() > unos.size() ? "more":"less") << " values than columns." << endl;
+                    cout << "[ERROR] Given row has " << (rowData.size() > unos.size() ? "more" : "less")
+                         << " values than columns." << endl;
                     cout << StringManipulator::instance().RESETCOLOR();
                     cout << "Press any key to continue..." << endl;
                     getch();
@@ -98,7 +107,7 @@ Database *createNewDatabaseMenu() {
                     cout << "\033[F\033[F\033[F";
                     continue;
                 }
-                printActualInput(row, 0);
+                printActualInput(row, 0,0);
 
                 for (const string &d: rowData) {
                     r.addData(d);
@@ -127,7 +136,7 @@ Database *loadDatabase() {
     return nullptr;
 }
 
-void sqlQuery(Database* d) {
+void sqlQuery(Database *d) {
 //    cin.ignore();
     QueryEditor editor = QueryEditor(d);
     editor.start();
@@ -135,8 +144,6 @@ void sqlQuery(Database* d) {
 
 
 void mainMenu() {
-
-
     Database *database = nullptr;
     int opt = 1;
     string *opts = new string[]{"MAIN MENU", "[1] Create a new database", "[2] Load database", "[0] Exit"};
@@ -172,10 +179,32 @@ void mainMenu() {
                 sqlQuery(database);
                 break;
             case 2: {
-                SQLFormat exportedDatabase = SQLFormat(database);
-                exportedDatabase.exportDatabase();
-                break;
+                shared_ptr<Format> chosenFormat;
+                string *opts1 = new string[]{"Choose export option", "[1] Standard SQL Export", "[2] WYL Export",
+                                             "[0] Back"};
+                StringManipulator::instance().newMenu(34, 4, opts1);
+                string optStr;
+                bool back = false;
+                while (true) {
+                    cout << "-> ";
+                    cin >> optStr;
+                    if (optStr == "1") {
+                        chosenFormat = make_shared<SQLFormat>(database);
+                        break;
+                    } else if (optStr == "2") {
+                        chosenFormat = make_shared<CustomFormat>(database);
+                        break;
+                    } else if (optStr == "0") {
+                        back = true;
+                        break;
+                    }
                 }
+                if (back)
+                    break;
+                chosenFormat->exportDatabase();
+                delete[] opts1;
+                break;
+            }
             case 0:
                 printActualInput(opts[3]);
                 StringManipulator::instance().newMessageGreen("Program exited successfully.");
@@ -220,7 +249,6 @@ int main() {
 //
 //    cout << *table;
     return 0;
-
 
 
 }
