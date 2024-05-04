@@ -7,7 +7,6 @@ class CustomFormat : public Format {
 public:
     CustomFormat(const Database *database) : Format(database) {}
 
-
     static Database* createDatabaseFromFile(const string& dirPath, const string& dbName) {
         string filePath = dirPath + dbName + ".wyl";
         std::ifstream inputFile(filePath);
@@ -43,13 +42,13 @@ public:
             } else if(line == "END_DATA") {
                 readingTableColumns = false;
                 readingData = false;
+                continue;
             }
 
             if(readingTableColumns) {
                 StringManipulator::instance().removeSpaces(line);
                 currTable->addHeader(line.substr(1,line.length()-2));
-            }
-            if(readingData) {
+            } else if(readingData) {
                 if(regex_search(line, matches,regex("\\s*\\[\\\"([a-zA-Z_]+)\\\"\\] ADD \\[(\\'\\w+\\'(?:,\\'\\w+\\')*)\\]"))) {
                     Table* currTable;
 

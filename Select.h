@@ -92,6 +92,8 @@ private:
             throw EMultipleKeywordsException("[SYNTAX_ERROR] TABLE with SELECT not allowed.");
         } else if (regex_match(query, regex(".*select.*select.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] Multiple SELECT keywords not allowed.");
+        } else if (regex_match(query, regex(".*from.*from.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] Multiple FROM keywords not allowed.");
         }
         // select has no arguments
         if (regex_match(query, regex("^\\s*select\\s+(?:\\,\\s*|\\s*)*\\s*from.*", regex_constants::icase))) {

@@ -38,8 +38,7 @@ public:
             try {
                 startQuery(inputQuery);
             } catch (exception& e) {
-                cout << StringManipulator::instance().REDCOLOR() << e.what()
-                     << StringManipulator::instance().RESETCOLOR() << endl;
+                cout << e.what() << endl;
                 cout << "Press any key to continue..." << endl;
                 getch();
             }
@@ -50,10 +49,12 @@ public:
 private:
     Database *database;
 
-    const string KEYWORDCOLOR = StringManipulator::instance().MYCOLOR(255, 60, 243);
-    const string COLOMNCOLOR = StringManipulator::instance().CYANCOLOR();
-    const string TABLECOLOR = StringManipulator::instance().MYCOLOR(66, 255, 186);
-    const string RESETCOLOR = StringManipulator::instance().RESETCOLOR();
+    const string KEYWORDCOLOR = StringManipulator::instance().MYCOLOR(184, 51, 106) + StringManipulator::instance().BOLDCOLOR();
+    const string  COLOMNCOLOR = StringManipulator::instance().MYCOLOR(70, 177, 201) + StringManipulator::instance().BOLDCOLOR();
+    const string   TABLECOLOR = StringManipulator::instance().MYCOLOR(66, 255, 186) + StringManipulator::instance().BOLDCOLOR();
+    const string   QUOTECOLOR = StringManipulator::instance().MYCOLOR(238, 108, 77) + StringManipulator::instance().BOLDCOLOR();
+    const string   DQUOTECOLOR = StringManipulator::instance().MYCOLOR(182, 238, 166) + StringManipulator::instance().BOLDCOLOR();
+    const string   RESETCOLOR = StringManipulator::instance().RESETCOLOR();
 
     // todo proper painting
     string colorKeywords(string str) const {
@@ -71,6 +72,50 @@ private:
         }
         return str;
     }
+
+    string colorSingleQuotations(const std::string& str) const {
+        string result;
+        bool openQuot = false;
+        for(const char& c : str) {
+            if(c == '\'') {
+                openQuot = !openQuot;
+                if(openQuot)
+                    result += QUOTECOLOR;
+                else {
+                    result += c + RESETCOLOR;
+                    continue;
+                }
+            }
+            result += c;
+        }
+        return result;
+    }
+
+    string colorDoubleQuotations(const std::string& str) const {
+        string result;
+        bool openQuot = false;
+        for(const char& c : str) {
+            if(c == '\"') {
+                openQuot = !openQuot;
+                if(openQuot)
+                    result += DQUOTECOLOR;
+                else {
+                    result += c + RESETCOLOR;
+                    continue;
+                }
+            }
+            result += c;
+        }
+        return result;
+    }
+
+    string colorQuotations(const std::string& str) const {
+        string res = str;
+        res = colorDoubleQuotations(res);
+        res = colorSingleQuotations(res);
+        return res;
+    }
+
 
     string colorTableColumns(string str) const {
         regex pattern;
@@ -142,17 +187,13 @@ private:
              << StringManipulator::instance().RESETCOLOR() << endl;
     }
 
-    void printLineNum(int& lineCounter) const {
-        cout << StringManipulator::instance().GRAYCOLOR() << to_string(lineCounter) << StringManipulator::instance().RESETCOLOR() << "   ";
-    }
-
-
     void paintingConsole(string& lineWithLineFeed) const {
         lineWithLineFeed = colorKeywords(lineWithLineFeed);
         if (regex_match(lineWithLineFeed, regex(".*from.*|.*update.*", regex_constants::icase)))
             lineWithLineFeed = colorTables(lineWithLineFeed);
         if (regex_match(lineWithLineFeed, regex(".*(?:select|where|set).*", regex_constants::icase)))
             lineWithLineFeed = colorTableColumns(lineWithLineFeed);
+        lineWithLineFeed = colorQuotations(lineWithLineFeed);
     }
 
 

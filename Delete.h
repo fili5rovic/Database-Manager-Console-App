@@ -91,6 +91,8 @@ private:
             throw EMultipleKeywordsException("[SYNTAX_ERROR] TABLE with DELETE not allowed.");
         } else if (regex_match(query, regex(".*delete.*delete.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] Multiple DELETE keywords not allowed.");
+        } else if (regex_match(query, regex(".*from.*from.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] Multiple FROM keywords not allowed.");
         }
     }
 };

@@ -74,6 +74,8 @@ private:
             throw EMultipleKeywordsException("[SYNTAX_ERROR] DELETE with CREATE not allowed within the same statement.");
         } else if (regex_match(query, regex(".*create.*create.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] Multiple CREATE keywords not allowed within the same statement.");
+        } else if (regex_match(query, regex(".*table.*table.*", regex_constants::icase))) {
+            throw EMultipleKeywordsException("[SYNTAX_ERROR] Multiple TABLE keywords not allowed within the same statement.");
         }
     }
     //</editor-fold>

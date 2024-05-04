@@ -6,45 +6,78 @@ using namespace std;
 
 class MyException : public exception {
 public:
-    MyException(const string msg) : msg(msg) {}
+    MyException(const string msg) : msg(msg) {
+        this->msg = colorBrackets(msg);
+    }
 
     virtual const char * what() const noexcept override {
         return msg.c_str();
+    }
+
+    string colorBrackets(const std::string& str) const {
+        string result = "\033[1m";
+        for(const char& c : str) {
+            if(c == '[') {
+                result += "\033[38;2;255;0;0m";
+            } else if(c == ']') {
+                result += ']';
+                result += "\033[0m\033[1m";
+                continue;
+            }
+            result += c;
+        }
+        result += "\033[0m";
+        return result;
     }
 
 private:
     string msg;
 };
 
-class EMultipleKeywordsException : public MyException {
+class SyntaxError : public MyException {
 public:
-    EMultipleKeywordsException(const string msg) : MyException(msg) {}
+    SyntaxError(const string msg) : MyException(msg) {}
 };
 
-class EMissingKeywordsException : public MyException {
+class RuntimeError : public MyException {
 public:
-    EMissingKeywordsException(const string msg) : MyException(msg) {}
+    RuntimeError(const string msg) : MyException(msg) {}
 };
 
-class EMissingArgumentsException : public MyException {
+class EMultipleKeywordsException : public SyntaxError {
 public:
-    EMissingArgumentsException(const string msg) : MyException(msg) {}
+    EMultipleKeywordsException(const string msg) : SyntaxError(msg) {}
 };
 
-class EBadArgumentsException : public MyException {
+class EMissingKeywordsException : public SyntaxError {
 public:
-    EBadArgumentsException(const string msg) : MyException(msg) {}
+    EMissingKeywordsException(const string msg) : SyntaxError(msg) {}
 };
 
-class ENoKeywordsException : public MyException {
+class EMissingArgumentsException : public SyntaxError {
 public:
-    ENoKeywordsException(const string msg) : MyException(msg) {}
+    EMissingArgumentsException(const string msg) : SyntaxError(msg) {}
+};
+
+class EBadArgumentsException : public RuntimeError {
+public:
+    EBadArgumentsException(const string msg) : RuntimeError(msg) {}
+};
+
+class ENoKeywordsException : public SyntaxError {
+public:
+    ENoKeywordsException(const string msg) : SyntaxError(msg) {}
 };
 
 
-class EInvalidColumnNameException : public MyException {
+class EInvalidColumnNameException : public RuntimeError {
 public:
-    EInvalidColumnNameException(const string msg) : MyException(msg) {}
+    EInvalidColumnNameException(const string msg) : RuntimeError(msg) {}
+};
+
+class EQuotationsNotClosedException : public MyException {
+public:
+    EQuotationsNotClosedException(const string msg) : MyException(msg) {}
 };
 
 
