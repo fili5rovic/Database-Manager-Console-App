@@ -126,12 +126,15 @@ Database *createNewDatabaseMenu() {
     }
     delete[] opts;
 
-    string successfulCreation = "Database '" + databaseName + "' successfully created.";
+    string successfulCreation = "Database \'" + databaseName + "\' successfully created.";
     StringManipulator::instance().newMessageGreen(successfulCreation);
     return database;
 }
 
 Database *loadDatabase() {
+
+
+
     // TODO: User can load database from existing
     return nullptr;
 }

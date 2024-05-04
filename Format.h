@@ -2,6 +2,7 @@
 #define PRVIPROJEKAT_FORMAT_H
 
 #include <fstream>
+#include <filesystem>
 #include "Database.h"
 
 class Format {
@@ -13,7 +14,8 @@ public:
     }
 
     void exportDatabase() const {
-        std::ofstream outFile(database->getName()+getFileExtension()); // .wyl
+        filesystem::create_directories(getDir()); // This will create the directory if it does not exist
+        ofstream outFile(getDir() + database->getName()+getFileExtension()); // .wyl
         if(!outFile.is_open())
             throw EFileNotOpen("[RUNTIME_ERROR] Can't open file.");
         std::stringstream ss;
@@ -24,6 +26,8 @@ public:
         outFile.close();
         message();
     }
+
+
 
 
 
@@ -50,6 +54,8 @@ protected:
     virtual void printTableNames(stringstream& ss) const = 0;
     virtual void printDataInsertion(stringstream& ss) const = 0;
     virtual string getFileExtension() const = 0;
+    virtual string getDir() const = 0;
+
 
 
 

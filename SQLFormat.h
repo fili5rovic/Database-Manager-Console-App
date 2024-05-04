@@ -50,6 +50,10 @@ private:
     string getFileExtension() const override {
         return ".sql";
     }
+
+    string getDir() const override {
+        return "SQLFormatExports/";
+    }
 };
 
 

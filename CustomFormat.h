@@ -8,6 +8,11 @@ class CustomFormat : public Format {
 public:
     CustomFormat(const Database *database) : Format(database) {}
 
+
+    static void createDatabaseFromFile(const string& filePath) {
+
+    }
+
 private:
     void printTableNames(stringstream &ss) const override {
         for (const auto &tablePair: database->getTablePairs()) {
@@ -43,6 +48,10 @@ private:
 
     string getFileExtension() const override {
         return ".wyl";
+    }
+
+    string getDir() const override {
+        return "CustomFormatExports/";
     }
 
 
