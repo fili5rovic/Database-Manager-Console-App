@@ -69,6 +69,10 @@ public:
         return retVector;
     }
 
+    const unordered_map<string, Table*>& getTablePairs() const {
+        return tables;
+    }
+
 private:
     const string name;
     unordered_map<string, Table*> tables;

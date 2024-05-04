@@ -48,9 +48,9 @@ public:
 };
 
 
-class EDifferentTableLengthException : public MyException {
+class EFileNotOpen : public MyException {
 public:
-    EDifferentTableLengthException(const string msg) : MyException(msg) {}
+    EFileNotOpen(const string msg) : MyException(msg) {}
 };
 
 

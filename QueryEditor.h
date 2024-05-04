@@ -37,7 +37,7 @@ public:
             cout << endl << "INPUT QUERY: " << inputQuery << endl;
             try {
                 startQuery(inputQuery);
-            } catch (MyException &e) {  //TODO catch all exceptions at the end
+            } catch (exception& e) {
                 cout << StringManipulator::instance().REDCOLOR() << e.what()
                      << StringManipulator::instance().RESETCOLOR() << endl;
                 cout << "Press any key to continue..." << endl;
@@ -56,9 +56,9 @@ private:
     const string RESETCOLOR = StringManipulator::instance().RESETCOLOR();
 
     // todo proper painting
-    string colorKeywords(string str) {
+    string colorKeywords(string str) const {
         regex pattern;      // add AND, OR later to keywords
-        vector<string> keywords{"SELECT", "FROM", "WHERE", "INSERT", "INTO", "CREATE", "TABLE", "DROP"};
+        vector<string> keywords{"SELECT", "FROM", "WHERE", "INSERT", "INTO", "CREATE", "TABLE", "DROP","UPDATE" ,"SET", "DELETE"};
         vector<string> keywordReplacementStrings;
         keywordReplacementStrings.reserve(keywords.size());
         for (const string &reg: keywords) {
@@ -72,7 +72,7 @@ private:
         return str;
     }
 
-    string colorTableColumns(string str) {
+    string colorTableColumns(string str) const {
         regex pattern;
 
         vector<string> regexStrings = database->getAllHeaders();
@@ -100,7 +100,7 @@ private:
         return str;
     }
 
-    string colorTables(string str) {
+    string colorTables(string str) const {
         regex pattern;
 
         vector<string> regexStrings = database->getAllTableNames();
@@ -127,7 +127,7 @@ private:
         return str;
     }
 
-    void clearConsole() {
+    void clearConsole() const {
 #ifdef _WIN32
         system("cls");
 #else
@@ -136,13 +136,41 @@ private:
     }
 
 
-    void printHeaderAndClearConsole() {
+    void printHeaderAndClearConsole() const{
         clearConsole();
-        cout << "\033[47m" << "  SQL Query Editor                " << "\033[41m" << " X "
+        cout << "\033[47m" << "  SQL Query Editor                          " << "\033[41m" << " X "
              << StringManipulator::instance().RESETCOLOR() << endl;
     }
 
-    vector<string> editor() {
+    void printLineNum(int& lineCounter) const {
+        cout << StringManipulator::instance().GRAYCOLOR() << to_string(lineCounter) << StringManipulator::instance().RESETCOLOR() << "   ";
+    }
+
+
+    void paintingConsole(string& lineWithLineFeed) const {
+        lineWithLineFeed = colorKeywords(lineWithLineFeed);
+        if (regex_match(lineWithLineFeed, regex(".*from.*|.*update.*", regex_constants::icase)))
+            lineWithLineFeed = colorTables(lineWithLineFeed);
+        if (regex_match(lineWithLineFeed, regex(".*(?:select|where|set).*", regex_constants::icase)))
+            lineWithLineFeed = colorTableColumns(lineWithLineFeed);
+    }
+
+
+//    string listener(int lineCounter) const {
+//        int backspace = 8, enter = 13;
+//
+//        string retStr;
+//        char ch;
+//        while ((ch = _getch()) != '\r') {
+//            retStr += ch;
+//            cout << "\r";
+//            printLineNum(lineCounter);
+//            cout << retStr;
+//        }
+//        return retStr;
+//    }
+
+    vector<string> editor() const {
         printHeaderAndClearConsole();
         string sqlQuery;
         string line;
@@ -158,12 +186,9 @@ private:
 
             lineWithLineFeed += (lineWithLineFeed.empty() ? lineWithNum : '\n' + lineWithNum);
             printHeaderAndClearConsole();
-            // todo for properly painting split the same line into select, from, where for correct painting :)
-            lineWithLineFeed = colorKeywords(lineWithLineFeed);
-            if (regex_match(lineWithLineFeed, regex(".*from.*", regex_constants::icase)))
-                lineWithLineFeed = colorTables(lineWithLineFeed);
-            if (regex_match(lineWithLineFeed, regex(".*(?:select|where).*", regex_constants::icase)))
-                lineWithLineFeed = colorTableColumns(lineWithLineFeed);
+
+            paintingConsole(lineWithLineFeed);
+
             cout << lineWithLineFeed << endl;
             if (line.empty())
                 break;

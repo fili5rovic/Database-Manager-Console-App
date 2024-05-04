@@ -2,6 +2,7 @@
 #include "Database.h"
 #include "QueryEditor.h"
 #include "Equal.h"
+#include "SQLFormat.h"
 #include <vector>
 
 using namespace std;
@@ -170,9 +171,11 @@ void mainMenu() {
                 cin.ignore();
                 sqlQuery(database);
                 break;
-            case 2:
-                //TODO: After making formats, consider exporting
+            case 2: {
+                SQLFormat exportedDatabase = SQLFormat(database);
+                exportedDatabase.exportDatabase();
                 break;
+                }
             case 0:
                 printActualInput(opts[3]);
                 StringManipulator::instance().newMessageGreen("Program exited successfully.");
@@ -186,14 +189,7 @@ void mainMenu() {
 int main() {
     mainMenu(); // todo created should also be colored in some way
 
-//    std::cout << "Type something: ";
-//
-//    int count = 0;
-//    char ch;
-//    while ((ch = _getch()) != '\r') { // Read characters one by one
-//        count++;
-//        std::cout << "\rYou have typed " << count << " characters so far";
-//    }
+
 
 //    Table* table = new Table("Student");
 //
