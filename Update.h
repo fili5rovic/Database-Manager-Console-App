@@ -7,7 +7,7 @@
 
 class Update : public Statement {
 public:
-    Update(const string &input, Database *database) : Statement(input, database) {}
+    Update(const string &input, shared_ptr<Database> database) : Statement(input, database) {}
 
 private:
 

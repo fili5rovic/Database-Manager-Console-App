@@ -19,7 +19,7 @@ using namespace std;
 
 class QueryEditor {
 public:
-    QueryEditor(Database *d) : database(d) {}
+    QueryEditor(shared_ptr<Database> d) : database(d) {}
 
     QueryEditor(const QueryEditor &) = delete;
     QueryEditor(QueryEditor &&) = delete;
@@ -47,7 +47,7 @@ public:
 
 
 private:
-    Database *database;
+    shared_ptr<Database> database;
 
     const string KEYWORDCOLOR =
             StringManipulator::instance().RGB(184, 51, 106) + StringManipulator::instance().BOLDCOLOR();

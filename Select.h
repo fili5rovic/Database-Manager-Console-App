@@ -11,7 +11,7 @@
 
 class Select : public Statement {
 public:
-    Select(const string &input,Database* database) : Statement(input, database){}
+    Select(const string &input,shared_ptr<Database> database) : Statement(input, database){}
 
 private:
     void executingQuery(const smatch &matches) const override {

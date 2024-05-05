@@ -27,7 +27,7 @@ void printActualInput(string selectedMenuOptionString, int substrNum = 4, int to
     cout << RESET << endl;
 }
 
-Database *createNewDatabaseMenu() {
+shared_ptr<Database> createNewDatabaseMenu() {
     string databaseName, menuHeader, msg;
     vector<string> opts;
 
@@ -36,7 +36,7 @@ Database *createNewDatabaseMenu() {
     cin >> databaseName;
     printActualInput(databaseName, 0);
 
-    Database *database = new Database(databaseName);
+    shared_ptr<Database> database = make_shared<Database>(databaseName);
     int opt = -1;
     while (opt != 0) {
         menuHeader = "     Add new table to \033[35m'" + databaseName + "'\033[0m?    ";
@@ -140,7 +140,7 @@ int getFileCount(const std::string &path) {
     return fileCount;
 }
 
-Database *loadDatabase() {
+shared_ptr<Database> loadDatabase() {
     std::string path = "./CustomFormatExports/";
     vector<string> options;
     options.reserve(getFileCount(path) + 1);
@@ -177,13 +177,13 @@ Database *loadDatabase() {
 
 
 
-void sqlQuery(Database *d) {
+void sqlQuery(shared_ptr<Database> d) {
 //    cin.ignore();
     QueryEditor editor = QueryEditor(d);
     editor.start();
 }
 
-void promptExport(Database* database) {
+void promptExport(shared_ptr<Database> database) {
     shared_ptr<Format> chosenFormat;
     StringManipulator::instance().newMenu(34, {"Choose export option", "[1] Standard SQL Export", "[2] WYL Export", "[0] Back"});
     string optStr;
@@ -210,7 +210,7 @@ void promptExport(Database* database) {
 
 
 void mainMenu() {
-    Database *database = nullptr;
+    shared_ptr<Database> database = nullptr;
     int opt = 1;
     vector<string> opts = {"MAIN MENU", "[1] Create a new database", "[2] Load database", "[0] Exit"};
     while (!database) {
@@ -272,14 +272,10 @@ void mainMenu() {
                 userWantsToQuit = true;
         }
     }
-
-    delete database;
 }
 
 int main() {
     mainMenu();
-
-    cout << "REVERT TO THIS";
 
 //    Table* table = new Table("Student");
 //

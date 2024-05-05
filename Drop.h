@@ -7,7 +7,7 @@
 
 class Drop : public Statement {
 public:
-    Drop(const string &input, Database *database) : Statement(input, database) {}
+    Drop(const string &input, shared_ptr<Database> database) : Statement(input, database) {}
 
 private:
     void executingQuery(const smatch& matches) const override {

@@ -8,7 +8,7 @@
 
 class Create : public Statement {
 public:
-    Create(const string &input, Database *database): Statement(input, database) {}
+    Create(const string &input, shared_ptr<Database> database): Statement(input, database) {}
 
 
     void execute() override {

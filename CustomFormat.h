@@ -5,16 +5,16 @@
 
 class CustomFormat : public Format {
 public:
-    CustomFormat(const Database *database) : Format(database) {}
+    CustomFormat(const shared_ptr<Database> database) : Format(database) {}
 
-    static Database* createDatabaseFromFile(const string& dirPath, const string& dbName) {
+    static shared_ptr<Database> createDatabaseFromFile(const string& dirPath, const string& dbName) {
         string filePath = dirPath + dbName + ".wyl";
         std::ifstream inputFile(filePath);
         if (!inputFile.is_open()) {
             throw EFileNotOpen("[FILE_ERROR] No file at location: " + filePath);
         }
 
-        Database* database = new Database(dbName);
+        shared_ptr<Database> database = make_shared<Database>(dbName);
 
         vector<Table*> tables;
         bool readingTableColumns = false;

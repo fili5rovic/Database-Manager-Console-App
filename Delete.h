@@ -7,7 +7,7 @@
 
 class Delete : public Statement {
 public:
-    Delete(const string &input, Database *database) : Statement(input, database) {}
+    Delete(const string &input, shared_ptr<Database> database) : Statement(input, database) {}
 private:
     virtual void executingQuery(const smatch &matches) const {
         string tableName = matches[1];

@@ -6,7 +6,7 @@
 
 class SQLFormat : public Format {
 public:
-    SQLFormat(const Database *database) : Format(database) {}
+    SQLFormat(shared_ptr<Database> database) : Format(database) {}
 
 private:
     void printTableNames(std::stringstream &ss) const {

@@ -7,7 +7,7 @@
 
 class Format {
 public:
-    Format(const Database* database) : database(database) {}
+    Format(const shared_ptr<Database> database) : database(database) {}
 
     void message() const {
         cout << "Successfully exported " << database->getName() << getFileExtension() << endl;
@@ -32,7 +32,7 @@ public:
 
 
 protected:
-    const Database* database;
+    const shared_ptr<Database> database;
 
     int calculateMaxColumnNameLength(const vector<string> headers) const {
         int maxLength = 0;

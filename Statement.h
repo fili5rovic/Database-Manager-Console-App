@@ -16,9 +16,9 @@ public:
 protected:
     Table *table;
     const string inputQuery;
-    Database *database;
+    shared_ptr<Database> database;
 
-    Statement(const string &inputQuery, Database *database) : database(database), inputQuery(inputQuery), table(nullptr) {}
+    Statement(const string &inputQuery, shared_ptr<Database> database) : database(database), inputQuery(inputQuery), table(nullptr) {}
 
     void handleQuery(const string &input) const {
         smatch matches;
@@ -39,7 +39,7 @@ protected:
     virtual void checkForSyntaxErrors(const string &query) const {};
 
 private:
-    Table *tryToGetTableFromQuery(const string &query, const Database *database, const regex &regexPattern) const {
+    Table *tryToGetTableFromQuery(const string &query, const shared_ptr<Database> database, const regex &regexPattern) const {
         checkForSyntaxErrors(query);
 
         Table *currTable = nullptr;
