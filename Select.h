@@ -28,7 +28,7 @@ private:
             Filter f(this->table,whereStr);
             filteredTable = f.getFilteredTable();
         } catch(EInvalidColumnNameException& e) {
-            StringManipulator::instance().newMessageRed(e.what());
+            cout << e.what() << endl;
         }
 
         cout << *getTableWithSelectedColumns(filteredTable,selectedColumns);
@@ -68,13 +68,14 @@ private:
 
     //<editor-fold desc="Error Handling">
     void runtimeErrors(const std::string &input) const override {
-
-        StringManipulator::instance().newMessageRed("[RUNTIME_ERROR] Runtime error.");
+        // FIXME
+        throw EBadArgumentsException("[RUNTIME_ERROR] Runtime error.");
     }
 
     void checkForSyntaxErrors(const string &query) const {
-        // from not detected
-        if (!regex_match(query, regex(".*\\s+from\\s*.*", regex_constants::icase))) {
+        if (regex_match(query, regex("^\\s*select(?:\\s+from.*|\\s*)", regex_constants::icase))) {
+            throw EMissingArgumentsException("[SYNTAX_ERROR] SELECT has no arguments.");
+        } else if (!regex_match(query, regex(".*\\s+from\\s*.*", regex_constants::icase))) {
             throw EMissingKeywordsException("[SYNTAX_ERROR] No FROM keyword specified.");
         } // table name not detected
         else if (!regex_search(query, regex(".*\\s+from\\s+\\w+\\s*", regex_constants::icase))) {
@@ -96,10 +97,8 @@ private:
         } else if (regex_match(query, regex(".*from.*from.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] Multiple FROM keywords not allowed.");
         }
-        // select has no arguments
-        if (regex_match(query, regex("^\\s*select\\s+(?:\\,\\s*|\\s*)*\\s*from.*", regex_constants::icase))) {
-            throw EMissingArgumentsException("[SYNTAX_ERROR] SELECT has no arguments.");
-        }
+
+
     }
     //</editor-fold>
 

@@ -10,7 +10,7 @@
 #include <numeric>
 
 class Table {
-public: // todo Can't contain numbers in table name
+public:
     Table(const string &name) : name(name), records(), header() {}
 
     Table(const Table &t) {

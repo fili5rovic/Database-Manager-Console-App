@@ -277,7 +277,7 @@ void mainMenu() {
 }
 
 int main() {
-    mainMenu(); // todo created should also be colored in some way
+    mainMenu();
 
 
 

@@ -28,7 +28,7 @@ private:
             Filter f(this->table, whereStr);
             filterTable = f.getFilteredTable();
         } catch (EInvalidColumnNameException &e) {
-            StringManipulator::instance().newMessageRed(e.what());
+            cout << e.what();
         }
 
         vector<int> indices;

@@ -132,7 +132,7 @@ public:
         cout << RESET;
     }
 
-    void newMessageRed(string poruka = "", int line_len = -1) {
+    void newMessageRed(string poruka, int line_len = -1) {
         cout << RED;
         newMessage(std::move(poruka), line_len);
         cout << RESET;
