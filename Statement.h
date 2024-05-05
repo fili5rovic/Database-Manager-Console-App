@@ -22,7 +22,7 @@ protected:
 
     void handleQuery(const string &input) const {
         smatch matches;
-        if (regex_search(input, matches, getRegexPattern()))
+        if (regex_match(input, matches, getRegexPattern()))
             executingQuery(matches);
         else
             runtimeErrors(input);

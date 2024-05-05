@@ -68,6 +68,7 @@ private:
 
     //<editor-fold desc="Error Handling">
     void runtimeErrors(const std::string &input) const override {
+
         StringManipulator::instance().newMessageRed("[RUNTIME_ERROR] Runtime error.");
     }
 
