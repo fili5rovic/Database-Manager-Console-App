@@ -278,8 +278,8 @@ void mainMenu() {
 
 int main() {
     mainMenu();
-    cout << "SEBASTIAN VETTEL";
 
+    cout << "REVERT TO THIS";
 
 //    Table* table = new Table("Student");
 //
