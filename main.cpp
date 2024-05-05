@@ -42,7 +42,7 @@ Database *createNewDatabaseMenu() {
         menuHeader = "     Add new table to \033[35m'" + databaseName + "'\033[0m?    ";
         opts = {menuHeader, "[1] Yes", "[0] No"};
         int formula = menuHeader.length() - 8 + menuHeader.length() % 2 - 1; // za pravilnu velicinu tabele
-        StringManipulator::instance().newMenu(formula, 3, opts);
+        StringManipulator::instance().newMenu(formula, opts);
         cout << GRAY << "-> " << RESET;
         cin >> opt;
 
@@ -162,7 +162,7 @@ Database *loadDatabase() {
 
     maxLineLength += 8 + maxLineLength % 2;
 
-    StringManipulator::instance().newMenu(maxLineLength, options.size(), options);
+    StringManipulator::instance().newMenu(maxLineLength, options);
     cout << GRAY << "-> " << RESET;
     int choice;
     cin >> choice;
@@ -183,13 +183,38 @@ void sqlQuery(Database *d) {
     editor.start();
 }
 
+void promptExport(Database* database) {
+    shared_ptr<Format> chosenFormat;
+    StringManipulator::instance().newMenu(34, {"Choose export option", "[1] Standard SQL Export", "[2] WYL Export", "[0] Back"});
+    string optStr;
+    bool saved = false;
+    while (true) {
+        cout << "-> ";
+        cin >> optStr;
+        if (optStr == "1") {
+            chosenFormat = make_shared<SQLFormat>(database);
+            saved = true;
+            break;
+        } else if (optStr == "2") {
+            chosenFormat = make_shared<CustomFormat>(database);
+            saved = true;
+            break;
+        } else if (optStr == "0") {
+            break;
+        }
+    }
+
+    if (saved)
+        chosenFormat->exportDatabase();
+}
+
 
 void mainMenu() {
     Database *database = nullptr;
     int opt = 1;
     vector<string> opts = {"MAIN MENU", "[1] Create a new database", "[2] Load database", "[0] Exit"};
     while (!database) {
-        StringManipulator::instance().newMenu(34, 4, opts, 4);
+        StringManipulator::instance().newMenu(34, opts, 4);
         cout << GRAY << "-> " << RESET;
         cin >> opt;
         switch (opt) {
@@ -210,43 +235,39 @@ void mainMenu() {
 
     opts = {"MAIN MENU", "[1] SQL Query", "[2] Export database", "[0] Exit"};
     bool userWantsToQuit = false;
+    bool saved = true;
     while (!userWantsToQuit) {
-        StringManipulator::instance().newMenu(34, 4, opts);
+        StringManipulator::instance().newMenu(34, opts);
         cout << GRAY << "-> " << RESET;
         cin >> opt;
         switch (opt) {
             case 1:
                 cin.ignore();
                 sqlQuery(database);
+                saved = false;
                 break;
             case 2: {
-                shared_ptr<Format> chosenFormat;
-                vector<string> opts1 = {"Choose export option", "[1] Standard SQL Export", "[2] WYL Export",
-                                        "[0] Back"};
-                StringManipulator::instance().newMenu(34, 4, opts1);
-                string optStr;
-                bool back = false;
-                while (true) {
-                    cout << "-> ";
-                    cin >> optStr;
-                    if (optStr == "1") {
-                        chosenFormat = make_shared<SQLFormat>(database);
-                        break;
-                    } else if (optStr == "2") {
-                        chosenFormat = make_shared<CustomFormat>(database);
-                        break;
-                    } else if (optStr == "0") {
-                        back = true;
-                        break;
-                    }
-                }
-                if (back)
-                    break;
-                chosenFormat->exportDatabase();
+                promptExport(database);
+                saved = true;
                 break;
             }
             case 0:
                 printActualInput(opts[3]);
+
+                if(!saved) {
+                    StringManipulator::instance().newMenu(40, {"Changes were not saved. Exit anyway?", "[1] Yes", "[2] No"});
+                    string saveOpt;
+                    while(!saved) {
+                        cout << GRAY << "-> " << RESET;
+                        cin >> saveOpt;
+                        if(saveOpt == "2") {
+                            promptExport(database);
+                            saved = true;
+                        } else if(saveOpt == "1") {
+                            break;
+                        }
+                    }
+                }
                 StringManipulator::instance().newMessageGreen("Program exited successfully.");
                 userWantsToQuit = true;
         }

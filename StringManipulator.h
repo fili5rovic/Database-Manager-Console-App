@@ -94,8 +94,8 @@ public:
         if (end) cout << endl;
     }
 
-    void newMenu(int line_len, int strlen, vector<string> options, int pomeraj = 7) {
-        for (int i = 0; i < strlen; ++i) {
+    void newMenu(int line_len, vector<string> options, int pomeraj = 7) {
+        for (int i = 0; i < options.size(); ++i) {
             if (options[i].length() % 2 != 0)
                 options[i] += " ";
         }
@@ -105,10 +105,10 @@ public:
         cout << verticalLine << printspace((line_len - options[0].length()) / 2) << options[0]
              << printspace((line_len - options[0].length()) / 2) << verticalLine << endl;
         cout << middleLeftCorner << printline(line_len) << middleRightCorner << endl;
-        for (int i = 1; i < strlen; ++i) {
+        for (int i = 1; i < options.size(); ++i) {
             cout << verticalLine << printspace(pomeraj) << options[i]
                  << printspace((line_len - options[i].length()) - pomeraj) << verticalLine << endl;
-            if (i < strlen - 1)
+            if (i < options.size() - 1)
                 cout << middleLeftCorner << printline(line_len) << middleRightCorner << endl;
         }
         lowerTableHeading(line_len);

@@ -37,7 +37,7 @@ private:
 
         string headerStr = "This will delete " + to_string(indices.size()) + (indices.size() == 1 ? " row":" rows") + ". Proceed?";
         vector<string> opts = {"Security Warning", headerStr, "[1] Yes", "[0] Go back"};
-        StringManipulator::instance().newMenu(44, 4, opts);
+        StringManipulator::instance().newMenu(44, opts);
         string opt;
         cin >> opt;
         if(opt == "1") {
