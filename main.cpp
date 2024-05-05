@@ -278,7 +278,7 @@ void mainMenu() {
 
 int main() {
     mainMenu();
-    cout << "TEST" << endl;
+
 
 
 //    Table* table = new Table("Student");
