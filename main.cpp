@@ -278,7 +278,7 @@ void mainMenu() {
 
 int main() {
     mainMenu();
-
+    cout << "SEBASTIAN VETTEL";
 
 
 //    Table* table = new Table("Student");
