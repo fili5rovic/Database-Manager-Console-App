@@ -32,7 +32,6 @@ private:
             return;
         }
         setHeaderAndNameFromParameterTable(t);
-
         vector<string> orStrings = getOrStringsFromWhere(whereArgs);
         for (const string &conditionWithAnds: orStrings) {
             Table* tempTable = new Table(*t);
@@ -43,14 +42,14 @@ private:
                 string valueStr;
 
                 smatch matches;
-                if (regex_search(condStr, matches,regex("^(\\w+)\\s*\\=\\s+(?:(\\w+)|'(\\w+)'|\"(\\w+)\")$", regex_constants::icase))) {
+                if (regex_search(condStr, matches,regex("^(\\w+)\\s*\\=\\s*(?:(\\w+)|'(\\w+)'|\"(\\w+)\")$", regex_constants::icase))) {
                     valueStr = getCorrectMatch(matches);
                     condition = std::make_shared<Equal>(tempTable, matches[1], valueStr);
-                } else if(regex_search(condStr, matches,regex("^(\\w+)\\s*(?:\\!\\=|\\<\\>)\\s+(?:(\\w+)|'(\\w+)'|\"(\\w+)\")$", regex_constants::icase))) {
+                } else if(regex_search(condStr, matches,regex("^(\\w+)\\s*(?:\\!\\=|\\<\\>)\\s*(?:(\\w+)|'(\\w+)'|\"(\\w+)\")$", regex_constants::icase))) {
                     valueStr = getCorrectMatch(matches);
                     condition = std::make_shared<NotEqual>(tempTable, matches[1], valueStr);
                 } else
-                    throw EBadArgumentsException("[SYNTAX_ERROR] Invalid WHERE sintax.");
+                    throw EBadArgumentsException("[SYNTAX_ERROR] Invalid WHERE syntax.");
 
                 tempTable = condition->getConditionedTable();
                 innerVector.push_back(condition);

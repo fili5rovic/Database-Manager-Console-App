@@ -41,14 +41,15 @@ private:
             for (const string &setArg: setArgs) {
                 std::smatch matches1;
                 if (regex_search(setArg, matches1,
-                                 regex("^\\s*(\\w+)\\s*\\=\\s*[\'\"](\\w+)[\'\"]", regex_constants::icase))) {
+                                 regex("^\\s*(\\w+)\\s*\\=\\s*[\'\"](\\w*|\\s)[\'\"]", regex_constants::icase))) {
                     string columnName = matches1[1];
                     string columnValue = matches1[2];
 
                     StringManipulator::instance().trim(columnName);
                     StringManipulator::instance().trim(columnValue);
 
-                    cout << "Column Name: " << columnName << " , Column Value: " << columnValue << endl;
+
+
 
                     int columnIndex = -1;
                     for (int i = 0; i < filterTable->getTableHeaders().size(); i++) {
@@ -58,7 +59,6 @@ private:
                             break;
                         }
                     }
-                    cout << "COLUMN INDEX: " << columnIndex << endl;
                     table->getRecordByIndex(index).getDataReference()[columnIndex] = columnValue;
                 }
             }
@@ -82,7 +82,7 @@ private:
 
     //<editor-fold desc="Error Handling">
     void runtimeErrors(const std::string &input) const override {
-        throw EBadArgumentsException("[ERROR] Bad table probably lol");
+        throw EBadArgumentsException("[RUNTIME_ERROR] Bad table probably lol");
     }
 
     void checkForSyntaxErrors(const std::string &query) const override {
@@ -122,7 +122,7 @@ private:
 
     regex getRegexPattern() const override {
         return regex(
-                "^\\s*update\\s+([a-zA-Z_]*)\\s+set\\s+(\\w+\\s*\\=\\s*(?:\\\"\\w+\\\"|\\'\\w+\\')\\s*(?:\\,\\s*\\w+\\s*\\=\\s*(?:\\\"\\w+\\\"|\\'\\w+\\')\\s*)*)(?:where\\s+((\\w+)\\s*(\\=|\\<\\>|\\!\\=)\\s*('\\w+'|\"\\w+\"|\\w+)(?:\\s+(and|or)\\s*(\\w+)\\s*(\\=|\\<\\>|\\!\\=)\\s*('\\w+'|\"\\w+\"|\\w+))*))?",
+                "^\\s*update\\s+([a-zA-Z_]*)\\s+set\\s+(\\w+\\s*\\=\\s*(?:\\\"(?:\\w*|\\s)\\\"|\\'(?:\\w*|\\s)\\')\\s*(?:\\,\\s*\\w+\\s*\\=\\s*(?:\\\"(?:\\w*|\\s)\\\"|\\'(?:\\w*|\\s)\\')\\s*)*)(?:where\\s+((\\w+)\\s*(\\=|\\<\\>|\\!\\=)\\s*('\\w+'|\"\\w+\"|\\w+)(?:\\s+(and|or)\\s*(\\w+)\\s*(\\=|\\<\\>|\\!\\=)\\s*('\\w+'|\"\\w+\"|\\w+))*))?",
                 regex_constants::icase);
     }
     //</editor-fold>

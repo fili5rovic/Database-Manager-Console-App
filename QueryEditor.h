@@ -49,11 +49,16 @@ public:
 private:
     Database *database;
 
-    const string KEYWORDCOLOR = StringManipulator::instance().MYCOLOR(184, 51, 106) + StringManipulator::instance().BOLDCOLOR();
-    const string  COLOMNCOLOR = StringManipulator::instance().MYCOLOR(70, 177, 201) + StringManipulator::instance().BOLDCOLOR();
-    const string   TABLECOLOR = StringManipulator::instance().MYCOLOR(66, 255, 186) + StringManipulator::instance().BOLDCOLOR();
-    const string   QUOTECOLOR = StringManipulator::instance().MYCOLOR(238, 108, 77) + StringManipulator::instance().BOLDCOLOR();
-    const string   DQUOTECOLOR = StringManipulator::instance().MYCOLOR(182, 238, 166) + StringManipulator::instance().BOLDCOLOR();
+    const string KEYWORDCOLOR =
+            StringManipulator::instance().RGB(184, 51, 106) + StringManipulator::instance().BOLDCOLOR();
+    const string  COLOMNCOLOR =
+            StringManipulator::instance().RGB(70, 177, 201) + StringManipulator::instance().BOLDCOLOR();
+    const string   TABLECOLOR =
+            StringManipulator::instance().RGB(66, 255, 186) + StringManipulator::instance().BOLDCOLOR();
+    const string   QUOTECOLOR =
+            StringManipulator::instance().RGB(238, 108, 77) + StringManipulator::instance().BOLDCOLOR();
+    const string   DQUOTECOLOR =
+            StringManipulator::instance().RGB(182, 238, 166) + StringManipulator::instance().BOLDCOLOR();
     const string   RESETCOLOR = StringManipulator::instance().RESETCOLOR();
 
     // todo proper painting

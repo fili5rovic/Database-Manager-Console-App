@@ -36,7 +36,7 @@ public:
         return instance;
     }
 
-    string MYCOLOR(int r, int g=0, int b=0) {
+    string RGB(int r, int g, int b) {
         return "\033[38;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
     }
 
