@@ -82,19 +82,19 @@ private:
             throw EMissingArgumentsException("[SYNTAX_ERROR] FROM has no arguments.");
         }
         // multiple keywords
-        if (regex_match(query, regex(".*create.*", regex_constants::icase))) {
+        if (regex_match(query, regex(".*\\bcreate\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] CREATE with SELECT not allowed.");
-        } else if (regex_match(query, regex(".*insert.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\binsert\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] INSERT with SELECT not allowed.");
-        } else if (regex_match(query, regex(".*into.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\binto\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] INTO with SELECT not allowed.");
-        } else if (regex_match(query, regex(".*delete.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\bdelete\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] DELETE with SELECT not allowed.");
-        } else if (regex_match(query, regex(".*table.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\btable\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] TABLE with SELECT not allowed.");
-        } else if (regex_match(query, regex(".*select.*select.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\bselect\\b.*\\bselect\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] Multiple SELECT keywords not allowed.");
-        } else if (regex_match(query, regex(".*from.*from.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\bfrom\\b.*\\bfrom\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] Multiple FROM keywords not allowed.");
         }
 

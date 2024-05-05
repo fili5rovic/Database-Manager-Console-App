@@ -94,17 +94,17 @@ private:
             throw EMissingArgumentsException("[SYNTAX_ERROR] SET has no arguments.");
         }
         // multiple keywords
-        if (regex_match(query, regex(".*create.*", regex_constants::icase))) {
+        if (regex_match(query, regex(".*\\bcreate\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] CREATE with UPDATE not allowed.");
-        } else if (regex_match(query, regex(".*insert.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\binsert\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] INSERT with UPDATE not allowed.");
-        } else if (regex_match(query, regex(".*into.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\binto\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] INTO with UPDATE not allowed.");
-        } else if (regex_match(query, regex(".*delete.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\bdelete\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] DELETE with UPDATE not allowed.");
-        } else if (regex_match(query, regex(".*table.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\btable\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] TABLE with UPDATE not allowed.");
-        } else if (regex_match(query, regex(".*update.*update.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\bupdate\\b.*\\bupdate\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] Multiple UPDATE keywords not allowed.");
         }
         // update has no arguments

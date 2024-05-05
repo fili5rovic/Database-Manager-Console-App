@@ -32,15 +32,15 @@ private:
             throw EMissingArgumentsException("[SYNTAX_ERROR] DROP TABLE has no argument.");
         }
         // multiple keywords
-        if (regex_match(query, regex(".*create.*", regex_constants::icase))) {
+        if (regex_match(query, regex(".*\\bcreate\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] CREATE with DROP not allowed within the same statement.");
-        } else if (regex_match(query, regex(".*select.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\bselect\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] SELECT with DROP not allowed within the same statement.");
-        } else if (regex_match(query, regex(".*delete.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\bdelete\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] DELETE with DROP not allowed within the same statement.");
-        } else if (regex_match(query, regex(".*insert.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\binsert\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] TABLE with INSERT not allowed within the same statement.");
-        } else if (regex_match(query, regex(".*drop.*drop.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\bdrop\\b.*\\bdrop\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException(
                     "[SYNTAX_ERROR] Multiple DROP keywords not allowed within the same statement.");
         }

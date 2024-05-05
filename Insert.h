@@ -79,13 +79,13 @@ private:
         }
 
         // multiple keywords
-        if (regex_match(query, regex(".*create.*", regex_constants::icase))) {
+        if (regex_match(query, regex(".*\\bcreate\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] CREATE with INSERT not allowed within the same statement.");
-        } else if (regex_match(query, regex(".*select.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\bselect\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] SELECT with INSERT not allowed within the same statement.");
-        } else if (regex_match(query, regex(".*delete.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\bdelete\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] DELETE with INSERT not allowed within the same statement.");
-        } else if (regex_match(query, regex(".*create.*create.*", regex_constants::icase))) {
+        } else if (regex_match(query, regex(".*\\bcreate\\b.*\\bcreate\\b.*", regex_constants::icase))) {
             throw EMultipleKeywordsException("[SYNTAX_ERROR] Multiple INSERT keywords not allowed within the same statement.");
         }
     }
