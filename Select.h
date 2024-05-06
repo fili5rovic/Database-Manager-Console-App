@@ -22,6 +22,8 @@ private:
 
         // todo select nesto.nestodrugo
 
+        unordered_map<string,string> tableAcronymMap;
+        std::smatch matchForElse;
         if(regex_search(fromTableStr, regex("\\w+(?:\\s+\\w+)?((?:\\s+inner)?\\s+join\\s+\\w+(?:\\s+\\w+)?\\s+on\\s+\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+)+", regex_constants::icase))) {
 
             fromTableStr = regex_replace(fromTableStr, regex("\\s*INNER\\s*",regex_constants::icase), " ");
@@ -30,7 +32,7 @@ private:
 
             vector<string> subStrings = StringManipulator::instance().splitString(fromTableStr,'|');
 
-            unordered_map<string,string> tableNickNames;
+
 
             std::smatch innerMatches;
             if(regex_match(subStrings[0],innerMatches,regex("(\\w+)(?:\\s+(\\w+))?",regex_constants::icase))) {
@@ -44,7 +46,7 @@ private:
                     throw EBadArgumentsException("[RUNTIME_ERROR] Table '"+ tableName +"' not found.");
                 }
 
-                tableNickNames[tableName] = tableNick;
+                tableAcronymMap[tableName] = tableNick;
 
             } else throw EBadArgumentsException("[ERROR] Bad Syntax around: " + subStrings[0]);
 
@@ -62,15 +64,15 @@ private:
                         throw EBadArgumentsException("[RUNTIME_ERROR] Table '"+ tableName +"' not found.");
                     }
 
-                    if (tableNickNames.find(tableName) == tableNickNames.end()) {
-                        tableNickNames[tableName] = tableNick;
+                    if (tableAcronymMap.find(tableName) == tableAcronymMap.end()) {
+                        tableAcronymMap[tableName] = tableNick;
                     }
                     else {
                         throw EBadArgumentsException("[RUNTIME_ERROR] Same table acronyms not allowed.");
                     }
 
-                    string table1Name = getTableNameFromAcronym(tableNickNames, firstTableNickInJoin);
-                    string table2Name = getTableNameFromAcronym(tableNickNames, secondTableNickInJoin);
+                    string table1Name = getTableNameFromAcronym(tableAcronymMap, firstTableNickInJoin);
+                    string table2Name = getTableNameFromAcronym(tableAcronymMap, secondTableNickInJoin);
 
                     shared_ptr<Table> table1 = database->tryGettingTableByNameCaseI(table1Name);
                     shared_ptr<Table> table2 = database->tryGettingTableByNameCaseI(table2Name);
@@ -122,17 +124,27 @@ private:
                     } catch( MyException& e) {
                         cout << e.what() << endl;
                     }
-
+                    // dodaj acronym ispred svakog headera pre nego sto ih spojis
 
                     cout << *Table::getMergedTablesForJoin(table1, filTable);
-
+                    // todo this->table = ovo od iznad
 
                 } else // todo add USING regex else if here
                     throw EBadArgumentsException("[SYNTAX_ERROR] Bad Syntax around: " + *it);
             }
+        } else if(regex_match(fromTableStr, matchForElse,regex("^\\s*(\\w+)(?:\\s+(\\w+))?\\s*$",regex_constants::icase))) {
+            string tableName = matchForElse[1];
+            string tableNick = matchForElse[2];
+
+            if(database->tryGettingTableByNameCaseI(tableName) == nullptr) {
+                throw EBadArgumentsException("[RUNTIME_ERROR] Table \'"+ tableName +"\' not found.");
+            }
+
+            tableAcronymMap[tableName] = tableNick;
         }
 
         vector<string> selectedColumns = StringManipulator::splitString(argumentsStr, ',');
+
 
         shared_ptr<Table> filteredTable;
 

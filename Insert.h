@@ -16,6 +16,8 @@ private:
 
         checkIfAllColumnsAreThere(listOfColumns, values.size());
 
+        sortColumnsAndValues(listOfColumns, values);
+
         StringManipulator::instance().removeQuotesAndLeadingSpaces(values);
 
         Record record = Record();
@@ -28,15 +30,46 @@ private:
         cout << *table;
     }
 
+    void sortColumnsAndValues(vector<string> &listOfColumns, vector<string> &values) const {
+        StringManipulator::instance().removeQuotesAndLeadingSpaces(listOfColumns);
+        vector<string> oldValues = values;
+        for(int i = 0; i < table->getTableHeaders().size(); i++) {
+            for (int j = 0; j < listOfColumns.size(); ++j) {
+                cout << "i: " << table->getTableHeaders()[i] << " j: " << listOfColumns[j] << endl;
+                if(regex_match(table->getTableHeaders()[i], regex(listOfColumns[j], regex_constants::icase))) {
+                    values.at(i) = oldValues.at(j);
+                    break;
+                }
+            }
+        }
+        listOfColumns = table->getTableHeaders();
+
+        cout << "Columns: ";
+        for (const string &column: listOfColumns) {
+            cout << column << " ";
+        }
+        cout << endl;
+        cout << "Values: ";
+        for (const string &value: values) {
+            cout << value << " ";
+        }
+        cout << endl;
+    }
+
 
     void checkIfAllColumnsAreThere(vector<string> listOfColumns, const size_t listOfValuesSize) const {
-        if (listOfColumns.size() != table->getTableHeaders().size())
+        if (listOfColumns.size() > table->getTableHeaders().size())
             throw EBadArgumentsException(
-                    "[RUNTIME_ERROR] Every column from " + table->getName() + " should be selected while inserting");
+                    "[RUNTIME_ERROR] The number of selected columns exceeds the column count in table '" + table->getName() + "'.");
+        else if (listOfColumns.size() < table->getTableHeaders().size())
+            throw EBadArgumentsException(
+                    "[RUNTIME_ERROR] The number of selected columns is less than the column count in table '" + table->getName() + "'.");
 
-        if (listOfValuesSize != listOfColumns.size())
+        if (listOfValuesSize < listOfColumns.size())
             throw EBadArgumentsException(
                     "[RUNTIME_ERROR] Every column from " + table->getName() + " should be given value.");
+        else if (listOfValuesSize > listOfColumns.size())
+            throw EBadArgumentsException("[RUNTIME_ERROR] Too many values for columns in table " + table->getName() + ".");
 
         bool found = false;
         for (string &column: listOfColumns) {
