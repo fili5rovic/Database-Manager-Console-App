@@ -22,7 +22,7 @@ private:
             str = StringManipulator::instance().trim(str);
         }
 
-        Table *filterTable;
+        shared_ptr<Table> filterTable;
 
         try {
             Filter f(this->table, whereStr);

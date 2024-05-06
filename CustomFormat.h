@@ -16,17 +16,15 @@ public:
 
         shared_ptr<Database> database = make_shared<Database>(dbName);
 
-        vector<Table*> tables;
+        vector<shared_ptr<Table>> tables;
         bool readingTableColumns = false;
         bool readingData = false;
-        Table* currTable;
+        shared_ptr<Table> currTable;
         string line;
         std::smatch matches;
         while (std::getline(inputFile, line)) {
-            cout << line << endl;
-
             if(regex_search(line, matches,regex("^START_TABLE \"([a-zA-Z_]+)\""))) {
-                currTable = new Table(matches[1]);
+                currTable = make_shared<Table>(matches[1]);
                 readingTableColumns = true;
                 readingData = false;
                 continue;
@@ -50,9 +48,9 @@ public:
                 currTable->addHeader(line.substr(1,line.length()-2));
             } else if(readingData) {
                 if(regex_search(line, matches,regex("\\s*\\[\\\"([a-zA-Z_]+)\\\"\\] ADD \\[(\\'\\w+\\'(?:,\\'\\w+\\')*)\\]"))) {
-                    Table* currTable;
+                    shared_ptr<Table> currTable;
 
-                    for(Table* t : tables) {
+                    for(shared_ptr<Table> t : tables) {
                         if(t->getName() == matches[1]) {
                             currTable = t;
                             break;
@@ -60,6 +58,7 @@ public:
                     }
                     if(!currTable) {
                         cout << "[RUNTIME_ERROR] Table " << matches[1] << " not found." << endl;
+                        inputFile.close();
                         return nullptr;
                     }
 
@@ -74,7 +73,7 @@ public:
             }
         }
 
-        for(const Table* t : tables) {
+        for(const shared_ptr<Table> t : tables) {
             database->addTable(*t);
         }
 
@@ -96,7 +95,6 @@ private:
     }
 
     void printDataInsertion(stringstream &ss) const override {
-
         int maxLength = calculateMaxColumnNameLength(database->getAllHeaders());
         ss << "START_DATA" << endl;
         for (const auto &tablePair: database->getTablePairs()) {

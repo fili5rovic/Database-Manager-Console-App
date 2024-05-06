@@ -12,7 +12,7 @@ private:
     virtual void executingQuery(const smatch &matches) const {
         string tableName = matches[1];
         string whereStr = matches[2];
-        Table *filterTable;
+        shared_ptr<Table> filterTable;
 
         try {
             Filter f(this->table, whereStr);

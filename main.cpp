@@ -150,7 +150,7 @@ shared_ptr<Database> loadDatabase() {
     for (const auto &entry: std::filesystem::directory_iterator(path)) {
         string dbName = entry.path().string().substr(path.length());
         dbName = dbName.substr(0, dbName.length() - 4);
-        options.push_back("[" + to_string(cnt) + "] " + dbName);
+        options.push_back("[" + to_string(cnt++) + "] " + dbName);
     }
     options.push_back("[0] Back.");
 
@@ -261,13 +261,16 @@ void mainMenu() {
                         cout << GRAY << "-> " << RESET;
                         cin >> saveOpt;
                         if(saveOpt == "2") {
+                            printActualInput("[2] No");
                             promptExport(database);
                             saved = true;
                         } else if(saveOpt == "1") {
+                            printActualInput("[1] Yes");
                             break;
                         }
                     }
                 }
+                printActualInput("[0] Exit");
                 StringManipulator::instance().newMessageGreen("Program exited successfully.");
                 userWantsToQuit = true;
         }

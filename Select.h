@@ -20,9 +20,121 @@ private:
         string fromTableStr = matches[2];
         string whereStr = matches[3];
 
+        // todo select nesto.nestodrugo
+
+        if(regex_search(fromTableStr, regex("\\w+(?:\\s+\\w+)?((?:\\s+inner)?\\s+join\\s+\\w+(?:\\s+\\w+)?\\s+on\\s+\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+)+", regex_constants::icase))) {
+
+            fromTableStr = regex_replace(fromTableStr, regex("\\s*INNER\\s*",regex_constants::icase), " ");
+            fromTableStr = regex_replace(fromTableStr, regex("\\s*JOIN\\s*",regex_constants::icase), "|");
+
+
+            vector<string> subStrings = StringManipulator::instance().splitString(fromTableStr,'|');
+
+            unordered_map<string,string> tableNickNames;
+
+            std::smatch innerMatches;
+            if(regex_match(subStrings[0],innerMatches,regex("(\\w+)(?:\\s+(\\w+))?",regex_constants::icase))) {
+                string tableName = innerMatches[1];
+                string tableNick = innerMatches[2];
+
+                cout << "Table name:" << tableName << endl;
+                cout << "Table nick:" << tableNick << endl;
+
+                if(database->tryGettingTableByNameCaseI(tableName) == nullptr) {
+                    throw EBadArgumentsException("[RUNTIME_ERROR] Table '"+ tableName +"' not found.");
+                }
+
+                tableNickNames[tableName] = tableNick;
+
+            } else throw EBadArgumentsException("[ERROR] Bad Syntax around: " + subStrings[0]);
+
+            for(auto it = subStrings.begin() + 1; it != subStrings.end(); ++it) {
+                if(regex_search(*it,innerMatches,regex("(\\w+)(?:\\s+(\\w+))?\\s+on\\s+(\\w+)\\.(\\w+)\\s*(\\=|\\!\\=)\\s*(\\w+)\\.(\\w+)",regex_constants::icase))) {
+                    string tableName = innerMatches[1];
+                    string tableNick = innerMatches[2];
+                    string firstTableNickInJoin = innerMatches[3];
+                    string firstTableColumnNameInJoin = innerMatches[4];
+                    string equasion = innerMatches[5];
+                    string secondTableNickInJoin = innerMatches[6];
+                    string secondTableColumnNameInJoin = innerMatches[7];
+
+                    if(database->tryGettingTableByNameCaseI(tableName) == nullptr) {
+                        throw EBadArgumentsException("[RUNTIME_ERROR] Table '"+ tableName +"' not found.");
+                    }
+
+                    if (tableNickNames.find(tableName) == tableNickNames.end()) {
+                        tableNickNames[tableName] = tableNick;
+                    }
+                    else {
+                        throw EBadArgumentsException("[RUNTIME_ERROR] Same table acronyms not allowed.");
+                    }
+
+                    string table1Name = getTableNameFromAcronym(tableNickNames, firstTableNickInJoin);
+                    string table2Name = getTableNameFromAcronym(tableNickNames, secondTableNickInJoin);
+
+                    shared_ptr<Table> table1 = database->tryGettingTableByNameCaseI(table1Name);
+                    shared_ptr<Table> table2 = database->tryGettingTableByNameCaseI(table2Name);
+
+                    if(table1 == nullptr) {
+                        throw EBadArgumentsException("[RUNTIME_ERROR] Table '"+ table1Name +"' not found.");
+                    }
+                    if(table2 == nullptr) {
+                        throw EBadArgumentsException("[RUNTIME_ERROR] Table '"+ table2Name +"' not found.");
+                    }
+
+                    int column1Index = 0;
+                    int column2Index = 0;
+
+
+                    bool firstTableColumnExists = false;
+                    bool secondTableColumnExists = false;
+
+                    for (int i = 0; i < table1->getTableHeaders().size(); ++i) {
+                        if (regex_match(table1->getTableHeaders().at(i), regex(firstTableColumnNameInJoin, regex_constants::icase))) {
+                            column1Index = i;
+                            firstTableColumnExists = true;
+                        }
+                    }
+                    for (int i = 0; i < table2->getTableHeaders().size(); ++i) {
+                        if (regex_match(table2->getTableHeaders().at(i), regex(secondTableColumnNameInJoin, regex_constants::icase))) {
+                            column2Index = i;
+                            secondTableColumnExists = true;
+                        }
+                    }
+
+                    if (!firstTableColumnExists) {
+                        throw EBadArgumentsException("[RUNTIME_ERROR] Column name '" + firstTableColumnNameInJoin + "' not found in " + table1->getName());
+                    } else if (!secondTableColumnExists) {
+                        throw EBadArgumentsException("[RUNTIME_ERROR] Column name '" + secondTableColumnNameInJoin + "' not found in " + table2->getName());
+                    }
+
+                    string filterString;
+                    for (int i = 0; i < table1->getTableRecords().size(); ++i) {
+                        string str = secondTableColumnNameInJoin + " = \"" + table1->getTableRecords().at(i).getData().at(column1Index) + "\"";
+                        filterString = filterString.empty() ? str : filterString + " OR " + str;
+                    }
+
+                    cout << "FILTER STRING: " << filterString << endl;
+                    shared_ptr<Table> filTable;
+                    try {
+                        Filter fil = Filter(table2, filterString);
+                        filTable = fil.getFilteredTable();
+                    } catch( MyException& e) {
+                        cout << e.what() << endl;
+                    }
+
+
+                    cout << *Table::getMergedTablesForJoin(table1, filTable);
+
+
+                } else // todo add USING regex else if here
+                    throw EBadArgumentsException("[SYNTAX_ERROR] Bad Syntax around: " + *it);
+            }
+        }
+
         vector<string> selectedColumns = StringManipulator::splitString(argumentsStr, ',');
 
-        Table* filteredTable;
+        shared_ptr<Table> filteredTable;
 
         try {
             Filter f(this->table,whereStr);
@@ -34,25 +146,36 @@ private:
         cout << *getTableWithSelectedColumns(filteredTable,selectedColumns);
     }
 
-    static Table* getTableWithSelectedColumns(Table* tableArg, vector<string> selectedColumns)  {
+    string getTableNameFromAcronym(const unordered_map<string,string> tableNickNames, const string value) const {
+        for (const auto& pair : tableNickNames) {
+            if (pair.second == value) {
+                return pair.first;
+            }
+        }
+        throw EBadArgumentsException("[RUNTIME_ERROR] Table acronym '"+ value +"' not found.");
+    }
+
+
+
+    static shared_ptr<Table> getTableWithSelectedColumns(shared_ptr<Table> tableArg, vector<string> selectedColumns)  {
         if(selectedColumns.size() == 1 && selectedColumns.at(0) == "*") {
             return tableArg;
         }
 
-        Table* finalTable = new Table(tableArg->getName());
+        shared_ptr<Table> finalTable = make_shared<Table>(tableArg->getName());
         selectedColumns = getProcessedSelectedColumns(tableArg, selectedColumns);
 
         for(int i = 0; i < tableArg->getTableRecords().size(); i++)
             finalTable->addRecord(Record());
 
         for(const auto& selectedColumn : selectedColumns) {
-            Table* tempTable = tableArg->getSubTable(selectedColumn);
+            shared_ptr<Table> tempTable = tableArg->getSubTable(selectedColumn);
             finalTable = Table::getMergedTable(finalTable, tempTable);
         }
         return finalTable;
     }
 
-    static vector<string> getProcessedSelectedColumns(Table* tableArg, vector<string> selectedColumns) {
+    static vector<string> getProcessedSelectedColumns(shared_ptr<Table> tableArg, vector<string> selectedColumns) {
         vector<string> processedSelectedColumns;
         processedSelectedColumns.reserve(selectedColumns.size());
         for(const string& column : selectedColumns) {
@@ -105,7 +228,7 @@ private:
 
     //<editor-fold desc="Getters">
     regex getRegexPattern() const {
-        return regex(R"(^\s*select\s+((?:\w+|\*)(?:\s*,\s*(?:\w+|\*))*)\s+from\s+(\w+)+\s*(?:where\s+((\w+)\s*(\=|\<\>|\!\=)\s*('\w+'|"\w+"|\w+)(?:\s+(and|or)\s*(\w+)\s*(\=|\<\>|\!\=)\s*('\w+'|"\w+"|\w+))*))?)", regex_constants::icase);;
+        return regex(R"(^\s*select\s+((?:(?:\w+\.)?\w+|\*)(?:\s*,\s*(?:(?:\w+\.)?\w+|\*))*)\s+from\s+(\w+\s+(?:\w+\s+)?(?:inner\s+)?join\s+\w+\s+(?:\w+\s+)?on\s+\w+\.\w+\s*\=\s*\w+\.\w+|\w+)\s*(?:where\s+((\w+)\s*(\=|\<\>|\!\=)\s*('\w+'|"\w+"|\w+)(?:\s+(and|or)\s*(\w+)\s*(\=|\<\>|\!\=)\s*('\w+'|"\w+"|\w+))*))?)", regex_constants::icase);;
     }
 
     regex getRegexForFindingTable() const override {

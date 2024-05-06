@@ -14,7 +14,7 @@ public:
     }
 
 protected:
-    Table *table;
+    shared_ptr<Table> table;
     const string inputQuery;
     shared_ptr<Database> database;
 
@@ -39,10 +39,10 @@ protected:
     virtual void checkForSyntaxErrors(const string &query) const {};
 
 private:
-    Table *tryToGetTableFromQuery(const string &query, const shared_ptr<Database> database, const regex &regexPattern) const {
+    shared_ptr<Table> tryToGetTableFromQuery(const string &query, const shared_ptr<Database> database, const regex &regexPattern) const {
         checkForSyntaxErrors(query);
 
-        Table *currTable = nullptr;
+        shared_ptr<Table> currTable = nullptr;
 
         std::smatch matches;
         if (regex_search(query, matches, regexPattern)) { // here

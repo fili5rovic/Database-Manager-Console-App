@@ -23,7 +23,7 @@ public:
     const string &getName() const;
 
     void addTable(const Table &t) {
-        tables.insert({t.getName(), new Table(t)});
+        tables.insert({t.getName(), make_shared<Table>(t)});
     }
 
     void removeTable(const string &name) {
@@ -42,7 +42,7 @@ public:
         return os;
     }
 
-    Table* tryGettingTableByNameCaseI(const string &tableName) const {
+    shared_ptr<Table> tryGettingTableByNameCaseI(const string &tableName) const {
         for (const auto &pair: tables) {
             if (regex_match(pair.first, regex(tableName, regex_constants::icase)))
                 return pair.second;
@@ -69,13 +69,13 @@ public:
         return retVector;
     }
 
-    const unordered_map<string, Table*>& getTablePairs() const {
+    const unordered_map<string, shared_ptr<Table>>& getTablePairs() const {
         return tables;
     }
 
 private:
     const string name;
-    unordered_map<string, Table*> tables;
+    unordered_map<string, shared_ptr<Table>> tables;
 };
 
 

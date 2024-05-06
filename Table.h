@@ -75,8 +75,8 @@ public:
     //<editor-fold desc="Getters">
 
     // returns a table of a single column
-    Table *getSubTable(const string &colName) const {
-        Table *t = new Table(this->getName());
+    shared_ptr<Table> getSubTable(const string &colName) const {
+        shared_ptr<Table> t = make_shared<Table>(this->getName());
 
         int columnIndex = -1;
         for (int i = 0; i < this->header.size(); i++) {
@@ -99,8 +99,8 @@ public:
         return t;
     }
 
-    static Table *getMergedTable(const Table *t1, const Table *t2) {
-        Table *finalTable = new Table(t1->name);
+    static shared_ptr<Table> getMergedTable(const shared_ptr<Table> t1, const shared_ptr<Table> t2) {
+        shared_ptr<Table> finalTable = make_shared<Table>(t1->name);
         for (const string &h1: t1->header) {
             finalTable->addHeader(h1);
         }
@@ -119,6 +119,53 @@ public:
             }
             finalTable->addRecord(record);
         }
+
+        return finalTable;
+    }
+
+    static shared_ptr<Table> getMergedTablesForJoin(const shared_ptr<Table> t1, const shared_ptr<Table> t2) {
+        shared_ptr<Table> finalTable = make_shared<Table>(t1->name);
+        for (const string &h1: t1->header) {
+            finalTable->addHeader(h1);
+        }
+
+        for (const string &h2: t2->header) {
+            finalTable->addHeader(h2);
+        }
+
+        for (int i = 0; i < min(t1->records.size(),t2->records.size()); i++) {
+            Record record = Record();
+            for (const string& str1: t1->records.at(i).getData()) {
+                record.addData(str1);
+            }
+            for (const string& str2: t2->records.at(i).getData()) {
+                record.addData(str2);
+            }
+            finalTable->addRecord(record);
+        }
+
+//        for (int i = 0; i < max(t1->records.size(), t2->records.size()); i++) {
+//            finalTable->addRecord(Record());
+//        }
+//
+//        for (int i = 0; i < t1->records.size(); i++) {
+//            Record record = Record();
+//            for (const string& str1: t1->records.at(i).getData()) {
+//                record.addData(str1);
+//            }
+//            finalTable->getRecordByIndex(i).getDataReference() = record.getData();
+//        }
+//
+//        for (int i = 0; i < t2->records.size(); i++) {
+//            Record record = Record();
+//            for (const string& str2: t2->records.at(i).getData()) {
+//                record.addData(str2);
+//            }
+//            vector<string> data = record.getData();
+//            for(const string& s : data) {
+//                finalTable->getRecordByIndex(i).getDataReference().push_back(s);
+//            }
+//        }
 
         return finalTable;
     }

@@ -12,7 +12,7 @@ public:
 
 
     void execute() override {
-        table = new Table(getTableNameFromCreateQuery(inputQuery));
+        table = make_shared<Table>(getTableNameFromCreateQuery(inputQuery));
         handleQuery(inputQuery);
     }
 

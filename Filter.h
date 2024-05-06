@@ -10,11 +10,11 @@
 class Filter {
 public:
 
-    Filter(const Table *t, const string &whereArgsString)  {
+    Filter(const shared_ptr<Table> t, const string &whereArgsString)  {
         init(t, whereArgsString);
     }
 
-    Table* getFilteredTable() {
+    shared_ptr<Table> getFilteredTable() {
         return this->table;
     }
 
@@ -22,13 +22,13 @@ public:
 private:
     // outer vector stores conditions seperated by OR, inner by AND
     vector<vector<shared_ptr<Condition>>> conditions;
-    Table* table;
+    shared_ptr<Table> table;
 
 
     // creates conditions, only called during object creation
-    void init(const Table *t, const string &whereArgs) {
+    void init(const shared_ptr<Table> t, const string &whereArgs) {
         if(whereArgs.empty()) {
-            table = new Table(*t);
+            table = make_shared<Table>(*t);
             return;
         }
         setHeaderAndNameFromParameterTable(t);
@@ -81,8 +81,8 @@ private:
     }
 
 
-    void setHeaderAndNameFromParameterTable(const Table* t) {
-        table = new Table("RESULT");
+    void setHeaderAndNameFromParameterTable(const shared_ptr<Table> t) {
+        table = make_shared<Table>("RESULT");
         for(const string& header : t->getTableHeaders()) {
             table->addHeader(header);
         }
