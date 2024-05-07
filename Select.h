@@ -15,17 +15,17 @@ public:
 
 private:
     void executingQuery(const smatch &matches) const override {
+        shared_ptr<Table> selectTable = this->table;
+
         string argumentsStr = matches[1];
         StringManipulator::removeSpaces(argumentsStr);
         string fromTableStr = matches[2];
         string whereStr = matches[3];
 
-        // todo select nesto.nestodrugo
-
         unordered_map<string,string> tableAcronymMap;
         std::smatch matchForElse;
         if(regex_search(fromTableStr, regex("\\w+(?:\\s+\\w+)?((?:\\s+inner)?\\s+join\\s+\\w+(?:\\s+\\w+)?\\s+on\\s+\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+)+", regex_constants::icase))) {
-
+            cout << " JOIN " << endl;
             fromTableStr = regex_replace(fromTableStr, regex("\\s*INNER\\s*",regex_constants::icase), " ");
             fromTableStr = regex_replace(fromTableStr, regex("\\s*JOIN\\s*",regex_constants::icase), "|");
 
@@ -124,47 +124,143 @@ private:
                     } catch( MyException& e) {
                         cout << e.what() << endl;
                     }
-                    // dodaj acronym ispred svakog headera pre nego sto ih spojis
+                    // fixme ispisuje se samo A i C kad spojim a ne A B C nzm zasto
+                    selectTable = Table::getMergedTablesForJoin(table1, filTable);
+                    cout << *selectTable;
 
-                    cout << *Table::getMergedTablesForJoin(table1, filTable);
-                    // todo this->table = ovo od iznad
 
                 } else // todo add USING regex else if here
                     throw EBadArgumentsException("[SYNTAX_ERROR] Bad Syntax around: " + *it);
             }
-        } else if(regex_match(fromTableStr, matchForElse,regex("^\\s*(\\w+)(?:\\s+(\\w+))?\\s*$",regex_constants::icase))) {
-            string tableName = matchForElse[1];
+        }
+        else if(regex_match(fromTableStr, matchForElse,regex("^\\s*(\\w+)(?:\\s+(\\w+))\\s*$",regex_constants::icase))) {
+            cout << "FROM (A) AA " << endl;
+            string tableName = selectTable->getName();
             string tableNick = matchForElse[2];
-
-            if(database->tryGettingTableByNameCaseI(tableName) == nullptr) {
-                throw EBadArgumentsException("[RUNTIME_ERROR] Table \'"+ tableName +"\' not found.");
-            }
+            cout << "TABLE NICK: " << tableNick << endl;
 
             tableAcronymMap[tableName] = tableNick;
+
+            selectTable->addAcronymToTableHeader(tableNick);
+
+            for(const string& header : selectTable->getTableHeaders()) {
+                cout << "HEADER: " << header << endl;
+            }
+
         }
 
         vector<string> selectedColumns = StringManipulator::splitString(argumentsStr, ',');
 
+        for(string& column : selectedColumns) {
+            cout << "SELECTED: " << column << endl;
+            if(regex_match(column,regex("\\w+\\.\\w+",regex_constants::icase))) {
+                cout << "SA TACKOM" << endl;
+                vector<string> splitColumn = StringManipulator::splitString(column,'.');
+                string tableNick = splitColumn[0];
+                string columnName = splitColumn[1];
 
+                string tableName = getTableNameFromAcronym(tableAcronymMap, tableNick);
+
+                shared_ptr<Table> tableFromAcronym = database->tryGettingTableByNameCaseI(tableName);
+
+                if(tableFromAcronym == nullptr) {
+                    selectTable->removeAcronymFromTableHeader();
+                    throw EBadArgumentsException("[RUNTIME_ERROR] Table \'"+ tableName +"\' not found.");
+                } else if (tableFromAcronym != selectTable) {
+                    selectTable->removeAcronymFromTableHeader();
+                    throw EBadArgumentsException("[RUNTIME_ERROR] Invalid acronym \'" + tableNick + "\' in SELECT.");
+                }
+
+                bool columnExists = false;
+                for (const string& header : selectTable->getTableHeaders()) {
+                    cout << "HEADER: " << header << " COLUMN " << column << endl;
+                    if (regex_match(header, regex(column, regex_constants::icase))) {
+                        columnExists = true;
+                        break;
+                    }
+                }
+                // for table name A.ID for example
+                for (const string& header : selectTable->getTableHeaders()) {
+                    cout << "HEADER: " << header << " COLUMN " << column << endl;
+                    if (regex_match(column, regex("\\w+\\."+header, regex_constants::icase))) {
+                        column = header;
+                        columnExists = true;
+                        break;
+                    }
+                }
+                if (!columnExists) {
+                    selectTable->removeAcronymFromTableHeader();
+                    throw EBadArgumentsException("[RUNTIME_ERROR] Column name \'" + columnName + "\' not found in " + tableFromAcronym->getName());
+                }
+            }
+            else {
+                cout << "bez tacke" << endl;
+                if(column != "*")
+                    checkForAmbiguity(column);
+                // nakon ove naredbe znam da necu imati dve identicne kolone unutar tabele
+
+                if(!tableAcronymMap.empty()) {
+                    for(const auto& pair : tableAcronymMap) {
+                        string tableName = pair.first;
+                        string tableNick = pair.second;
+
+                        shared_ptr<Table> tableFromAcronym = database->tryGettingTableByNameCaseI(tableName);
+                        for(const string& header : tableFromAcronym->getTableHeaders()) {
+                            if(regex_match(header,regex("\\w+\\." + column,regex_constants::icase))) {
+                                column = header;
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    cout << "NORMAL" << endl;
+                }
+            }
+        }
         shared_ptr<Table> filteredTable;
 
+//        cout << *selectTable;
+
         try {
-            Filter f(this->table,whereStr);
+            Filter f(selectTable,whereStr);
             filteredTable = f.getFilteredTable();
         } catch(EInvalidColumnNameException& e) {
             cout << e.what() << endl;
         }
 
         cout << *getTableWithSelectedColumns(filteredTable,selectedColumns);
+        selectTable->removeAcronymFromTableHeader();
     }
 
-    string getTableNameFromAcronym(const unordered_map<string,string> tableNickNames, const string value) const {
+    void checkForAmbiguity(const string& column) const {
+        int cnt = 0;
+        for(const string& tableColumn : this->table->getTableHeaders()) {
+            vector<string> splitColumn = StringManipulator::instance().splitString(tableColumn,'.');
+            string columnCheck = (splitColumn.size()==1 ? splitColumn[0] : splitColumn[1]);
+
+            if(regex_match(columnCheck,regex(column,regex_constants::icase))) {
+                cnt++;
+            }
+        }
+        if(cnt > 1)
+            throw EBadArgumentsException("[RUNTIME_ERROR] Ambiguous column name \'" + column + "\'.");
+    }
+
+    // todo check with full table name
+    string getTableNameFromAcronym(const unordered_map<string,string>& tableNickNames, const string value) const {
         for (const auto& pair : tableNickNames) {
+            cout << "VAL: " << pair.second << endl;
             if (pair.second == value) {
                 return pair.first;
             }
         }
-        throw EBadArgumentsException("[RUNTIME_ERROR] Table acronym '"+ value +"' not found.");
+
+        for(const auto& a : database->getAllTableNames()) {
+            if(regex_match(a,regex(value,regex_constants::icase)))
+                return a;
+        }
+
+        throw EBadArgumentsException("[RUNTIME_ERROR] Table acronym '"+ value +"' missing.");
     }
 
 
@@ -240,7 +336,7 @@ private:
 
     //<editor-fold desc="Getters">
     regex getRegexPattern() const {
-        return regex(R"(^\s*select\s+((?:(?:\w+\.)?\w+|\*)(?:\s*,\s*(?:(?:\w+\.)?\w+|\*))*)\s+from\s+(\w+\s+(?:\w+\s+)?(?:inner\s+)?join\s+\w+\s+(?:\w+\s+)?on\s+\w+\.\w+\s*\=\s*\w+\.\w+|\w+)\s*(?:where\s+((\w+)\s*(\=|\<\>|\!\=)\s*('\w+'|"\w+"|\w+)(?:\s+(and|or)\s*(\w+)\s*(\=|\<\>|\!\=)\s*('\w+'|"\w+"|\w+))*))?)", regex_constants::icase);;
+        return regex("^\\s*select\\s+((?:(?:\\w+\\.)?\\w+|\\*)(?:\\s*,\\s*(?:(?:\\w+\\.)?\\w+|\\*))*)\\s+from\\s+(\\w+(?:\\s+\\w+)?(?:\\s+(?:inner\\s+)?join\\s+\\w+\\s+(?:\\w+\\s+)?on\\s+\\w+\\.\\w+\\s*\\=\\s*\\w+\\.\\w+|\\w+(?:\\s+\\w+)?)*\\s*)\\s*(?:where\\s+((\\w+)\\s*(\\=|\\<\\>|\\!\\=)\\s*('\\w+'|\"\\w+\"|\\w+)(?:\\s+(and|or)\\s*(\\w+)\\s*(\\=|\\<\\>|\\!\\=)\\s*('\\w+'|\"\\w+\"|\\w+))*))?", regex_constants::icase);;
     }
 
     regex getRegexForFindingTable() const override {

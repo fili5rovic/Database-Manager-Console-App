@@ -56,7 +56,7 @@ private:
         cout << endl;
     }
 
-
+    // todo doesnt work if i don't write all of columns
     void checkIfAllColumnsAreThere(vector<string> listOfColumns, const size_t listOfValuesSize) const {
         if (listOfColumns.size() > table->getTableHeaders().size())
             throw EBadArgumentsException(

@@ -9,7 +9,7 @@
 #include <iomanip>
 #include <numeric>
 
-class Table {
+class Table { // todo no same column names when creating one table through CREATE
 public:
     Table(const string &name) : name(name), records(), header() {}
 
@@ -85,7 +85,7 @@ public:
                 columnIndex = i;
                 break;
             }
-        }
+        } // ovde da radim i kada imam akronim ispred samo fixuj regex
 
         if (columnIndex == -1) {
             throw EBadArgumentsException("[RUNTIME_ERROR] Column " + colName + " does not exist inside " + this->name);
@@ -168,6 +168,19 @@ public:
 //        }
 
         return finalTable;
+    }
+
+    void addAcronymToTableHeader(const string &acronym) {
+        for(string & h : header) {
+            if(h.find('.') == string::npos)
+                h= acronym + "." + h;
+        }
+    }
+
+    void removeAcronymFromTableHeader() {
+        for(int i = 0; i < header.size(); i++) {
+            header[i] = header[i].substr(header[i].find('.') + 1);
+        }
     }
 
 
