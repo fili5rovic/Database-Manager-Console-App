@@ -29,10 +29,7 @@ private:
             fromTableStr = regex_replace(fromTableStr, regex("\\s*INNER\\s*",regex_constants::icase), " ");
             fromTableStr = regex_replace(fromTableStr, regex("\\s*JOIN\\s*",regex_constants::icase), "|");
 
-
             vector<string> subStrings = StringManipulator::instance().splitString(fromTableStr,'|');
-
-
 
             std::smatch innerMatches;
             if(regex_match(subStrings[0],innerMatches,regex("(\\w+)(?:\\s+(\\w+))?",regex_constants::icase))) {
@@ -336,7 +333,7 @@ private:
 
     //<editor-fold desc="Getters">
     regex getRegexPattern() const {
-        return regex("^\\s*select\\s+((?:(?:\\w+\\.)?\\w+|\\*)(?:\\s*,\\s*(?:(?:\\w+\\.)?\\w+|\\*))*)\\s+from\\s+(\\w+(?:\\s+\\w+)?(?:\\s+(?:inner\\s+)?join\\s+\\w+\\s+(?:\\w+\\s+)?on\\s+\\w+\\.\\w+\\s*\\=\\s*\\w+\\.\\w+|\\w+(?:\\s+\\w+)?)*\\s*)\\s*(?:where\\s+((\\w+)\\s*(\\=|\\<\\>|\\!\\=)\\s*('\\w+'|\"\\w+\"|\\w+)(?:\\s+(and|or)\\s*(\\w+)\\s*(\\=|\\<\\>|\\!\\=)\\s*('\\w+'|\"\\w+\"|\\w+))*))?", regex_constants::icase);;
+        return regex("^\\s*select\\s+((?:(?:\\w+\\.)?\\w+|\\*)(?:\\s*,\\s*(?:(?:\\w+\\.)?\\w+|\\*))*)\\s+from\\s+(\\w+(?:\\s+[^(?:where)])?(?:\\s+(?:inner\\s+)?join\\s+\\w+\\s+(?:\\w+\\s+)?on\\s+\\w+\\.\\w+\\s*\\=\\s*\\w+\\.\\w+|\\w+(?:\\s+\\w+)?)*\\s*)\\s*(?:where\\s+(((?:\\w+\\.)?\\w+)\\s*(\\=|\\<\\>|\\!\\=)\\s*('\\w+'|\"\\w+\"|\\w+)(?:\\s+(and|or)\\s*((?:\\w+\\.)?\\w+)\\s*(\\=|\\<\\>|\\!\\=)\\s*('\\w+'|\"\\w+\"|\\w+))*))?", regex_constants::icase);;
     }
 
     regex getRegexForFindingTable() const override {
