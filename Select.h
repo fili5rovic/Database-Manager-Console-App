@@ -25,7 +25,7 @@ private:
         unordered_map<string,string> tableAcronymMap;
         std::smatch matchForElse;
         if(regex_search(fromTableStr, regex("\\w+(?:\\s+\\w+)?((?:\\s+inner)?\\s+join\\s+\\w+(?:\\s+\\w+)?\\s+on\\s+\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+)+", regex_constants::icase))) {
-            cout << " JOIN " << endl;
+            cout << "JOIN" << endl;
             fromTableStr = regex_replace(fromTableStr, regex("\\s*INNER\\s*",regex_constants::icase), " ");
             fromTableStr = regex_replace(fromTableStr, regex("\\s*JOIN\\s*",regex_constants::icase), "|");
 
@@ -46,6 +46,8 @@ private:
                 tableAcronymMap[tableName] = tableNick;
 
             } else throw EBadArgumentsException("[ERROR] Bad Syntax around: " + subStrings[0]);
+
+            vector<shared_ptr<Table>> mergedTables;
 
             for(auto it = subStrings.begin() + 1; it != subStrings.end(); ++it) {
                 if(regex_search(*it,innerMatches,regex("(\\w+)(?:\\s+(\\w+))?\\s+on\\s+(\\w+)\\.(\\w+)\\s*(\\=|\\!\\=)\\s*(\\w+)\\.(\\w+)",regex_constants::icase))) {
@@ -102,8 +104,10 @@ private:
                     }
 
                     if (!firstTableColumnExists) {
+                        cout << *table1;
                         throw EBadArgumentsException("[RUNTIME_ERROR] Column name '" + firstTableColumnNameInJoin + "' not found in " + table1->getName());
                     } else if (!secondTableColumnExists) {
+                        cout << *table2;
                         throw EBadArgumentsException("[RUNTIME_ERROR] Column name '" + secondTableColumnNameInJoin + "' not found in " + table2->getName());
                     }
 
@@ -113,7 +117,6 @@ private:
                         filterString = filterString.empty() ? str : filterString + " OR " + str;
                     }
 
-                    cout << "FILTER STRING: " << filterString << endl;
                     shared_ptr<Table> filTable;
                     try {
                         Filter fil = Filter(table2, filterString);
@@ -121,14 +124,43 @@ private:
                     } catch( MyException& e) {
                         cout << e.what() << endl;
                     }
-                    // fixme ispisuje se samo A i C kad spojim a ne A B C nzm zasto
-                    selectTable = Table::getMergedTablesForJoin(table1, filTable);
-                    cout << *selectTable;
+//                    selectTable = Table::getMergedTablesForJoin(table1, filTable);
+//                    cout << *selectTable;
+
+//                    table1->addAcronymToTableHeader(firstTableNickInJoin); ovo si poslednje radio
+//                    filTable->addAcronymToTableHeader(secondTableNickInJoin);
+
+
+                    if(mergedTables.empty())
+                        mergedTables.push_back(table1);
+                    mergedTables.push_back(filTable);
+
+//                    table1->removeAcronymFromTableHeader();   ovo si poslednje radio
+//                    filTable->removeAcronymFromTableHeader();
 
 
                 } else // todo add USING regex else if here
                     throw EBadArgumentsException("[SYNTAX_ERROR] Bad Syntax around: " + *it);
             }
+
+            shared_ptr<Table> finalTable = mergedTables[0];
+            for (int i = 1; i < mergedTables.size(); i++) {
+                finalTable = Table::getMergedTablesForJoin(finalTable, mergedTables[i]);
+            }
+            selectTable = finalTable;
+            cout << *selectTable;
+            shared_ptr<Table> filteredTable;
+            try {
+                Filter f(selectTable,whereStr);
+                filteredTable = f.getFilteredTable();
+            } catch(EInvalidColumnNameException& e) {
+                cout << e.what() << endl;
+            }
+            vector<string> selectedColumns = StringManipulator::splitString(argumentsStr, ',');
+            cout << *getTableWithSelectedColumns(filteredTable,selectedColumns);
+            selectTable->removeAcronymFromTableHeader();
+            return;
+
         }
         else if(regex_match(fromTableStr, matchForElse,regex("^\\s*(\\w+)(?:\\s+(\\w+))\\s*$",regex_constants::icase))) {
             cout << "FROM (A) AA " << endl;

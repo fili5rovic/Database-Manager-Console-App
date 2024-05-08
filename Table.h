@@ -123,7 +123,7 @@ public:
         return finalTable;
     }
 
-    static shared_ptr<Table> getMergedTablesForJoin(const shared_ptr<Table> t1, const shared_ptr<Table> t2) {
+    static shared_ptr<Table> getMergedTablesForJoin(const shared_ptr<Table> t1, const shared_ptr<Table> t2) { //todo add references here when everything works
         shared_ptr<Table> finalTable = make_shared<Table>(t1->name);
         for (const string &h1: t1->header) {
             finalTable->addHeader(h1);
