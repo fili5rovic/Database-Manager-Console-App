@@ -118,31 +118,28 @@ private:
                     }
 
                     shared_ptr<Table> filTable;
-                    try {
-                        Filter fil = Filter(table2, filterString);
-                        filTable = fil.getFilteredTable();
-                    } catch( MyException& e) {
-                        cout << e.what() << endl;
-                    }
+                    Filter fil = Filter(table2, filterString);
+                    filTable = fil.getFilteredTable();
+
 //                    selectTable = Table::getMergedTablesForJoin(table1, filTable);
 //                    cout << *selectTable;
 
-//                    table1->addAcronymToTableHeader(firstTableNickInJoin); ovo si poslednje radio
-//                    filTable->addAcronymToTableHeader(secondTableNickInJoin);
+                    table1->addAcronymToTableHeader(firstTableNickInJoin);// ovo si poslednje radio
+                    filTable->addAcronymToTableHeader(secondTableNickInJoin);
 
 
                     if(mergedTables.empty())
                         mergedTables.push_back(table1);
                     mergedTables.push_back(filTable);
 
-//                    table1->removeAcronymFromTableHeader();   ovo si poslednje radio
+//                    table1->removeAcronymFromTableHeader();//   ovo si poslednje radio
 //                    filTable->removeAcronymFromTableHeader();
 
 
                     // mozda mozes i hesh mapu da koristis koja ima tabele pa kada napise aa.ID da dohvatis iz heshmape aa. Mozes onda filter da primenis na svaku zasebno tabelu umesto ovako
                     // a da ih samo ispisujes zajedno kao jednu tabelu
 
-                } else // todo add USING regex else if here
+                } else
                     throw EBadArgumentsException("[SYNTAX_ERROR] Bad Syntax around: " + *it);
             }
 
@@ -152,13 +149,11 @@ private:
             }
             selectTable = finalTable;
             cout << *selectTable;
+
             shared_ptr<Table> filteredTable;
-            try {
-                Filter f(selectTable,whereStr);
-                filteredTable = f.getFilteredTable();
-            } catch(EInvalidColumnNameException& e) {
-                cout << e.what() << endl;
-            }
+            Filter f(selectTable,whereStr);
+            filteredTable = f.getFilteredTable();
+
             vector<string> selectedColumns = StringManipulator::splitString(argumentsStr, ',');
             cout << *getTableWithSelectedColumns(filteredTable,selectedColumns);
             selectTable->removeAcronymFromTableHeader();
@@ -207,17 +202,32 @@ private:
                 for (const string& header : selectTable->getTableHeaders()) {
                     cout << "HEADER: " << header << " COLUMN " << column << endl;
                     if (regex_match(header, regex(column, regex_constants::icase))) {
+                        cout << "FOUND1:" << header << endl;
+
+                        // everything works except when you put table name in front of where clause
+//                        select *
+//                        from a aa
+//                        where a.id=5
+                        // just ignore acronym if it's a table name
+
+
+                        whereStr = regex_replace(whereStr, std::regex("\\b" + columnName + "\\b"), column);
+                        whereStr = std::regex_replace(whereStr, std::regex("\\b" + tableNick + "\\." + tableNick + "\\b"), tableNick);
+                        cout << "WHERESTRING:" << whereStr << endl;
                         columnExists = true;
                         break;
                     }
                 }
-                // for table name A.ID for example
-                for (const string& header : selectTable->getTableHeaders()) {
-                    cout << "HEADER: " << header << " COLUMN " << column << endl;
-                    if (regex_match(column, regex("\\w+\\."+header, regex_constants::icase))) {
-                        column = header;
-                        columnExists = true;
-                        break;
+                if(!columnExists) {
+                    // for table name A.ID for example
+                    for (const string& header : selectTable->getTableHeaders()) {
+                        cout << "HEADER: " << header << " COLUMN " << column << endl;
+                        if (regex_match(column, regex("\\w+\\."+header, regex_constants::icase))) {
+                            cout << "FOUND2:" << header << " COLUMN:" << column << endl;
+                            column = header;
+                            columnExists = true;
+                            break;
+                        }
                     }
                 }
                 if (!columnExists) {
@@ -249,6 +259,11 @@ private:
                 }
             }
         }
+
+        for(const string& column : selectedColumns) {
+            cout << "SELECTED COL: " << column << endl;
+        }
+
         shared_ptr<Table> filteredTable;
 
 //        cout << *selectTable;

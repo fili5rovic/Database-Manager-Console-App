@@ -87,6 +87,15 @@ public:
             }
         } // ovde da radim i kada imam akronim ispred samo fixuj regex
 
+        for (int i = 0; i < this->header.size(); i++) {
+            if (regex_match(colName, regex("\\w+\\." + this->header.at(i), regex_constants::icase))) {
+                t->addHeader(this->header.at(i));
+                columnIndex = i;
+                break;
+            }
+        }
+
+
         if (columnIndex == -1) {
             throw EBadArgumentsException("[RUNTIME_ERROR] Column " + colName + " does not exist inside " + this->name);
         }

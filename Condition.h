@@ -45,6 +45,7 @@ private:
             }
         }
         if(fieldPositionInVector == -1) {
+            cout << *table;
             throw EInvalidColumnNameException("[ERROR] Column name '" + columnName + "' does not exist inside table " + table->getName());
             cout << "INVALID COLUMN NAME" << endl;
             fieldPositionInVector = 0;
