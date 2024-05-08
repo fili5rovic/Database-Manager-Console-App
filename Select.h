@@ -139,6 +139,9 @@ private:
 //                    filTable->removeAcronymFromTableHeader();
 
 
+                    // mozda mozes i hesh mapu da koristis koja ima tabele pa kada napise aa.ID da dohvatis iz heshmape aa. Mozes onda filter da primenis na svaku zasebno tabelu umesto ovako
+                    // a da ih samo ispisujes zajedno kao jednu tabelu
+
                 } else // todo add USING regex else if here
                     throw EBadArgumentsException("[SYNTAX_ERROR] Bad Syntax around: " + *it);
             }
