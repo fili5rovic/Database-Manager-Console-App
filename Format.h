@@ -9,10 +9,10 @@ class Format {
 public:
     Format(const shared_ptr<Database> database) : database(database) {}
 
-    void message(const string& fileName) const {
+    void message(const string& fileName, const string& path) const {
         stringstream ss;
-        ss << "Successfully exported " << fileName << " to " << getDir() << " directory." << endl;
-        StringManipulator::instance().newMessage(ss.str(),ss.str().length() + 7);
+        ss << "Successfully exported: " << path << fileName;
+        StringManipulator::instance().newMessageGreen(ss.str(),ss.str().length() + ss.str().length()%2 + 4);
     }
 
     void exportDatabase() const {
@@ -27,7 +27,7 @@ public:
         printDatabase(ss);
 
         outFile << ss.str();
-        message(fileName);
+        message(fileName,path);
         outFile.close();
     }
 
@@ -35,15 +35,17 @@ public:
         string path;
         while(true) {
             StringManipulator::instance().newMenu(60, {"Enter relative path to exporting directory:", "Type 'default' to export to the default directory.","Example: ./exports/"});
-            cout << "->";
-            cin >> path;
+            cout << "./";
+            cin.ignore();
+            getline(cin, path);
             if(regex_match(path, regex("^default$", regex_constants::icase))) {
                 path = getDir();
             } else {
-                if(!regex_match(path, regex("^\\.\\/[a-zA-Z0-9\\/._-]+$"))) {
+                if(!regex_match(path, regex("^[a-zA-Z0-9\\/_-]+$"))) {
                     StringManipulator::instance().newMessage("Invalid path syntax. Example: ./exports/");
                     continue;
                 }
+                path = "./" + path;
                 if(!filesystem::exists(path)) {
                     filesystem::create_directories(path);
                 }
@@ -58,7 +60,7 @@ public:
         while(true) {
             StringManipulator::instance().newMenu(44, {"Enter file name:", "Type 'default' to use database name."});
             cout << "->";
-            cin >> fileName;
+            getline(cin, fileName);
             if(regex_match(fileName, regex("^default$", regex_constants::icase))) {
                 fileName = database->getName();
             } else if(!regex_match(fileName, regex("^[a-zA-Z0-9_-]+$"))){

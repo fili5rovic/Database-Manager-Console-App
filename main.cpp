@@ -171,6 +171,7 @@ shared_ptr<Database> loadDatabase() {
         return nullptr;
 
     string dbName = options[choice].substr(4);
+    printActualInput(dbName);
     return CustomFormat::createDatabaseFromFile(path, dbName);
 
 }
@@ -192,14 +193,17 @@ void promptExport(shared_ptr<Database> database) {
         cout << "-> ";
         cin >> optStr;
         if (optStr == "1") {
+            printActualInput("[1] Standard SQL Export");
             chosenFormat = make_shared<SQLFormat>(database);
             saved = true;
             break;
         } else if (optStr == "2") {
+            printActualInput("[2] WYL Export");
             chosenFormat = make_shared<CustomFormat>(database);
             saved = true;
             break;
         } else if (optStr == "0") {
+            printActualInput("[0] Back");
             break;
         }
     }
@@ -223,9 +227,11 @@ void mainMenu() {
                 database = createNewDatabaseMenu();
                 break;
             case 2:
+                printActualInput(opts[2]);
                 database = loadDatabase();
                 break;
             case 0:
+                printActualInput(opts[3]);
                 StringManipulator::instance().newMessageGreen("Program exited successfully.");
                 return;
         }
@@ -242,11 +248,13 @@ void mainMenu() {
         cin >> opt;
         switch (opt) {
             case 1:
+                printActualInput(opts[1]);
                 cin.ignore();
                 sqlQuery(database);
                 saved = false;
                 break;
             case 2: {
+                printActualInput(opts[2]);
                 promptExport(database);
                 saved = true;
                 break;
