@@ -87,7 +87,7 @@ public:
             }
         } // ovde da radim i kada imam akronim ispred samo fixuj regex
 
-        for (int i = 0; i < this->header.size(); i++) {
+        for (int i = 0; i < this->header.size(); i++) {     // todo zakomentarisi mozda
             if (regex_match(colName, regex("\\w+\\." + this->header.at(i), regex_constants::icase))) {
                 t->addHeader(this->header.at(i));
                 columnIndex = i;

@@ -124,8 +124,8 @@ private:
 //                    selectTable = Table::getMergedTablesForJoin(table1, filTable);
 //                    cout << *selectTable;
 
-                    table1->addAcronymToTableHeader(firstTableNickInJoin);// ovo si poslednje radio
-                    filTable->addAcronymToTableHeader(secondTableNickInJoin);
+//                    table1->addAcronymToTableHeader(firstTableNickInJoin);// ovo si poslednje radio   ovo verovatno otkomentarisi
+//                    filTable->addAcronymToTableHeader(secondTableNickInJoin);
 
 
                     if(mergedTables.empty())
