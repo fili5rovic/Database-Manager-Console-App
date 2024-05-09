@@ -64,9 +64,9 @@ void Update::executingQuery(const smatch &matches) const {
 void Update::printAffectedRowsMessage(int num) const {
     string msg;
     if (num == 0) {
-        msg = "No rows affected.";
+        msg = "No rows affected through this update.";
     } else if (num == 1) {
-        msg = "1 row was affected through this change.";
+        msg = "1 row was affected through this update.";
     } else {
         msg = to_string(num) + " rows were affected through this update.";
     }

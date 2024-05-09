@@ -41,6 +41,7 @@ protected:
 private:
     shared_ptr<Table> tryToGetTableFromQuery(const string &query, const shared_ptr<Database> database, const regex &regexPattern) const {
         checkForSyntaxErrors(query);
+        checkForMismatchedQuotes(query);
 
         shared_ptr<Table> currTable = nullptr;
 
@@ -55,6 +56,39 @@ private:
             throw EBadArgumentsException("[RUNTIME_ERROR] Table not found.");
         }
         return currTable;
+    }
+
+    void checkForMismatchedQuotes(const string &query) const {
+        int count = 0;
+        for (char i: query) {
+            if (i == '\'') {
+                count++;
+            }
+        }
+        if (count % 2 != 0) {
+            throw EBadArgumentsException("[RUNTIME_ERROR] Mismatched quotes.");
+        }
+        count = 0;
+        for (char i: query) {
+            if (i == '\"') {
+                count++;
+            }
+        }
+        if (count % 2 != 0) {
+            throw EBadArgumentsException("[RUNTIME_ERROR] Mismatched double quotes.");
+        }
+        count = 0;
+        for (char i: query) {
+            if (i == '(') {
+                count++;
+            }
+            else if(i == ')') {
+                count--;
+            }
+        }
+        if (count != 0) {
+            throw EBadArgumentsException("[RUNTIME_ERROR] Mismatched parentheses.");
+        }
     }
 
 };

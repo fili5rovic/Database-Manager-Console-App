@@ -9,8 +9,6 @@ shared_ptr<Table> Filter::getFilteredTable() {
 }
 
 void Filter::init(const shared_ptr<Table> t, const string &whereArgs) {
-    cout << "Filtering table with WHERE: " << whereArgs << endl;
-
     if(whereArgs.empty()) {
         table = make_shared<Table>(*t);
         return;

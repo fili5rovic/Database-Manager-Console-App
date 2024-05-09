@@ -32,7 +32,6 @@ void Insert::sortColumnsAndValues(vector<string> &listOfColumns, vector<string> 
     vector<string> oldValues = values;
     for(int i = 0; i < table->getTableHeaders().size(); i++) {
         for (int j = 0; j < listOfColumns.size(); ++j) {
-            cout << "i: " << table->getTableHeaders()[i] << " j: " << listOfColumns[j] << endl;
             if(regex_match(table->getTableHeaders()[i], regex(listOfColumns[j], regex_constants::icase))) {
                 values.at(i) = oldValues.at(j);
                 break;
@@ -40,17 +39,6 @@ void Insert::sortColumnsAndValues(vector<string> &listOfColumns, vector<string> 
         }
     }
     listOfColumns = table->getTableHeaders();
-
-    cout << "Columns: ";
-    for (const string &column: listOfColumns) {
-        cout << column << " ";
-    }
-    cout << endl;
-    cout << "Values: ";
-    for (const string &value: values) {
-        cout << value << " ";
-    }
-    cout << endl;
 }
 
 void Insert::checkIfAllColumnsAreThere(vector<string> listOfColumns, const size_t listOfValuesSize) const {
@@ -69,8 +57,8 @@ void Insert::checkIfAllColumnsAreThere(vector<string> listOfColumns, const size_
 
     bool found = false;
     for (string &column: listOfColumns) {
-        for (const string &tableColumn: table->getTableHeaders()) {
-            if (regex_match(column, regex("\\s*(?:\\'|\\\")\\s*" + tableColumn + "\\s*(?:\\'|\\\")\\s*",
+        for (const string &tableColumn: table->getTableHeaders()) { // todo: ovo si poslednje radio sa OR-om
+            if (regex_match(column, regex("\\s*(?:\\'|\\\"|)\\s*" + tableColumn + "\\s*(?:\\'|\\\"|)\\s*",
                                           regex_constants::icase))) {
                 found = true;
                 break;
@@ -86,11 +74,11 @@ void Insert::runtimeErrors(const string &input) const {
         throw EBadArgumentsException("[RUNTIME_ERROR] Invalid table name.");
     }
 
-    if (regex_match(input,
-                    regex("^\\s*insert\\s+into\\s+([a-zA-Z_]+)\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\"|\\w+)\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\"|\\w+)\\s*)*)\\s*\\)\\s+values\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\"|\\w+)\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\"|\\w+))*)*\\s*\\)\\s*",
-                          regex_constants::icase))) {
-        throw EBadArgumentsException("[RUNTIME_ERROR] Missing \" around arguments.");
-    }
+//    if (regex_match(input,
+//                    regex("^\\s*insert\\s+into\\s+([a-zA-Z_]+)\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\"|\\w+)\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\"|\\w+)\\s*)*)\\s*\\)\\s+values\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\"|\\w+)\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\"|\\w+))*)*\\s*\\)\\s*",
+//                          regex_constants::icase))) {
+//        throw EBadArgumentsException("[RUNTIME_ERROR] Missing \" around arguments.");
+//    }
     throw EBadArgumentsException("[RUNTIME_ERROR] Table insert error.");
 }
 
@@ -116,8 +104,7 @@ void Insert::checkForSyntaxErrors(const string &query) const {
 }
 
 regex Insert::getRegexPattern() const {
-    return regex(
-            "^\\s*insert\\s+into\\s+([a-zA-Z_]+)\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\")\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\")\\s*)*)\\s*\\)\\s+values\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\")\\s*(?:\\s*\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\"))*)*\\s*\\)\\s*$",
+    return regex("^\\s*insert\\s+into\\s+([a-zA-Z_]+)\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\"|\\w+)\\s*(?:\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\"|\\w+)\\s*)*)\\s*\\)\\s+values\\s*\\(\\s*((?:\\'\\w+\\'|\\\"\\w+\\\")\\s*(?:\\s*\\,\\s*(?:\\'\\w+\\'|\\\"\\w+\\\"))*)*\\s*\\)\\s*$",
             regex_constants::icase);
 }
 

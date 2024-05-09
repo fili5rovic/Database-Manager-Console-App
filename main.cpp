@@ -120,7 +120,7 @@ shared_ptr<Database> createNewDatabaseMenu() {
 
             database->addTable(t);
         } else {
-            printActualInput(opts[1]);
+            printActualInput(opts[2]);
         }
 
     }
