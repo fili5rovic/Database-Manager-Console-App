@@ -88,7 +88,6 @@ private:
 
     //<editor-fold desc="Error Handling">
     void runtimeErrors(const string &input) const override {
-        cout << "DIDNT MATCH" << endl;
         if (!regex_match(this->table->getName(), regex("[a-zA-Z_]+", regex_constants::icase))) {
             throw EBadArgumentsException("[RUNTIME_ERROR] Invalid table name.");
         }
