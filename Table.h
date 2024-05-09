@@ -72,34 +72,36 @@ public:
         records.erase(records.begin() + index);
     }
 
+
+    int getColumnIndex(const string& columnName) const {
+        for(int i = 0; i < header.size(); i++) {
+            if(regex_match(header[i], regex(columnName, regex_constants::icase)))
+                return i;
+        }
+        return -1;
+    }
+
     //<editor-fold desc="Getters">
 
     // returns a table of a single column
     shared_ptr<Table> getSubTable(const string &colName) const {
-        shared_ptr<Table> t = make_shared<Table>(this->getName());
-
         int columnIndex = -1;
         for (int i = 0; i < this->header.size(); i++) {
             if (regex_match(this->header.at(i), regex(colName, regex_constants::icase))) {
-                t->addHeader(this->header.at(i));
                 columnIndex = i;
                 break;
             }
-        } // ovde da radim i kada imam akronim ispred samo fixuj regex
-
-//        for (int i = 0; i < this->header.size(); i++) {     // todo zakomentarisi mozda
-//            if (regex_match(colName, regex("\\w+\\." + this->header.at(i), regex_constants::icase))) {
-//                t->addHeader(this->header.at(i));
-//                columnIndex = i;
-//                break;
-//            }
-//        }
-
-
-        if (columnIndex == -1) {
-            throw EBadArgumentsException("[RUNTIME_ERROR] Column " + colName + " does not exist inside " + this->name);
         }
 
+        return getSubTableByIndex(columnIndex);
+    }
+
+    shared_ptr<Table> getSubTableByIndex(int columnIndex) const {
+        if (columnIndex == -1) {
+            throw EBadArgumentsException("[RUNTIME_ERROR] Column " + this->header.at(columnIndex) + " does not exist inside " + this->name);
+        }
+        shared_ptr<Table> t = make_shared<Table>(this->getName());
+        t->addHeader(this->header.at(columnIndex));
         for (const Record& record: this->records) {
             Record r = Record();
             r.addData(record.getData().at(columnIndex));
@@ -107,6 +109,8 @@ public:
         }
         return t;
     }
+
+
 
     static shared_ptr<Table> getMergedTable(const shared_ptr<Table> t1, const shared_ptr<Table> t2) {
         shared_ptr<Table> finalTable = make_shared<Table>(t1->name);
