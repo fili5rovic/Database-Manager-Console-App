@@ -6,13 +6,9 @@
 
 class Equal : public Condition {
 public:
-    Equal(Table* table, const string &columnName, const string &value)  : Condition(table, columnName, value) {}
+    Equal(Table* table, const string &columnName, const string &value);
 
-    bool evaluate(const Record &record) const override {
-        return record.getData().at(this->fieldPositionInVector) == this->value;
-    }
-
-private:
+    bool evaluate(const Record &record) const override;
 };
 
 

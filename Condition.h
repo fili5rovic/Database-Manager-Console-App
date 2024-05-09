@@ -13,6 +13,8 @@ public:
         initFieldPositionInVector(columnName);
     }
 
+    virtual bool evaluate(const Record& record) const = 0;
+
     Table* getConditionedTable() const {
         Table* nTable = new Table(table->getName());
 
@@ -28,7 +30,6 @@ public:
     }
 
 
-    virtual bool evaluate(const Record& record) const = 0;
 protected:
     Table* table;
     int fieldPositionInVector;

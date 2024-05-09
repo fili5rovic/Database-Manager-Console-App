@@ -8,63 +8,30 @@ using namespace std;
 
 class Record {
 public:
-    Record() : columns() {}
+    Record();
 
-    Record(const Record &r) {
-        copy(r);
-    }
+    Record(const Record &r);
 
-    Record(Record &&r) {
-        move(r);
-    }
+    Record(Record &&r);
 
-    Record &operator=(const Record &r) {
-        copy(r);
-        return *this;
-    }
+    Record &operator=(const Record &r);
 
-    Record &operator=(Record &&r) {
-        move(r);
-        return *this;
-    }
+    Record &operator=(Record &&r);
 
-    friend ostream &operator<<(ostream &os, const Record &r) {
-        for (auto it = r.columns.begin(); it != r.columns.end(); ++it) {
-            if (it != r.columns.begin()) {
-                os << ' '; // Add space between columns, but not before the first column
-            }
-            os << *it; // Output the current column
-        }
-        os << endl;
-        return os;
-    }
+    friend ostream &operator<<(ostream &os, const Record &r);
 
-    void addData(const string &col) {
-        this->columns.push_back(col);
-    }
+    void addData(const string &col);
 
-    vector<string> getData() const {
-        return this->columns;
-    }
+    vector<string> getData() const;
 
-    vector<string>& getDataReference() {
-        return this->columns;
-    }
+    vector<string>& getDataReference();
 
 private:
     vector<string> columns;
 
-    void copy(const Record &r) {
-        this->columns = vector<string>();
-        for (const string &s: r.columns) {
-            this->columns.push_back(s);
-        }
-    }
+    void copy(const Record &r);
 
-    void move(Record &r) {
-        this->columns = r.columns;
-        r.columns = vector<string>();
-    }
+    void move(Record &r);
 
 
 };

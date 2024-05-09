@@ -10,7 +10,7 @@ using namespace std;
 
 class Database {
 public:
-    Database(const string &name) : name(name), tables() {}
+    Database(const string &name);
 
     Database(const Database &d) = delete;
 
@@ -22,56 +22,19 @@ public:
 
     const string &getName() const;
 
-    void addTable(const Table &t) {
-        tables.insert({t.getName(), make_shared<Table>(t)});
-    }
+    void addTable(const Table &t);
 
-    void removeTable(const string &name) {
-        if (tables.find(name) == tables.end())
-            return;
-        tables.erase(name);
-    }
+    void removeTable(const string &name);
 
-    friend ostream &operator<<(ostream &os, const Database &d) {
-        os << endl << "Database \033[35m" << d.name << "\033[0m:" << endl;
-        os << "---------------------------------------" << endl;
-        for (auto &table: d.tables) {
-            os << *table.second << endl;
-        }
-        os << "---------------------------------------" << endl;
-        return os;
-    }
+    friend ostream &operator<<(ostream &os, const Database &d);
 
-    shared_ptr<Table> tryGettingTableByNameCaseI(const string &tableName) const {
-        for (const auto &pair: tables) {
-            if (regex_match(pair.first, regex(tableName, regex_constants::icase)))
-                return pair.second;
-        }
-        return nullptr;
-    }
+    shared_ptr<Table> tryGettingTableByNameCaseI(const string &tableName) const;
 
-    vector<string> getAllTableNames() const {
-        vector<string> retVector;
-        retVector.reserve(tables.size());
-        for (const auto &pair: tables) {
-            retVector.push_back(pair.first);
-        }
-        return retVector;
-    }
+    vector<string> getAllTableNames() const;
 
-    vector<string> getAllHeaders() const {
-        vector<string> retVector;
-        for (const auto &header: tables) {
-            for (const auto &str: header.second->getTableHeaders()) {
-                retVector.push_back(str);
-            }
-        }
-        return retVector;
-    }
+    vector<string> getAllHeaders() const;
 
-    const unordered_map<string, shared_ptr<Table>>& getTablePairs() const {
-        return tables;
-    }
+    const unordered_map<string, shared_ptr<Table>>& getTablePairs() const;
 
 private:
     const string name;

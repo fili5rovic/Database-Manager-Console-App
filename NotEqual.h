@@ -5,11 +5,9 @@
 
 class NotEqual : public Condition {
 public:
-    NotEqual(Table* table, const string &columnName, const string &value)  : Condition(table, columnName, value) {}
+    NotEqual(Table* table, const string &columnName, const string &value);
 
-    bool evaluate(const Record &record) const override {
-        return record.getData().at(this->fieldPositionInVector) != this->value;
-    }
+    bool evaluate(const Record &record) const override;
 private:
 };
 
