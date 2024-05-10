@@ -287,6 +287,8 @@ void mainMenu() {
 
 int main() {
     mainMenu();
+
+    // testing
 //    filesystem::create_directories("./Try1/Try2/Try3");
 //    Table* table = new Table("Student");
 //
