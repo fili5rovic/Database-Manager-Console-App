@@ -9,7 +9,7 @@
 #include <iomanip>
 #include <numeric>
 
-class Table { // todo no same column names when creating one table through CREATE
+class Table {
 public:
     Table(const string &name);
 

@@ -65,7 +65,7 @@ void Create::checkForSyntaxErrors(const string &query) const {
 }
 
 regex Create::getRegexPattern() const {
-    return regex("^\\s*create\\s+table\\s+([a-zA-Z_]+)\\s*\\(\\s*(\\w+\\s*(?:,\\s*\\w+)*)\\s*\\)",
+    return regex("^\\s*create\\s+table\\s+([a-zA-Z_]+)\\s*\\(\\s*(\\w+\\s*(?:,\\s*\\w+\\s*)*)\\s*\\)",
                  regex_constants::icase);
 }
 

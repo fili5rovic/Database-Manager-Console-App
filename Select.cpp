@@ -20,10 +20,12 @@ void Select::executingQuery(const smatch &matches) const {
         return;
     } else if (regex_match(fromTableStr, matchForElse,
                            regex("^\\s*(\\w+)(?:\\s+(\\w+))\\s*$", regex_constants::icase))) {
-
     }
 
     vector<string> selectedColumns = StringManipulator::splitString(argumentsStr, ',');
+
+
+
 
     Filter f(selectTable, whereStr);
     shared_ptr<Table> filteredTable = f.getFilteredTable();
@@ -31,7 +33,7 @@ void Select::executingQuery(const smatch &matches) const {
     cout << *getTableWithSelectedColumns(filteredTable, selectedColumns);
 }
 
-void Select::join(const string &argumentsStr, string &fromTableStr, const string &whereStr) const {
+void Select::join(const string &argumentsStr, string &fromTableStr, string whereStr) const {
     fromTableStr = regex_replace(fromTableStr, regex("\\s*INNER\\s*", regex_constants::icase), " ");
     fromTableStr = regex_replace(fromTableStr, regex("\\s*JOIN\\s*", regex_constants::icase), "|");
 
@@ -53,7 +55,6 @@ void Select::join(const string &argumentsStr, string &fromTableStr, const string
 
         tableNickNames[tableNick] = database->tryGettingTableByNameCaseI(tableName);
 
-
     } else throw EBadArgumentsException("[ERROR] Bad Syntax around: " + subStrings[0]);
 
     vector<shared_ptr<Table>> mergedTables;
@@ -71,21 +72,19 @@ void Select::join(const string &argumentsStr, string &fromTableStr, const string
             string equasion = innerMatches[5];
             string secondAcronym = innerMatches[6];
             string secondTableColumnNameInJoin = innerMatches[7];
-            cout << "Table name:" << tableName << endl;
-            cout << "Table acronym:" << tableAcronym << endl;
-            cout << "First acronym:" << firstAcronym << endl;
-            cout << "First table column:" << firstTableColumnNameInJoin << endl;
-            cout << "Equasion:" << equasion << endl;
-            cout << "Second acronym:" << secondAcronym << endl;
-            cout << "Second table column:" << secondTableColumnNameInJoin << endl;
-
+//            cout << "Table name:" << tableName << endl;
+//            cout << "Table acronym:" << tableAcronym << endl;
+//            cout << "First acronym:" << firstAcronym << endl;
+//            cout << "First table column:" << firstTableColumnNameInJoin << endl;
+//            cout << "Equasion:" << equasion << endl;
+//            cout << "Second acronym:" << secondAcronym << endl;
+//            cout << "Second table column:" << secondTableColumnNameInJoin << endl;
 
             if (database->tryGettingTableByNameCaseI(tableName) != nullptr) {
                 tableNickNames[tableAcronym] = database->tryGettingTableByNameCaseI(tableName);
             }else if (!tableAcronym.empty()){
                 throw EBadArgumentsException("[RUNTIME_ERROR] Table '" + tableName + "' not found.");
             }
-
 
             shared_ptr<Table>& table1 = tableNickNames[firstAcronym];
             shared_ptr<Table>& table2 = tableNickNames[secondAcronym];
@@ -99,7 +98,6 @@ void Select::join(const string &argumentsStr, string &fromTableStr, const string
                 table2 = database->tryGettingTableByNameCaseI(secondAcronym);
             if(!table2)
                 throw EBadArgumentsException("[RUNTIME_ERROR] Table '" + secondAcronym + "' not found.");
-
 
             int column1Index = table1->getColumnIndex(firstTableColumnNameInJoin);
             int column2Index = table2->getColumnIndex(secondTableColumnNameInJoin);
@@ -124,12 +122,8 @@ void Select::join(const string &argumentsStr, string &fromTableStr, const string
                 filterString2 = filterString2.empty() ? str : filterString2 + " OR " + str;
             }
 
-            cout << "Filter for table1:" << filterString1 << endl;
-
             Filter fil1 = Filter(table1, filterString1);
             table1 = fil1.getFilteredTable();
-
-            cout << "Filter for table2:" << filterString2 << endl;
 
             Filter fil2 = Filter(table2, filterString2);
             table2 = fil2.getFilteredTable();
@@ -151,6 +145,11 @@ void Select::join(const string &argumentsStr, string &fromTableStr, const string
 
     vector<string> selectedColumns = StringManipulator::splitString(argumentsStr, ',');
 
+    cout << "WHERE STRING: " << whereStr << endl;
+    // change every something.something into something in whereStr
+    whereStr = regex_replace(whereStr, regex("(\\w+)\\.(\\w+)"), "$2");
+    cout << "WHERE STRING: " << whereStr << endl;
+
 
     Filter f(finalTable, whereStr);
     shared_ptr<Table> filteredTable = f.getFilteredTable();
@@ -168,11 +167,6 @@ vector<int> Select::getVectorOfStartPositionOfEachTable(const map<string, shared
     for(auto it = tableNickNames.begin(); it != prev(tableNickNames.end()); ++it, ++i) {
         startPositions.push_back(it->second->getTableHeaders().size());
     }
-    cout << "START POSITIONS SIZE:" << startPositions.size() << endl;
-    for(int i = 0; i < startPositions.size(); ++i) {
-        cout << startPositions[i] << endl;
-    }
-
     return startPositions;
 }
 
@@ -219,12 +213,10 @@ shared_ptr<Table> Select::getTableWithSelectedColumnsJoin(shared_ptr<Table> tabl
             else
                 k = tableArg->getTableHeaders().size();
 
-            cout << "For acronym " << tableAcronym << " i:" << i << " k:" << k << endl;
 
             bool columnFound = false;
             for (; i < k; ++i) {
                 if(regex_match(column, regex(tableArg->getTableHeaders()[i], regex_constants::icase))) {
-                    cout << "FOUND AT POSITION:" << i << endl;
                     tempTable = tableArg->getSubTableByIndex(i);
                     columnFound = true;
                     break;
@@ -286,7 +278,7 @@ vector<string> Select::getProcessedSelectedColumns(shared_ptr<Table> tableArg, v
 }
 
 void Select::runtimeErrors(const string &input) const {
-    throw EBadArgumentsException("[RUNTIME_ERROR] Runtime error.");
+    throw EBadArgumentsException("[RUNTIME_ERROR] Bad syntax error.");
 }
 
 void Select::checkForSyntaxErrors(const string &query) const {
@@ -316,11 +308,11 @@ void Select::checkForSyntaxErrors(const string &query) const {
     }
 
 
+
 }
 
 regex Select::getRegexPattern() const {
-    return regex(
-            "^\\s*select\\s+((?:(?:\\w+\\.)?\\w+|\\*)(?:\\s*,\\s*(?:(?:\\w+\\.)?\\w+|\\*))*)\\s+from\\s+(\\w+(?:\\s+[^(?:where)])?(?:\\s+(?:inner\\s+)?join\\s+\\w+\\s+(?:\\w+\\s+)?on\\s+\\w+\\.\\w+\\s*\\=\\s*\\w+\\.\\w+|\\w+(?:\\s+\\w+)?)*\\s*)\\s*(?:where\\s+(((?:\\w+\\.)?\\w+)\\s*(\\=|\\<\\>|\\!\\=)\\s*('\\w+'|\"\\w+\"|\\w+)(?:\\s+(and|or)\\s*((?:\\w+\\.)?\\w+)\\s*(\\=|\\<\\>|\\!\\=)\\s*('\\w+'|\"\\w+\"|\\w+))*))?",
+    return regex("^\\s*select\\s+((?:(?:\\w+\\.)?\\w+|\\*)(?:\\s*,\\s*(?:(?:\\w+\\.)?\\w+|\\*))*)\\s+from\\s+(\\w+(?:\\s+[^(?:where)])?(?:\\s+(?:inner\\s+)?join\\s+\\w+\\s+(?:\\w+\\s+)?on\\s+\\w+\\.\\w+\\s*\\=\\s*\\w+\\.\\w+|\\w+(?:\\s+\\w+)?)*\\s*)\\s*(?:where\\s+(((?:\\w+\\.)?\\w+)\\s*(\\=|\\<\\>|\\!\\=)\\s*('\\w+'|\\\"\\w+\\\"|\\w+)(?:\\s+(and|or)\\s*((?:\\w+\\.)?\\w+)\\s*(\\=|\\<\\>|\\!\\=)\\s*('\\w+'|\\\"\\w+\\\"|\\w+))*))?",
             regex_constants::icase);;
 }
 

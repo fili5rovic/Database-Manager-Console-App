@@ -16,7 +16,7 @@ public:
 private:
     void executingQuery(const smatch &matches) const override;
 
-    void join(const string& argumentsStr, string &fromTableStr, const string& whereStr) const;
+    void join(const string& argumentsStr, string &fromTableStr, string whereStr) const;
 
     vector<int> getVectorOfStartPositionOfEachTable(const map<string,shared_ptr<Table>>& tableNickNames) const;
 
