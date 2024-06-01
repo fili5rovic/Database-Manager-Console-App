@@ -1,3 +1,4 @@
+# Database Manager Console App
 This project is a C++ based command-line Database Management System (DBMS) that provides an interactive user interface for database operations. It allows users to perform a wide range of tasks on databases, tables, and records. The system is capable of interpreting and executing commands similar to SQL, supporting a comprehensive set of operations such as creating, reading, updating, and deleting (CRUD) data.
 
 > The primary motivation for this project was to explore the complexities of database systems, specifically focusing on operations such as table creation, record insertion and deletion, and data querying.
@@ -5,6 +6,9 @@ This project is a C++ based command-line Database Management System (DBMS) that 
 > This project is a part of the first assignment for the "Practicum of Object-Oriented Programming" course at the University of Belgrade School of Electrical Engineering, majoring in Software Engineering. For detailed assignment instructions, please refer to the respective file.
 
 This project is a comprehensive simulation of a Database Management System (DBMS) with a variety of functionalities. Here's a brief overview:
+
+![prviRecGif](https://github.com/fili5rovic/Database-Manager-Console-App/assets/110270696/87352bc7-3f8f-479e-be33-63ddad47ec3d)
+
 
 # Features
 
