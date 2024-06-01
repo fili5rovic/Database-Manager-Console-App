@@ -7,7 +7,9 @@ This project is a C++ based command-line Database Management System (DBMS) that 
 
 This project is a comprehensive simulation of a Database Management System (DBMS) with a variety of functionalities. Here's a brief overview:
 
-![prviRecGif](https://github.com/fili5rovic/Database-Manager-Console-App/assets/110270696/87352bc7-3f8f-479e-be33-63ddad47ec3d)
+<p align="center">
+    <img src="https://github.com/fili5rovic/Database-Manager-Console-App/assets/110270696/e168e5ac-c0ee-4fcf-9117-7c1fb3199429" alt="privRecGif1">
+</p>
 
 
 # Features
